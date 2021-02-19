@@ -22,8 +22,8 @@
 
     <color name="colorPrimary">#1da1f3</color>
     <color name="colorSecondary">#1da1f3</color>
-    <color name="colorBackground">#0a0c0f</color>
-    <color name="colorSurface">#14171c</color>
+    <color name="colorBackground">#32333d</color>
+    <color name="colorSurface">#3d3f4a</color>
 
     <color name="colorOnPrimary">#ffffff</color>
     <color name="colorOnBackground">#ffffff</color>
