@@ -51,6 +51,6 @@ object NoteDiffCallback: DiffUtil.ItemCallback<Note>() {
     }
 
     override fun areContentsTheSame(oldItem: Note, newItem: Note): Boolean {
-        return  oldItem.id == newItem.id
+        return  oldItem.hashCode() == newItem.hashCode()
     }
 }

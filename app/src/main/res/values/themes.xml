@@ -2,21 +2,25 @@
     <!-- Base application theme. -->
     <style name="Theme.LingoJournal" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/primaryColor</item>
-        <item name="colorPrimaryVariant">@color/primaryLightColor</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimary">#0c5b8f</item>
+        <item name="colorOnPrimary">#ffffff</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/secondaryColor</item>
-        <item name="colorSecondaryVariant">@color/secondaryLightColor</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="colorSecondary">#0c5b8f</item>
+        <item name="colorOnSecondary">#ffffff</item>
         <!-- Customize your theme here. -->
-    </style>
+        <item name="android:colorBackground">#ffffff</item>
+        <item name="colorOnBackground">#000000</item>
+        <item name="colorSurface">#feffff</item>
+        <item name="colorOnSurface">#000000</item>
 
-    <style name="ThemeOverlay.LingoJournal.FullscreenContainer" parent="">
-        <item name="fullscreenBackgroundColor">@color/primaryColor</item>
-        <item name="fullscreenTextColor">@color/primaryLightColor</item>
+<!--        <item name="colorPrimary">#0c5b8f</item>-->
+<!--        <item name="colorSecondary">#0c5b8f</item>-->
+<!--        <item name="colorBackground">#ffffff</item>-->
+<!--        <item name="colorSurface">#feffff</item>-->
+
+<!--        <item name="colorOnPrimary">#ffffff</item>-->
+<!--        <item name="colorOnBackground">#000000</item>-->
+<!--        <item name="colorOnSurface">#000000</item>-->
     </style>
 
     <style name="Theme.LingoJournal.NoActionBar">
@@ -24,7 +28,6 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.LingoJournal.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="Theme.LingoJournal.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="Theme.LingoJournal.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
+    <style name="Theme.LingoJournal.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Dark" />
 </resources>

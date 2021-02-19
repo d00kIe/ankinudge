@@ -39,6 +39,18 @@ class Repository {
         return noteList
     }
 
+    fun updateNote(note: Note) {
+        val currentList = noteList.value
+        if(currentList == null) {
+            noteList.postValue(listOf(note))
+        } else {
+            var updatedList = currentList.toMutableList()
+            val idx = updatedList.indexOf(getNoteById(note.id))
+            updatedList[idx] = note
+            noteList.postValue(updatedList)
+        }
+    }
+
     companion object {
         private  var INSTANCE: Repository? = null
 

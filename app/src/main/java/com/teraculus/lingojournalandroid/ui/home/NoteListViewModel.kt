@@ -7,7 +7,7 @@ import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.models.Note
 import java.time.LocalDateTime
 
-class NoteListViewModel(val repository: Repository) : ViewModel() {
+class NoteListViewModel(private val repository: Repository) : ViewModel() {
     val notesLiveData = repository.getNotes()
 
     fun addNote(title: String = "", note: String = "", dateTime: LocalDateTime) {

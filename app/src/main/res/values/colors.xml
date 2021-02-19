@@ -13,11 +13,20 @@
     <color name="light_blue_A400">#FF00B0FF</color>
     <color name="black_overlay">#66000000</color>
 
-    <color name="primaryColor">#1565c0</color>
-    <color name="primaryLightColor">#5e92f3</color>
-    <color name="primaryDarkColor">#003c8f</color>
-    <color name="secondaryColor">#bdbdbd</color>
-    <color name="secondaryLightColor">#efefef</color>
-    <color name="secondaryDarkColor">#8d8d8d</color>
+<!--    <color name="primaryColor">#1565c0</color>-->
+<!--    <color name="primaryLightColor">#5e92f3</color>-->
+<!--    <color name="primaryDarkColor">#003c8f</color>-->
+<!--    <color name="secondaryColor">#bdbdbd</color>-->
+<!--    <color name="secondaryLightColor">#efefef</color>-->
+<!--    <color name="secondaryDarkColor">#8d8d8d</color>-->
+
+    <color name="colorPrimary">#1da1f3</color>
+    <color name="colorSecondary">#1da1f3</color>
+    <color name="colorBackground">#0a0c0f</color>
+    <color name="colorSurface">#14171c</color>
+
+    <color name="colorOnPrimary">#ffffff</color>
+    <color name="colorOnBackground">#ffffff</color>
+    <color name="colorOnSurface">#ffffff</color>
 </resources>
 

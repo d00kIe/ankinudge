@@ -9,6 +9,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.teraculus.lingojournalandroid.R
 import com.teraculus.lingojournalandroid.models.Note
@@ -27,15 +29,18 @@ class HomeFragment : Fragment() {
                 ViewModelProvider(this, NoteListViewModelFactory(this.requireActivity())).get(NoteListViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_home, container, false)
         val notesAdapter = NotesAdapter { note -> adapterOnClick(note)}
-        val headerAdapter = HeaderAdapter()
-        val concatAdapter = ConcatAdapter(headerAdapter, notesAdapter)
+        notesAdapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+//        val headerAdapter = HeaderAdapter()
+//        val concatAdapter = ConcatAdapter(headerAdapter, notesAdapter)
         val recyclerView: RecyclerView = root.findViewById(R.id.entry_list)
-        recyclerView.adapter = concatAdapter
+        recyclerView.adapter = notesAdapter
+        recyclerView.adapter?.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
 
         noteListViewModel.notesLiveData.observe(this.requireActivity(), {
             it?.let {
                 notesAdapter.submitList(it as MutableList<Note>)
-                headerAdapter.updateCount(it.size)
+                notesAdapter.notifyDataSetChanged()
+                // headerAdapter.updateCount(it.size)
             }
         })
 
@@ -43,6 +48,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun adapterOnClick(note: Note) {
-        Toast.makeText(this.requireContext(), "You clicked on a note with id ${note.id}", 1000).show()
+        val action = HomeFragmentDirections.actionNavigationHomeToEntryDetails(note.id)
+        view?.findNavController()?.navigate(action)
     }
 }
