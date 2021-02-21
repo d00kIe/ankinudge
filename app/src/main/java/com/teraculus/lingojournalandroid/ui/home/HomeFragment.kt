@@ -4,17 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.teraculus.lingojournalandroid.R
-import com.teraculus.lingojournalandroid.models.Note
-import androidx.recyclerview.widget.ConcatAdapter
+import com.teraculus.lingojournalandroid.model.Note
 
 class HomeFragment : Fragment() {
 
@@ -40,7 +35,6 @@ class HomeFragment : Fragment() {
             it?.let {
                 notesAdapter.submitList(it as MutableList<Note>)
                 notesAdapter.notifyDataSetChanged()
-                // headerAdapter.updateCount(it.size)
             }
         })
 
@@ -48,7 +42,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun adapterOnClick(note: Note) {
-        val action = HomeFragmentDirections.actionNavigationHomeToEntryDetails(note.id)
+        val action = HomeFragmentDirections.actionNavigationHomeToEntryDetails(note.id.toString())
         view?.findNavController()?.navigate(action)
     }
 }

@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.teraculus.lingojournalandroid.viewmodels.EditNoteViewModel" />
+            type="com.teraculus.lingojournalandroid.viewmodel.EditNoteViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

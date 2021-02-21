@@ -2,53 +2,74 @@ package com.teraculus.lingojournalandroid.data
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.teraculus.lingojournalandroid.models.Note
-import com.teraculus.lingojournalandroid.models.notesData
+import com.teraculus.lingojournalandroid.model.LiveRealmResults
+import com.teraculus.lingojournalandroid.model.Note
+import com.teraculus.lingojournalandroid.model.notesData
+import io.realm.Realm
+import io.realm.RealmConfiguration
+import io.realm.RealmModel
+import io.realm.kotlin.where
+import org.bson.types.ObjectId
+import java.util.*
+
+fun <T : RealmModel?> MutableLiveData<List<T>?>.trigger() {
+    value = value
+}
 
 class Repository {
-    private val initialNoteList = notesData()
-    private val noteList = MutableLiveData(initialNoteList)
+    private var realm: Realm? = null
+    private val notes: LiveData<List<Note>?>
 
-    fun addNote(note: Note) {
-        val currentList = noteList.value
-        if(currentList == null) {
-            noteList.postValue(listOf(note))
-        } else {
-            var updatedList = currentList.toMutableList()
-            updatedList.add(note)
-            noteList.postValue(updatedList)
+    init {
+        initializeRealm()
+
+        val notesQuery = realm!!.where<Note>().sort("date")
+        notes = LiveRealmResults<Note>(notesQuery.findAll())
+
+        if(notes.value?.isEmpty()!!) {
+            realm!!.executeTransaction { tr -> tr.insert(notesData()) }
         }
     }
 
+    private fun initializeRealm() {
+        val config = RealmConfiguration.Builder()
+            .allowQueriesOnUiThread(true)
+            .allowWritesOnUiThread(true)
+            .build()
+
+        Realm.setDefaultConfiguration(config)
+        realm = Realm.getDefaultInstance()
+    }
+
+    fun addNote(note: Note) {
+        realm!!.executeTransaction { tr -> tr.insert(note) }
+    }
+
     fun removeNote(note: Note) {
-        var currentList = noteList.value
-        if(currentList != null) {
-            val updatedList = currentList.toMutableList()
-            updatedList.remove(note)
-            noteList.postValue(updatedList)
+        realm!!.executeTransaction {
+            note.deleteFromRealm()
         }
     }
 
     fun getNoteById(id: String): Note? {
-        return noteList.value?.let { notes ->
-            return notes.firstOrNull{ it.id == id }
-        }
+        return realm!!.where<Note>().equalTo("id", ObjectId(id)).findFirst()
     }
 
-    fun getNotes(): LiveData<List<Note>> {
-        return noteList
+    fun getNotes(): LiveData<List<Note>?> {
+        return notes
     }
 
-    fun updateNote(note: Note) {
-        val currentList = noteList.value
-        if(currentList == null) {
-            noteList.postValue(listOf(note))
-        } else {
-            var updatedList = currentList.toMutableList()
-            val idx = updatedList.indexOf(getNoteById(note.id))
-            updatedList[idx] = note
-            noteList.postValue(updatedList)
+    fun updateNote(id: String, title: String, text: String, date: Date ) {
+        var note = getNoteById(id)
+        note?.let {
+            realm!!.executeTransaction {
+                note.title = title
+                note.text = text
+                note.date = date
+            }
         }
+
+        (notes as MutableLiveData<List<Note>?>).trigger()
     }
 
     companion object {

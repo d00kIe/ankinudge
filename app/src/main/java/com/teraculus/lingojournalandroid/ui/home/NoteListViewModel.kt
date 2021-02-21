@@ -4,13 +4,14 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.teraculus.lingojournalandroid.data.Repository
-import com.teraculus.lingojournalandroid.models.Note
+import com.teraculus.lingojournalandroid.model.Note
 import java.time.LocalDateTime
+import java.util.*
 
 class NoteListViewModel(private val repository: Repository) : ViewModel() {
     val notesLiveData = repository.getNotes()
 
-    fun addNote(title: String = "", note: String = "", dateTime: LocalDateTime) {
+    fun addNote(title: String = "", note: String = "", dateTime: Date) {
         repository.addNote(Note(title, note, dateTime))
     }
 }

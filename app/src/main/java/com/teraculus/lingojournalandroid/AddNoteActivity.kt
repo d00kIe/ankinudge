@@ -6,16 +6,13 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NavUtils
 import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.navArgs
 import com.google.android.material.textfield.TextInputEditText
-import com.teraculus.lingojournalandroid.databinding.ActivityEntryDetailsBinding
 import com.teraculus.lingojournalandroid.databinding.ActivityEntryDetailsBindingImpl
-import com.teraculus.lingojournalandroid.viewmodels.EditNoteViewModel
-import com.teraculus.lingojournalandroid.viewmodels.EditNoteViewModelFactory
+import com.teraculus.lingojournalandroid.viewmodel.EditNoteViewModel
+import com.teraculus.lingojournalandroid.viewmodel.EditNoteViewModelFactory
 
 class AddNoteActivity : AppCompatActivity() {
     private lateinit var viewModel: EditNoteViewModel
