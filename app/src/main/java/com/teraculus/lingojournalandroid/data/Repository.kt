@@ -8,6 +8,7 @@ import com.teraculus.lingojournalandroid.model.notesData
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import io.realm.RealmModel
+import io.realm.Sort
 import io.realm.kotlin.where
 import org.bson.types.ObjectId
 import java.util.*
@@ -23,7 +24,7 @@ class Repository {
     init {
         initializeRealm()
 
-        val notesQuery = realm!!.where<Note>().sort("date")
+        val notesQuery = realm!!.where<Note>().sort("date", Sort.DESCENDING)
         notes = LiveRealmResults<Note>(notesQuery.findAll())
 
         if(notes.value?.isEmpty()!!) {
