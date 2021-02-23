@@ -30,10 +30,14 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
+        <ScrollView
+            android:layout_marginTop="?attr/actionBarSize"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:padding="16dp">
 
@@ -85,13 +89,38 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/editTextLanguageLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:endIconContentDescription="@string/dropdown_icon_content_description"
+                app:endIconDrawable="@drawable/ic_baseline_arrow_drop_down_24"
+                app:endIconMode="custom"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/editTextDateLayout">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editLanguage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clickable="true"
+                    android:cursorVisible="false"
+                    android:ems="10"
+                    android:focusable="false"
+                    android:hint="@string/hint_language"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/editNoteTitleLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editTextDateLayout">
+                app:layout_constraintTop_toBottomOf="@+id/editTextLanguageLayout">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editNoteTitle"
@@ -119,13 +148,101 @@
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:gravity="start|top"
-                    android:lines="5"
+                    android:lines="4"
                     android:hint="@string/text_note_text"
                     android:inputType="textMultiLine"
                     android:text="@={viewModel.noteText}" />
             </com.google.android.material.textfield.TextInputLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <View
+                android:id="@+id/divider1"
+                android:layout_width="match_parent"
+                android:background="?android:attr/listDivider"
+                android:layout_height="2dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/editNoteTextLayout" />
 
+            <TextView
+                android:id="@+id/lowConfidenceTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="@+id/confidenceSlider"
+                app:layout_constraintTop_toBottomOf="@+id/divider1"
+                android:text="@string/low">
+            </TextView>
+
+            <TextView
+                android:id="@+id/highConfidenceTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/high"
+                app:layout_constraintBottom_toTopOf="@+id/confidenceSlider"
+                app:layout_constraintEnd_toEndOf="@+id/confidenceSlider">
+            </TextView>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/confidenceSlider"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:value="100.0"
+                android:valueFrom="0.0"
+                android:valueTo="100.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/lowConfidenceTextView" />
+
+            <TextView
+                android:id="@+id/confidenceTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/confidence"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/confidenceSlider"/>
+
+
+
+            <TextView
+                android:id="@+id/lowMotivationTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="@+id/motivationSlider"
+                app:layout_constraintTop_toBottomOf="@+id/confidenceTextView"
+                android:text="@string/low">
+            </TextView>
+
+            <TextView
+                android:id="@+id/highMotivationTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/high"
+                app:layout_constraintBottom_toTopOf="@+id/motivationSlider"
+                app:layout_constraintEnd_toEndOf="@+id/motivationSlider">
+            </TextView>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/motivationSlider"
+                android:valueFrom="0.0"
+                android:valueTo="100.0"
+                android:value="100.0"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/lowMotivationTextView" />
+
+
+            <TextView
+                android:id="@+id/motivationTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/motivation"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/motivationSlider"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

@@ -12,4 +12,9 @@
     <string name="text_note_title">Note title</string>
     <string name="dropdown_icon_content_description">Choose value</string>
     <string name="text_note_text">Note text</string>
+    <string name="hint_language">Language</string>
+    <string name="low">Low</string>
+    <string name="high">High</string>
+    <string name="confidence">Confidence</string>
+    <string name="motivation">Motivation</string>
 </resources>
