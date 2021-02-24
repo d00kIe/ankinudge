@@ -17,4 +17,5 @@
     <string name="high">High</string>
     <string name="confidence">Confidence</string>
     <string name="motivation">Motivation</string>
+    <string name="choose_language">Choose language</string>
 </resources>
