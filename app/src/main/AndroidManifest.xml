@@ -9,13 +9,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.LingoJournal">
+        android:theme="@style/Theme.LingoJournal"
+        android:fullBackupContent="@xml/backup_descriptor">
         <activity
-            android:name=".AddNoteActivity"
+            android:name=".AddActivityActivity"
             android:label="@string/title_activity_entry_details"
             android:theme="@style/Theme.LingoJournal.NoActionBar"
             android:parentActivityName=".MainActivity"
-            android:windowSoftInputMode="stateHidden|adjustResize"></activity>
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name">

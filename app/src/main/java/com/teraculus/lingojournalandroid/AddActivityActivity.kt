@@ -13,28 +13,29 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import com.teraculus.lingojournalandroid.databinding.ActivityEntryDetailsBinding
 import com.teraculus.lingojournalandroid.databinding.ActivityEntryDetailsBindingImpl
 import com.teraculus.lingojournalandroid.model.createDate
-import com.teraculus.lingojournalandroid.viewmodel.EditNoteViewModel
-import com.teraculus.lingojournalandroid.viewmodel.EditNoteViewModelFactory
+import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
+import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-class AddNoteActivity : AppCompatActivity() {
-    private lateinit var viewModel: EditNoteViewModel
-    val args: AddNoteActivityArgs by navArgs()
+class AddActivityActivity : AppCompatActivity() {
+    private lateinit var viewModel: EditActivityViewModel
+    private val args: AddActivityActivityArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel =
-            ViewModelProvider(this, EditNoteViewModelFactory(this, args.id)).get(
-                EditNoteViewModel::class.java
+            ViewModelProvider(this, EditActivityViewModelFactory(this, args.id)).get(
+                EditActivityViewModel::class.java
             )
         val binding = DataBindingUtil.setContentView(
             this,
             R.layout.activity_entry_details
-        ) as ActivityEntryDetailsBindingImpl
+        ) as ActivityEntryDetailsBinding
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
@@ -62,12 +63,12 @@ class AddNoteActivity : AppCompatActivity() {
         val timeTextView = findViewById<TextInputEditText>(R.id.editTextTime)
         val dateFormatter = SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM)
         val timeFormatter = SimpleDateFormat.getTimeInstance(SimpleDateFormat.MEDIUM)
-        dateTextView.setText(dateFormatter.format(viewModel.noteDateTime.value))
-        timeTextView.setText(timeFormatter.format(viewModel.noteDateTime.value))
+        dateTextView.setText(dateFormatter.format(viewModel.date.value))
+        timeTextView.setText(timeFormatter.format(viewModel.date.value))
 
         dateTextView.setOnClickListener {
             val c = Calendar.getInstance()
-            c.time = viewModel.noteDateTime.value
+            c.time = viewModel.date.value
 
             val builder = MaterialDatePicker.Builder.datePicker()
             val picker = builder.setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR)
@@ -76,14 +77,14 @@ class AddNoteActivity : AppCompatActivity() {
             picker.addOnPositiveButtonClickListener {
                 val newDate = Calendar.getInstance()
                 newDate.timeInMillis = it
-                viewModel.noteDateTime.value = createDate(
+                viewModel.date.value = createDate(
                     newDate.get(Calendar.YEAR),
                     newDate.get(Calendar.MONTH),
                     newDate.get(Calendar.DAY_OF_MONTH),
                     c.get(Calendar.HOUR),
                     c.get(Calendar.MINUTE)
                 )
-                dateTextView.setText(dateFormatter.format(viewModel.noteDateTime.value))
+                dateTextView.setText(dateFormatter.format(viewModel.date.value))
             }
 
             picker.show(supportFragmentManager, picker.toString())
@@ -91,7 +92,7 @@ class AddNoteActivity : AppCompatActivity() {
 
         timeTextView.setOnClickListener {
             val c = Calendar.getInstance()
-            c.time = viewModel.noteDateTime.value
+            c.time = viewModel.date.value
 
             val builder = MaterialTimePicker.Builder()
             val isSystem24Hour = is24HourFormat(this)
@@ -101,14 +102,14 @@ class AddNoteActivity : AppCompatActivity() {
                     .setHour(c.get(Calendar.HOUR)).setMinute(c.get(Calendar.MINUTE)).build()
 
             picker.addOnPositiveButtonClickListener {
-                viewModel.noteDateTime.value = createDate(
+                viewModel.date.value = createDate(
                     c.get(Calendar.YEAR),
                     c.get(Calendar.MONTH),
                     c.get(Calendar.DAY_OF_MONTH),
                     picker.hour,
                     picker.minute
                 )
-                timeTextView.setText(timeFormatter.format(viewModel.noteDateTime.value))
+                timeTextView.setText(timeFormatter.format(viewModel.date.value))
             }
 
             picker.show(supportFragmentManager, picker.toString())

@@ -9,40 +9,40 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.teraculus.lingojournalandroid.R
-import com.teraculus.lingojournalandroid.model.Note
+import com.teraculus.lingojournalandroid.model.Activity
 
 class HomeFragment : Fragment() {
 
-    private lateinit var noteListViewModel: NoteListViewModel
+    private lateinit var activityListViewModel: ActivityListViewModel
 
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        noteListViewModel =
-                ViewModelProvider(this, NoteListViewModelFactory(this.requireActivity())).get(NoteListViewModel::class.java)
+        activityListViewModel =
+                ViewModelProvider(this, ActivityListViewModelFactory(this.requireActivity())).get(ActivityListViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_home, container, false)
-        val notesAdapter = NotesAdapter { note -> adapterOnClick(note)}
-        notesAdapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        val activitiesAdapter = ActivitiesAdapter { note -> adapterOnClick(note)}
+        activitiesAdapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
 //        val headerAdapter = HeaderAdapter()
 //        val concatAdapter = ConcatAdapter(headerAdapter, notesAdapter)
         val recyclerView: RecyclerView = root.findViewById(R.id.entry_list)
-        recyclerView.adapter = notesAdapter
+        recyclerView.adapter = activitiesAdapter
         recyclerView.adapter?.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
 
-        noteListViewModel.notesLiveData.observe(this.requireActivity(), {
+        activityListViewModel.activities.observe(this.requireActivity(), {
             it?.let {
-                notesAdapter.submitList(it as MutableList<Note>)
-                notesAdapter.notifyDataSetChanged()
+                activitiesAdapter.submitList(it as MutableList<Activity>)
+                activitiesAdapter.notifyDataSetChanged()
             }
         })
 
         return root
     }
 
-    private fun adapterOnClick(note: Note) {
-        val action = HomeFragmentDirections.actionNavigationHomeToEntryDetails(note.id.toString())
+    private fun adapterOnClick(activity: Activity) {
+        val action = HomeFragmentDirections.actionNavigationHomeToEntryDetails(activity.id.toString())
         view?.findNavController()?.navigate(action)
     }
 }

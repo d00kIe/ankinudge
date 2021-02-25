@@ -10,12 +10,12 @@ fun createDate(year: Int,
                day: Int,
                hrs: Int,
                min: Int) : Date {
-    var c = Calendar.getInstance()
+    val c = Calendar.getInstance()
     c.set(year, month, day, hrs, min)
     return c.time
 }
 
-open class Note() :
+open class Activity() :
 
     RealmObject() {
 

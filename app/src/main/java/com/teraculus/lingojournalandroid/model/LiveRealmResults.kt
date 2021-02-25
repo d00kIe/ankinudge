@@ -26,7 +26,7 @@ class LiveRealmResults<T : RealmModel?> @MainThread constructor(results: RealmRe
     // The listener notifies the observers whenever a change occurs.
     // This could be expanded to also return the change set in a pair.
     private val listener =
-        OrderedRealmCollectionChangeListener<RealmResults<T>> { results, changeSet ->
+        OrderedRealmCollectionChangeListener<RealmResults<T>> { results, _ ->
             this@LiveRealmResults.setValue(
                 results
             )
@@ -57,7 +57,6 @@ class LiveRealmResults<T : RealmModel?> @MainThread constructor(results: RealmRe
      *
      * The provided object should be managed, and should be valid.
      *
-     * @param object the managed RealmResults to wrap as LiveData
      */
     init {
         require(results.isManaged) { "LiveRealmResults only supports managed RealmModel instances!" }
@@ -66,7 +65,7 @@ class LiveRealmResults<T : RealmModel?> @MainThread constructor(results: RealmRe
         if (results.isLoaded) {
             // we should not notify observers when results aren't ready yet (async query).
             // however, synchronous query should be set explicitly.
-            setValue(results)
+            value = results
         }
     }
 }

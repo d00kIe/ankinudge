@@ -3,7 +3,7 @@ package com.teraculus.lingojournalandroid.data
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.teraculus.lingojournalandroid.model.LiveRealmResults
-import com.teraculus.lingojournalandroid.model.Note
+import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.notesData
 import io.realm.Realm
 import io.realm.RealmConfiguration
@@ -19,21 +19,22 @@ fun <T : RealmModel?> MutableLiveData<List<T>?>.trigger() {
 
 class Repository {
     private var realm: Realm? = null
-    private val notes: LiveData<List<Note>?>
+    private val activities: LiveData<List<Activity>?>
 
     init {
         initializeRealm()
 
-        val notesQuery = realm!!.where<Note>().sort("date", Sort.DESCENDING)
-        notes = LiveRealmResults<Note>(notesQuery.findAll())
+        val queryAll = realm!!.where<Activity>().sort("date", Sort.DESCENDING)
+        activities = LiveRealmResults<Activity>(queryAll.findAll())
 
-        if(notes.value?.isEmpty()!!) {
+        if(activities.value?.isEmpty()!!) {
             realm!!.executeTransaction { tr -> tr.insert(notesData()) }
         }
     }
 
     private fun initializeRealm() {
         val config = RealmConfiguration.Builder()
+            .deleteRealmIfMigrationNeeded()
             .allowQueriesOnUiThread(true)
             .allowWritesOnUiThread(true)
             .build()
@@ -42,35 +43,35 @@ class Repository {
         realm = Realm.getDefaultInstance()
     }
 
-    fun addNote(note: Note) {
-        realm!!.executeTransaction { tr -> tr.insert(note) }
+    fun addActivity(activity: Activity) {
+        realm!!.executeTransaction { tr -> tr.insert(activity) }
     }
 
-    fun removeNote(note: Note) {
+    fun removeActivity(activity: Activity) {
         realm!!.executeTransaction {
-            note.deleteFromRealm()
+            activity.deleteFromRealm()
         }
     }
 
-    fun getNoteById(id: String): Note? {
-        return realm!!.where<Note>().equalTo("id", ObjectId(id)).findFirst()
+    fun getActivity(id: String): Activity? {
+        return realm!!.where<Activity>().equalTo("id", ObjectId(id)).findFirst()
     }
 
-    fun getNotes(): LiveData<List<Note>?> {
-        return notes
+    fun getActivities(): LiveData<List<Activity>?> {
+        return activities
     }
 
-    fun updateNote(id: String, title: String, text: String, date: Date ) {
-        var note = getNoteById(id)
-        note?.let {
+    fun updateActivity(id: String, title: String, text: String, date: Date ) {
+        val activity = getActivity(id)
+        activity?.let {
             realm!!.executeTransaction {
-                note.title = title
-                note.text = text
-                note.date = date
+                activity.title = title
+                activity.text = text
+                activity.date = date
             }
         }
 
-        (notes as MutableLiveData<List<Note>?>).trigger()
+        (activities as MutableLiveData<List<Activity>?>).trigger()
     }
 
     companion object {
@@ -78,7 +79,7 @@ class Repository {
 
         fun getRepository(): Repository {
             return synchronized(Repository::class) {
-                var instance = INSTANCE ?: Repository()
+                val instance = INSTANCE ?: Repository()
                 INSTANCE = instance
                 instance
             }

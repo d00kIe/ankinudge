@@ -21,9 +21,9 @@
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.teraculus.lingojournalandroid.ui.dashboard.DashboardFragment"
+        android:name="com.teraculus.lingojournalandroid.ui.calendar.CalendarFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_calendar" />
 
     <fragment
         android:id="@+id/navigation_notifications"
@@ -32,7 +32,7 @@
         tools:layout="@layout/fragment_notifications" />
     <activity
         android:id="@+id/entryDetails"
-        android:name="com.teraculus.lingojournalandroid.AddNoteActivity"
+        android:name="com.teraculus.lingojournalandroid.AddActivityActivity"
         android:label="activity_entry_details"
         tools:layout="@layout/activity_entry_details" >
         <argument

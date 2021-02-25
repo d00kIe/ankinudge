@@ -7,13 +7,13 @@
 
         <variable
             name="viewModel"
-            type="com.teraculus.lingojournalandroid.viewmodel.EditNoteViewModel" />
+            type="com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".AddNoteActivity">
+        tools:context=".AddActivityActivity">
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
@@ -130,7 +130,7 @@
                     android:ems="10"
                     android:hint="@string/text_note_title"
                     android:inputType="text"
-                    android:text="@={viewModel.noteTitle}" />
+                    android:text="@={viewModel.title}" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -152,7 +152,7 @@
                     android:lines="4"
                     android:hint="@string/text_note_text"
                     android:inputType="textMultiLine"
-                    android:text="@={viewModel.noteText}" />
+                    android:text="@={viewModel.text}" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <View
