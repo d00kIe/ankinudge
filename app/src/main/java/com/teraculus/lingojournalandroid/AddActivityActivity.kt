@@ -14,8 +14,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.teraculus.lingojournalandroid.databinding.ActivityEntryDetailsBinding
-import com.teraculus.lingojournalandroid.databinding.ActivityEntryDetailsBindingImpl
-import com.teraculus.lingojournalandroid.model.createDate
+import com.teraculus.lingojournalandroid.utils.createDate
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModelFactory
 import java.text.SimpleDateFormat

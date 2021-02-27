@@ -2,9 +2,7 @@ package com.teraculus.lingojournalandroid.data
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.teraculus.lingojournalandroid.model.LiveRealmResults
-import com.teraculus.lingojournalandroid.model.Activity
-import com.teraculus.lingojournalandroid.model.notesData
+import com.teraculus.lingojournalandroid.model.*
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import io.realm.RealmModel
@@ -20,14 +18,24 @@ fun <T : RealmModel?> MutableLiveData<List<T>?>.trigger() {
 class Repository {
     private var realm: Realm? = null
     private val activities: LiveData<List<Activity>?>
+    private val types: LiveData<List<ActivityType>?>
 
     init {
         initializeRealm()
 
-        val queryAll = realm!!.where<Activity>().sort("date", Sort.DESCENDING)
-        activities = LiveRealmResults<Activity>(queryAll.findAll())
+        // types
+        val queryTypes = realm!!.where<ActivityType>()
+        types = LiveRealmResults<ActivityType>(queryTypes.findAll())
 
-        if(activities.value?.isEmpty()!!) {
+        if (types.value?.isEmpty()!!) {
+            realm!!.executeTransaction { tr -> tr.insert(activityTypeData()) }
+        }
+
+        // dummy activities
+        val queryActivities = realm!!.where<Activity>().sort("startDate", Sort.DESCENDING)
+        activities = LiveRealmResults<Activity>(queryActivities.findAll())
+
+        if (activities.value?.isEmpty()!!) {
             realm!!.executeTransaction { tr -> tr.insert(notesData()) }
         }
     }
@@ -61,13 +69,24 @@ class Repository {
         return activities
     }
 
-    fun updateActivity(id: String, title: String, text: String, date: Date ) {
+    fun updateActivity(
+        id: String,
+        title: String,
+        text: String,
+        type: ActivityType?,
+        confidence: Int = 100,
+        motivation: Int = 100,
+        date: Date,
+    ) {
         val activity = getActivity(id)
         activity?.let {
             realm!!.executeTransaction {
                 activity.title = title
                 activity.text = text
-                activity.date = date
+                activity.type = type
+                activity.confidence = confidence
+                activity.motivation = motivation
+                activity.startDate = date
             }
         }
 
@@ -75,7 +94,7 @@ class Repository {
     }
 
     companion object {
-        private  var INSTANCE: Repository? = null
+        private var INSTANCE: Repository? = null
 
         fun getRepository(): Repository {
             return synchronized(Repository::class) {

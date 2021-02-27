@@ -28,7 +28,7 @@ class ActivitiesAdapter(private val onClick: (Activity) -> Unit) : ListAdapter<A
             this.activity = activity
             tvTitle.text = activity.title
             tvText.text = activity.text
-            tvDate.text = activity.date.toString()
+            tvDate.text = activity.startDate.toString()
         }
     }
 

@@ -10,22 +10,26 @@ class EditActivityViewModel(private val repository: Repository, id: String?) : V
     val date = MutableLiveData(Date())
     val title = MutableLiveData("")
     val text = MutableLiveData("")
+    val confidence = MutableLiveData(100)
+    val motivation = MutableLiveData(100)
 
     init {
-        val note = id?.let { repository.getActivity(it) }
-        if (note != null) {
-            date.value = note.date
-            title.value = note.title
-            text.value = note.text
+        val activity = id?.let { repository.getActivity(it) }
+        if (activity != null) {
+            date.value = activity.startDate
+            title.value = activity.title
+            text.value = activity.text
+            confidence.value = activity.confidence
+            motivation.value = activity.motivation
         }
     }
 
     fun addNote() {
-        repository.addActivity(Activity(title.value!!, text.value!!, date.value!!))
+        repository.addActivity(Activity(title.value!!, text.value!!, null, confidence.value!!, motivation.value!!, date.value!!))
     }
 
     fun updateNote(id: String) {
-        repository.updateActivity(id, title.value!!, text.value!!, date.value!!)
+        repository.updateActivity(id, title.value!!, text.value!!,null, confidence.value!!, motivation.value!!, date.value!!)
     }
 }
 

@@ -187,7 +187,7 @@
                 android:id="@+id/confidenceSlider"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:value="100.0"
+                android:value="@{viewModel.confidence}"
                 android:valueFrom="0.0"
                 android:valueTo="100.0"
                 app:layout_constraintStart_toStartOf="parent"
@@ -227,7 +227,7 @@
                 android:id="@+id/motivationSlider"
                 android:valueFrom="0.0"
                 android:valueTo="100.0"
-                android:value="100.0"
+                android:value="@{viewModel.motivation}"
                 android:layout_height="wrap_content"
                 android:layout_width="0dp"
 
