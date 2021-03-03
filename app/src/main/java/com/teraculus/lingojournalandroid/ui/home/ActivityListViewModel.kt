@@ -9,7 +9,7 @@ class ActivityListViewModel(repository: Repository) : ViewModel() {
     val activities = repository.getActivities()
 }
 
-class ActivityListViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+class ActivityListViewModelFactory() : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(ActivityListViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")

@@ -23,7 +23,7 @@ fun activityTypeData(): List<ActivityType> {
     )
 }
 
-fun notesData(): List<Activity> {
+fun activityData(): List<Activity> {
     val text = "This is a dummy note. This is a dummy note. This is a dummy note. This is a dummy note."
     return listOf(
         Activity("Dummy title", text, activityTypeData()[0], 45, 50),

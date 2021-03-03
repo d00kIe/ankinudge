@@ -12,12 +12,6 @@
         android:theme="@style/Theme.LingoJournal"
         android:fullBackupContent="@xml/backup_descriptor">
         <activity
-            android:name=".AddActivityActivity"
-            android:label="@string/title_activity_entry_details"
-            android:theme="@style/Theme.LingoJournal.NoActionBar"
-            android:parentActivityName=".MainActivity"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
-        <activity
             android:name=".MainActivity"
             android:label="@string/app_name">
             <intent-filter>

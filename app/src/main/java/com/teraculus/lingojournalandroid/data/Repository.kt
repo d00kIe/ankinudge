@@ -36,7 +36,7 @@ class Repository {
         activities = LiveRealmResults<Activity>(queryActivities.findAll())
 
         if (activities.value?.isEmpty()!!) {
-            realm!!.executeTransaction { tr -> tr.insert(notesData()) }
+            realm!!.executeTransaction { tr -> tr.insert(activityData()) }
         }
     }
 
