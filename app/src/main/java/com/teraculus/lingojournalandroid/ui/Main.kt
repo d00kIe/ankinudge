@@ -10,6 +10,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
+import com.teraculus.lingojournalandroid.PickerProvider
 import com.teraculus.lingojournalandroid.R
 import com.teraculus.lingojournalandroid.ui.components.AddActivityDialog
 import com.teraculus.lingojournalandroid.ui.home.HomeScreen
@@ -17,7 +18,7 @@ import com.teraculus.lingojournalandroid.ui.navi.Screen
 
 
 @Composable
-fun Main() {
+fun Main(pickerProvider: PickerProvider) {
     val navController = rememberNavController()
     val screen = listOf(Screen.Home, Screen.Calendar, Screen.Stats, Screen.Settings)
     var showAddActivityDialog by rememberSaveable { mutableStateOf(false) }
@@ -25,7 +26,12 @@ fun Main() {
 
     LingoTheme() {
         Main(navController,screen, onAddActivity = { showAddActivityDialog = true }, onActivityClick = { activityId = it; showAddActivityDialog = true })
-        AddActivityDialog(show = showAddActivityDialog, onDismiss = { showAddActivityDialog = false; activityId = null }, id = activityId)
+        AddActivityDialog(
+            show = showAddActivityDialog,
+            onDismiss = { showAddActivityDialog = false; activityId = null },
+            id = activityId,
+            pickerProvider
+        )
     }
 }
 

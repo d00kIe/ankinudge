@@ -1,34 +1,39 @@
 package com.teraculus.lingojournalandroid.ui.components
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.teraculus.lingojournalandroid.ui.home.ActivityListViewModel
-import com.teraculus.lingojournalandroid.ui.home.ActivityListViewModelFactory
+import com.teraculus.lingojournalandroid.PickerProvider
+import com.teraculus.lingojournalandroid.utils.toDateString
+import com.teraculus.lingojournalandroid.utils.toTimeString
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModelFactory
 
-@Preview
 @Composable
-fun PreviewAddActivityDialog() {
-    AddActivityDialog(show = true, onDismiss = { /*TODO*/ },null)
-}
-
-@Composable
-fun AddActivityDialog(show: Boolean, onDismiss: () -> Unit, id: String? = null) {
-    val model: EditActivityViewModel = viewModel("editActivityViewModel", EditActivityViewModelFactory())
+fun AddActivityDialog(
+    show: Boolean,
+    onDismiss: () -> Unit,
+    id: String? = null,
+    pickerProvider: PickerProvider,
+) {
+    val model: EditActivityViewModel =
+        viewModel("editActivityViewModel", EditActivityViewModelFactory(pickerProvider))
     model.prepareActivity(id)
     AddActivityDialog(show = show, onDismiss = onDismiss, model)
 }
@@ -38,6 +43,9 @@ fun AddActivityDialog(show: Boolean, onDismiss: () -> Unit, model: EditActivityV
     if (show) {
         val title = model.title.observeAsState()
         val text = model.text.observeAsState()
+        val date = model.date.observeAsState()
+        val startTime = model.startTime.observeAsState()
+        val endTime = model.endTime.observeAsState()
         val confidence = model.confidence.observeAsState()
         val motivation = model.motivation.observeAsState()
 
@@ -66,7 +74,8 @@ fun AddActivityDialog(show: Boolean, onDismiss: () -> Unit, model: EditActivityV
             {
                 Column(Modifier
                     .fillMaxSize()
-                    .padding(8.dp)) {
+                    .padding(8.dp)
+                    .verticalScroll(rememberScrollState())) {
                     Row {
                         OutlinedTextField(label = { Text("Language") },
                             modifier = Modifier
@@ -76,24 +85,10 @@ fun AddActivityDialog(show: Boolean, onDismiss: () -> Unit, model: EditActivityV
                             onValueChange = { /*TODO*/ })
                     }
                     Row {
-                        OutlinedTextField(label = { Text("Date") },
+                        OutlinedTextField(label = { Text("Activity") },
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
-                            value = "",
-                            onValueChange = { /*TODO*/ })
-                    }
-                    Row {
-                        OutlinedTextField(label = { Text("Start time") },
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
-                            value = "",
-                            onValueChange = { /*TODO*/ })
-                        OutlinedTextField(label = { Text("End time") },
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 8.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
                             value = "",
                             onValueChange = { /*TODO*/ })
                     }
@@ -114,8 +109,36 @@ fun AddActivityDialog(show: Boolean, onDismiss: () -> Unit, model: EditActivityV
                             value = text.value.toString(),
                             onValueChange = { model.onTextChange(it) })
                     }
-                    Row {
-                        Divider()
+                    Divider(Modifier.padding(top = 16.dp))
+                    Column {
+                        Row(Modifier
+                            .padding(16.dp)
+                            .clickable { model.pickDate() },
+                            verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.Event, contentDescription = null)
+                            Text(text = toDateString(date.value), modifier = Modifier
+                                .padding(horizontal = 8.dp))
+                        }
+                        Row(Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically) {
+                            Row(Modifier
+                                .weight(1f)
+                                .clickable { model.pickStartTime() }) {
+                                Icon(Icons.Filled.Schedule, contentDescription = null)
+                                Text(text = toTimeString(startTime.value),
+                                    modifier = Modifier
+                                        .padding(horizontal = 8.dp))
+
+                            }
+                            Row(Modifier
+                                .weight(1f)
+                                .clickable { model.pickEndTime() }) {
+                                Icon(Icons.Filled.Timelapse, contentDescription = null)
+                                Text(text = toTimeString(endTime.value),
+                                    modifier = Modifier
+                                        .padding(horizontal = 8.dp))
+                            }
+                        }
                     }
                     Row {
                         Slider(
@@ -127,6 +150,9 @@ fun AddActivityDialog(show: Boolean, onDismiss: () -> Unit, model: EditActivityV
                             value = confidence.value!!.toFloat(),
                             onValueChange = { model.onConfidenceChange(it) })
                     }
+                    Row(Modifier.padding(bottom = 16.dp)) {
+                        Text("Confidence", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                    }
                     Row {
                         Slider(
                             steps = 5,
@@ -136,6 +162,9 @@ fun AddActivityDialog(show: Boolean, onDismiss: () -> Unit, model: EditActivityV
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
                             value = motivation.value!!.toFloat(),
                             onValueChange = { model.onMotivationChange(it) })
+                    }
+                    Row(Modifier.padding(bottom = 16.dp)) {
+                        Text("Motivation", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
                     }
                 }
             }

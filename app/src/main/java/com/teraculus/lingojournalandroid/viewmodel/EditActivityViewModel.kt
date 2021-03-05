@@ -1,15 +1,25 @@
 package com.teraculus.lingojournalandroid.viewmodel
 
 import androidx.lifecycle.*
+import com.teraculus.lingojournalandroid.PickerProvider
+import com.teraculus.lingojournalandroid.data.Language
 import com.teraculus.lingojournalandroid.data.Repository
+import com.teraculus.lingojournalandroid.data.getAllLanguages
 import com.teraculus.lingojournalandroid.model.Activity
-import java.util.*
+import com.teraculus.lingojournalandroid.model.ActivityType
+import java.time.LocalDate
+import java.time.LocalTime
 
-class EditActivityViewModel(private val repository: Repository) : ViewModel() {
-    val startDate = MutableLiveData(Date())
-    val endDate = MutableLiveData(Date())
+class EditActivityViewModel(private val repository: Repository, private val pickerProvider: PickerProvider) : ViewModel() {
+    val types = repository.getTypes()
+    val languages = MutableLiveData(getAllLanguages())
+    val date = MutableLiveData(LocalDate.now())
+    val startTime = MutableLiveData(LocalTime.now().minusHours(1))
+    val endTime = MutableLiveData(LocalTime.now())
     val title = MutableLiveData("")
     val text = MutableLiveData("")
+    val language = MutableLiveData("")
+    val type  = MutableLiveData(types.value!!.first())
     val confidence = MutableLiveData(100)
     val motivation = MutableLiveData(100)
 
@@ -18,17 +28,22 @@ class EditActivityViewModel(private val repository: Repository) : ViewModel() {
         if (activity != null) {
             title.value = activity.title
             text.value = activity.text
+            language.value = activity.language
             confidence.value = activity.confidence
             motivation.value = activity.motivation
-            startDate.value = activity.startDate
-            endDate.value = activity.endDate
+            date.value = activity.date
+            startTime.value = activity.startTime
+            endTime.value = activity.endTime
         } else {
             title.value = ""
             text.value = ""
+            language.value = ""
+            type.value = types.value!!.first()
             confidence.value = 50
             motivation.value = 50
-            startDate.value = Date()
-            endDate.value = Date()
+            date.value = LocalDate.now()
+            startTime.value = LocalTime.now().minusHours(1)
+            endTime.value = LocalTime.now()
         }
     }
 
@@ -40,6 +55,14 @@ class EditActivityViewModel(private val repository: Repository) : ViewModel() {
         text.value = value
     }
 
+    fun onTypeChange(value: ActivityType) {
+        type.value = value
+    }
+
+    fun onLanguageChange(value: String) {
+        language.value = value // language code
+    }
+
     fun onConfidenceChange(value: Float) {
         confidence.value = value.toInt()
     }
@@ -48,21 +71,33 @@ class EditActivityViewModel(private val repository: Repository) : ViewModel() {
         motivation.value = value.toInt()
     }
 
+    fun pickDate() {
+        pickerProvider.pickDate(null, date.value!!) { date.value = it; }
+    }
+
+    fun pickStartTime() {
+        pickerProvider.pickTime("Select start time", startTime.value!!) { startTime.value = it }
+    }
+
+    fun pickEndTime() {
+        pickerProvider.pickTime("Select end time", endTime.value!!) { endTime.value = it }
+    }
+
     fun addNote() {
-        repository.addActivity(Activity(title.value!!, text.value!!, null, confidence.value!!, motivation.value!!, startDate.value!!))
+        repository.addActivity(Activity(title.value!!, text.value!!, language.value!!, null, confidence.value!!, motivation.value!!, date.value!!, startTime.value!!, endTime.value!!))
     }
 
     fun updateNote(id: String) {
-        repository.updateActivity(id, title.value!!, text.value!!,null, confidence.value!!, motivation.value!!, startDate.value!!)
+        repository.updateActivity(id, title.value!!, text.value!!,null, confidence.value!!, motivation.value!!, date.value!!, startTime.value!!, endTime.value!!)
     }
 }
 
-class EditActivityViewModelFactory() :
+class EditActivityViewModelFactory(private val pickerProvider: PickerProvider) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(EditActivityViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return EditActivityViewModel(Repository.getRepository()) as T
+            return EditActivityViewModel(Repository.getRepository(), pickerProvider) as T
         }
 
         throw IllegalArgumentException("Unknown view model class")

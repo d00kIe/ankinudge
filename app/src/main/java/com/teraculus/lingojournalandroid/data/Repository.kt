@@ -9,6 +9,8 @@ import io.realm.RealmModel
 import io.realm.Sort
 import io.realm.kotlin.where
 import org.bson.types.ObjectId
+import java.time.LocalDate
+import java.time.LocalTime
 import java.util.*
 
 fun <T : RealmModel?> MutableLiveData<List<T>?>.trigger() {
@@ -32,7 +34,7 @@ class Repository {
         }
 
         // dummy activities
-        val queryActivities = realm!!.where<Activity>().sort("startDate", Sort.DESCENDING)
+        val queryActivities = realm!!.where<Activity>().sort("_date", Sort.DESCENDING) //TODO
         activities = LiveRealmResults<Activity>(queryActivities.findAll())
 
         if (activities.value?.isEmpty()!!) {
@@ -76,7 +78,9 @@ class Repository {
         type: ActivityType?,
         confidence: Int = 100,
         motivation: Int = 100,
-        date: Date,
+        date: LocalDate,
+        startTime: LocalTime,
+        endTime: LocalTime
     ) {
         val activity = getActivity(id)
         activity?.let {
@@ -86,11 +90,17 @@ class Repository {
                 activity.type = type
                 activity.confidence = confidence
                 activity.motivation = motivation
-                activity.startDate = date
+                activity.date = date
+                activity.startTime = startTime
+                activity.endTime = endTime
             }
         }
 
-        (activities as MutableLiveData<List<Activity>?>).trigger()
+        //(activities as MutableLiveData<List<Activity>?>).trigger()
+    }
+
+    fun getTypes(): LiveData<List<ActivityType>?> {
+        return types
     }
 
     companion object {

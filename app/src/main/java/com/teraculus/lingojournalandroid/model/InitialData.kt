@@ -26,15 +26,15 @@ fun activityTypeData(): List<ActivityType> {
 fun activityData(): List<Activity> {
     val text = "This is a dummy note. This is a dummy note. This is a dummy note. This is a dummy note."
     return listOf(
-        Activity("Dummy title", text, activityTypeData()[0], 45, 50),
-        Activity("Dummy title", text, activityTypeData()[1], 25, 10),
-        Activity("Dummy title", text, activityTypeData()[2], 5, 90),
-        Activity("Dummy title", text, activityTypeData()[3], 25, 51),
-        Activity("Dummy title", text, activityTypeData()[4], 45, 53),
-        Activity("Dummy title", text, activityTypeData()[5], 45, 100),
-        Activity("Dummy title", text, activityTypeData()[6], 35, 2),
-        Activity("Dummy title", text, activityTypeData()[7], 25, 60),
-        Activity("Dummy title", text, activityTypeData()[8], 15, 30),
-        Activity("Dummy title", text, activityTypeData()[9], 65, 58),
+        Activity("Dummy title", text, "de", activityTypeData()[0], 45, 50),
+        Activity("Dummy title", text, "de", activityTypeData()[1], 25, 10),
+        Activity("Dummy title", text, "de", activityTypeData()[2], 5, 90),
+        Activity("Dummy title", text, "de", activityTypeData()[3], 25, 51),
+        Activity("Dummy title", text, "de", activityTypeData()[4], 45, 53),
+        Activity("Dummy title", text, "de", activityTypeData()[5], 45, 100),
+        Activity("Dummy title", text, "de", activityTypeData()[6], 35, 2),
+        Activity("Dummy title", text, "de", activityTypeData()[7], 25, 60),
+        Activity("Dummy title", text, "de", activityTypeData()[8], 15, 30),
+        Activity("Dummy title", text, "de", activityTypeData()[9], 65, 58),
     )
 }
