@@ -75,9 +75,10 @@ class Repository {
         id: String,
         title: String,
         text: String,
+        language: String,
         type: ActivityType?,
-        confidence: Int = 100,
-        motivation: Int = 100,
+        confidence: Float,
+        motivation: Float,
         date: LocalDate,
         startTime: LocalTime,
         endTime: LocalTime
@@ -87,6 +88,7 @@ class Repository {
             realm!!.executeTransaction {
                 activity.title = title
                 activity.text = text
+                activity.language = language
                 activity.type = type
                 activity.confidence = confidence
                 activity.motivation = motivation

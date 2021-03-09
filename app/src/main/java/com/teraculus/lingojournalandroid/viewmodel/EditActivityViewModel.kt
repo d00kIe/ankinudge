@@ -1,8 +1,8 @@
 package com.teraculus.lingojournalandroid.viewmodel
 
+import androidx.compose.runtime.MutableState
 import androidx.lifecycle.*
 import com.teraculus.lingojournalandroid.PickerProvider
-import com.teraculus.lingojournalandroid.data.Language
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.data.getAllLanguages
 import com.teraculus.lingojournalandroid.model.Activity
@@ -12,6 +12,7 @@ import java.time.LocalTime
 
 class EditActivityViewModel(private val repository: Repository, private val pickerProvider: PickerProvider) : ViewModel() {
     val types = repository.getTypes()
+    private var preparedId : String? = null
     val languages = MutableLiveData(getAllLanguages())
     val date = MutableLiveData(LocalDate.now())
     val startTime = MutableLiveData(LocalTime.now().minusHours(1))
@@ -20,12 +21,13 @@ class EditActivityViewModel(private val repository: Repository, private val pick
     val text = MutableLiveData("")
     val language = MutableLiveData("")
     val type  = MutableLiveData(types.value!!.first())
-    val confidence = MutableLiveData(100)
-    val motivation = MutableLiveData(100)
+    val confidence = MutableLiveData(75f)
+    val motivation = MutableLiveData(75f)
 
     fun prepareActivity(id: String?) {
         val activity = id?.let { repository.getActivity(it) }
         if (activity != null) {
+            preparedId = id
             title.value = activity.title
             text.value = activity.text
             language.value = activity.language
@@ -39,8 +41,8 @@ class EditActivityViewModel(private val repository: Repository, private val pick
             text.value = ""
             language.value = ""
             type.value = types.value!!.first()
-            confidence.value = 50
-            motivation.value = 50
+            confidence.value = 50f
+            motivation.value = 50f
             date.value = LocalDate.now()
             startTime.value = LocalTime.now().minusHours(1)
             endTime.value = LocalTime.now()
@@ -48,27 +50,33 @@ class EditActivityViewModel(private val repository: Repository, private val pick
     }
 
     fun onTitleChange(value: String) {
-        title.value = value
+        if(title.value != value)
+            title.value = value
     }
 
     fun onTextChange(value: String) {
-        text.value = value
+        if(text.value != value)
+            text.value = value
     }
 
     fun onTypeChange(value: ActivityType) {
-        type.value = value
+        if(type.value != value)
+            type.value = value
     }
 
     fun onLanguageChange(value: String) {
-        language.value = value // language code
+        if(language.value != value)
+            language.value = value // language code
     }
 
     fun onConfidenceChange(value: Float) {
-        confidence.value = value.toInt()
+        if(confidence.value != value)
+            confidence.value = value
     }
 
     fun onMotivationChange(value: Float) {
-        motivation.value = value.toInt()
+        if(motivation.value != value)
+            motivation.value = value
     }
 
     fun pickDate() {
@@ -84,11 +92,17 @@ class EditActivityViewModel(private val repository: Repository, private val pick
     }
 
     fun addNote() {
-        repository.addActivity(Activity(title.value!!, text.value!!, language.value!!, null, confidence.value!!, motivation.value!!, date.value!!, startTime.value!!, endTime.value!!))
+        repository.addActivity(Activity(title.value!!, text.value!!, language.value!!, type.value!!, confidence.value!!, motivation.value!!, date.value!!, startTime.value!!, endTime.value!!))
     }
 
     fun updateNote(id: String) {
-        repository.updateActivity(id, title.value!!, text.value!!,null, confidence.value!!, motivation.value!!, date.value!!, startTime.value!!, endTime.value!!)
+        repository.updateActivity(id, title.value!!, text.value!!, language.value!!, type.value!!, confidence.value!!, motivation.value!!, date.value!!, startTime.value!!, endTime.value!!)
+    }
+
+    fun save() {
+        if(preparedId == null) {
+            addNote()
+        } else preparedId?.let { updateNote(it) }
     }
 }
 

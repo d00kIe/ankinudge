@@ -25,8 +25,8 @@ open class Activity() :
     var language: String = ""
     var text: String = ""
     var type: ActivityType? = null
-    var confidence: Int = 100
-    var motivation: Int = 100
+    var confidence: Float = 100f
+    var motivation: Float = 100f
 
     @Required private var _date: String = toRealmDateString(LocalDate.now())
     @Required private var _startTime: String = toRealmTimeString(LocalTime.now().minusHours(1))
@@ -55,8 +55,8 @@ open class Activity() :
         text: String,
         language: String,
         type: ActivityType?,
-        confidence: Int = 100,
-        motivation: Int = 100,
+        confidence: Float = 100f,
+        motivation: Float = 100f,
         date: LocalDate = LocalDate.now(),
         startTime: LocalTime = LocalTime.now().minusHours(1),
         endTime: LocalTime = LocalTime.now(),
@@ -72,5 +72,9 @@ open class Activity() :
         this.endTime = endTime
         this.confidence = confidence
         this.motivation = motivation
+    }
+
+    companion object {
+        val DEFAULT = Activity("","", "", null)
     }
 }
