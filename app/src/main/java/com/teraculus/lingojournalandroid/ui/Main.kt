@@ -17,8 +17,9 @@ import com.teraculus.lingojournalandroid.ui.home.HomeScreen
 import com.teraculus.lingojournalandroid.ui.navi.Screen
 
 
+@ExperimentalMaterialApi
 @Composable
-fun Main(pickerProvider: PickerProvider) {
+fun Main() {
     val navController = rememberNavController()
     val screen = listOf(Screen.Home, Screen.Calendar, Screen.Stats, Screen.Settings)
     var showAddActivityDialog by rememberSaveable { mutableStateOf(false) }
@@ -29,8 +30,7 @@ fun Main(pickerProvider: PickerProvider) {
         AddActivityDialog(
             show = showAddActivityDialog,
             onDismiss = { showAddActivityDialog = false; activityId = null },
-            id = activityId,
-            pickerProvider
+            id = activityId
         )
     }
 }

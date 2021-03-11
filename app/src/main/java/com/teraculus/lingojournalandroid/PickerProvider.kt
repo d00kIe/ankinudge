@@ -3,12 +3,22 @@ package com.teraculus.lingojournalandroid
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
+import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.utils.localDateToDate
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.*
 
-class PickerProvider(private val fragmentManager: FragmentManager) {
+class PickerProvider() {
+    private lateinit var _fragmentManager: FragmentManager
+    var fragmentManager: FragmentManager
+        get() {
+            return _fragmentManager
+        }
+        set(value) {
+            _fragmentManager = value
+        }
+
     fun pickDate(title: CharSequence?, initialDate: LocalDate, onDateChange: (changedDate: LocalDate) -> Unit) {
         val c = Calendar.getInstance()
         c.time = localDateToDate(initialDate)
@@ -53,5 +63,18 @@ class PickerProvider(private val fragmentManager: FragmentManager) {
         }
 
         picker.show(fragmentManager, picker.toString())
+    }
+
+
+    companion object {
+        private var INSTANCE: PickerProvider? = null
+
+        fun getPickerProvider(): PickerProvider {
+            return synchronized(PickerProvider::class) {
+                val instance = INSTANCE ?: PickerProvider()
+                INSTANCE = instance
+                instance
+            }
+        }
     }
 }

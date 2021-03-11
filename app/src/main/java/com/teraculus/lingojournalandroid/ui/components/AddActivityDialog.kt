@@ -9,6 +9,9 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
@@ -21,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.PickerProvider
+import com.teraculus.lingojournalandroid.data.Language
 import com.teraculus.lingojournalandroid.utils.toDateString
 import com.teraculus.lingojournalandroid.utils.toTimeString
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
@@ -28,19 +32,20 @@ import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModelFactory
 import java.time.LocalDate
 import java.time.LocalTime
 
+@ExperimentalMaterialApi
 @Composable
 fun AddActivityDialog(
     show: Boolean,
     onDismiss: () -> Unit,
     id: String? = null,
-    pickerProvider: PickerProvider,
 ) {
     val model: EditActivityViewModel =
-        viewModel("editActivityViewModel", EditActivityViewModelFactory(pickerProvider))
+        viewModel("editActivityViewModel", EditActivityViewModelFactory())
     model.prepareActivity(id)
     AddActivityDialog(show = show, onDismiss = onDismiss, model)
 }
 
+@ExperimentalMaterialApi
 @Composable
 fun AddActivityDialog(show: Boolean, onDismiss: () -> Unit, model: EditActivityViewModel) {
     if (show) {
@@ -50,15 +55,27 @@ fun AddActivityDialog(show: Boolean, onDismiss: () -> Unit, model: EditActivityV
     }
 }
 
+@ExperimentalMaterialApi
 @Composable
 fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
     val title = model.title.observeAsState()
     val text = model.text.observeAsState()
     val date = model.date.observeAsState()
+    val language = model.language.observeAsState()
     val startTime = model.startTime.observeAsState()
     val endTime = model.endTime.observeAsState()
     val confidence by model.confidence.observeAsState()
     val motivation by model.motivation.observeAsState()
+    var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
+
+    if(showLanguageDialog) {
+        LanguageSelectDialog(
+            onItemClick = {
+                            model.onLanguageChange((it as Language).code)
+                            showLanguageDialog = false
+                          },
+            onDismissRequest = { showLanguageDialog = false })
+    }
 
     Scaffold(
         topBar = {
@@ -87,20 +104,20 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
             .padding(8.dp)
             .verticalScroll(rememberScrollState())) {
             Row {
-                OutlinedTextField(label = { Text("Language") },
+                DropDownTextField(label = { Text("Language") },
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp, vertical = 8.dp),
-                    value = "",
-                    onValueChange = { /*TODO*/ })
+                    value = language.value.orEmpty() ,
+                    onClick = { showLanguageDialog = true })
             }
             Row {
-                OutlinedTextField(label = { Text("Activity") },
+                DropDownTextField(label = { Text("Activity") },
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     value = "",
-                    onValueChange = { /*TODO*/ })
+                    onClick = { /*TODO*/ })
             }
             Row {
                 OutlinedTextField(label = { Text("Title") },
@@ -128,8 +145,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
                 { model.pickStartTime() },
                 { model.pickEndTime() })
 
-            Divider()
-            Row(Modifier.padding(top = 16.dp, bottom = 8.dp)) {
+            Row(Modifier.padding(bottom = 8.dp)) {
                 Text("Confidence",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
@@ -153,15 +169,6 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
     }
 }
 
-@Preview(name = "Date And time")
-@Composable
-private fun DateAndTimeRow() {
-    val date = LocalDate.of(2020, 2, 25)
-    val startTime = LocalTime.of(12, 44)
-    val endTime = LocalTime.of(13, 44)
-    DateAndTimeRow(date, startTime, endTime, {}, {}, {})
-}
-
 @Composable
 private fun DateAndTimeRow(
     date: LocalDate?,
@@ -171,63 +178,34 @@ private fun DateAndTimeRow(
     onPickStartTime: () -> Unit,
     onPickEndTime: () -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
-
     Column(Modifier
         .fillMaxSize()) {
         Row(Modifier
             .padding(16.dp)) {
-            OutlinedTextField(
+            DropDownTextField(
                 label = { Text("Date") },
-                readOnly = true,
                 value = toDateString(date),
-                onValueChange = {},
                 modifier = Modifier
-                    .weight(0.5f)
-                    .onFocusChanged(
-                        onFocusChanged = {
-                            if (it == FocusState.Active) {
-                                onPickDate()
-                                focusManager.clearFocus()
-                            }
-                        },
-                    )
+                    .weight(0.5f),
+                onClick = onPickDate
             )
         }
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 16.dp, start = 16.dp, end = 16.dp)) {
-            OutlinedTextField(
+            DropDownTextField(
                 label = { Text("Start Time") },
-                readOnly = true,
                 value = toTimeString(startTime),
-                onValueChange = {},
                 modifier = Modifier
                     .weight(0.5f)
-                    .padding(end = 8.dp)
-                    .onFocusChanged(
-                        onFocusChanged = {
-                            if (it == FocusState.Active) {
-                                onPickStartTime()
-                                focusManager.clearFocus()
-                            }
-                        },
-                    )
+                    .padding(end = 8.dp),
+                onClick = onPickStartTime
             )
-            OutlinedTextField(
+            DropDownTextField(
                 label = { Text("End Time") },
-                readOnly = true,
                 value = toTimeString(endTime),
-                onValueChange = {},
                 modifier = Modifier
                     .weight(0.5f)
-                    .padding(start = 8.dp)
-                    .onFocusChanged(
-                        onFocusChanged = {
-                            if (it == FocusState.Active) {
-                                onPickEndTime()
-                                focusManager.clearFocus()
-                            }
-                        },
-                    )
+                    .padding(start = 8.dp),
+                onClick = onPickEndTime
             )
         }
     }

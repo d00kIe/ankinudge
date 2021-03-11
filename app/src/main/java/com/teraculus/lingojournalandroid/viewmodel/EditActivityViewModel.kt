@@ -106,12 +106,12 @@ class EditActivityViewModel(private val repository: Repository, private val pick
     }
 }
 
-class EditActivityViewModelFactory(private val pickerProvider: PickerProvider) :
+class EditActivityViewModelFactory() :
     ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(EditActivityViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return EditActivityViewModel(Repository.getRepository(), pickerProvider) as T
+            return EditActivityViewModel(Repository.getRepository(), PickerProvider.getPickerProvider()) as T
         }
 
         throw IllegalArgumentException("Unknown view model class")
