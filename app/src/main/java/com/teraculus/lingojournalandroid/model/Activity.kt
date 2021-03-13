@@ -4,14 +4,15 @@ import com.teraculus.lingojournalandroid.utils.parseRealmDateString
 import com.teraculus.lingojournalandroid.utils.parseRealmTimeString
 import com.teraculus.lingojournalandroid.utils.toRealmDateString
 import com.teraculus.lingojournalandroid.utils.toRealmTimeString
+import io.realm.Realm
 import io.realm.RealmObject
-import io.realm.annotations.Ignore
+import io.realm.Sort
 import io.realm.annotations.PrimaryKey
 import io.realm.annotations.Required
+import io.realm.kotlin.where
 import org.bson.types.ObjectId
 import java.time.LocalDate
 import java.time.LocalTime
-import java.util.*
 
 open class Activity() :
     RealmObject() {
@@ -76,5 +77,17 @@ open class Activity() :
 
     companion object {
         val DEFAULT = Activity("","", "", null)
+
+        fun createOrQuery(realm: Realm, value: List<ActivityType>?) : LiveRealmResults<Activity> {
+            val queryActivities = realm.where<Activity>().sort("_date", Sort.DESCENDING) //TODO
+            val activities = LiveRealmResults<Activity>(queryActivities.findAll())
+
+            if (activities.value?.isEmpty() != false) {
+                realm.executeTransaction { tr -> tr.insert(activityData(value!!)) }
+            }
+
+            return activities
+        }
     }
+
 }

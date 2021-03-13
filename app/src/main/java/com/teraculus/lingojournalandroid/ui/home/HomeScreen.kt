@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.activityData
+import com.teraculus.lingojournalandroid.model.activityTypeData
 
 @Composable
 fun HomeScreen(
@@ -34,7 +35,7 @@ fun HomeScreen(
 @Preview
 @Composable
 fun PreviewActivityList() {
-    val fakeActivities = activityData()
+    val fakeActivities = activityData(activityTypeData())
     ActivityList(activities = fakeActivities, onItemClick = {})
 }
 

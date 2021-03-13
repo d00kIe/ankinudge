@@ -6,12 +6,10 @@ import com.teraculus.lingojournalandroid.model.*
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import io.realm.RealmModel
-import io.realm.Sort
 import io.realm.kotlin.where
 import org.bson.types.ObjectId
 import java.time.LocalDate
 import java.time.LocalTime
-import java.util.*
 
 fun <T : RealmModel?> MutableLiveData<List<T>?>.trigger() {
     value = value
@@ -21,25 +19,21 @@ class Repository {
     private var realm: Realm? = null
     private val activities: LiveData<List<Activity>?>
     private val types: LiveData<List<ActivityType>?>
+    private val userPreferences: LiveData<UserPreferences>
 
     init {
         initializeRealm()
 
-        // types
-        val queryTypes = realm!!.where<ActivityType>()
-        types = LiveRealmResults<ActivityType>(queryTypes.findAll())
+        //realm!!.executeTransaction { realm!!.deleteAll() }
 
-        if (types.value?.isEmpty()!!) {
-            realm!!.executeTransaction { tr -> tr.insert(activityTypeData()) }
-        }
+        // user preferences
+        userPreferences = UserPreferences.createOrQuery(realm!!)
+
+        // types
+        types = ActivityType.createOrQuery(realm!!);
 
         // dummy activities
-        val queryActivities = realm!!.where<Activity>().sort("_date", Sort.DESCENDING) //TODO
-        activities = LiveRealmResults<Activity>(queryActivities.findAll())
-
-        if (activities.value?.isEmpty()!!) {
-            realm!!.executeTransaction { tr -> tr.insert(activityData()) }
-        }
+        activities = Activity.createOrQuery(realm!!, types.value)
     }
 
     private fun initializeRealm() {
@@ -55,6 +49,7 @@ class Repository {
 
     fun addActivity(activity: Activity) {
         realm!!.executeTransaction { tr -> tr.insert(activity) }
+        updateLastLanguagePreference(activity.language)
     }
 
     fun removeActivity(activity: Activity) {
@@ -96,6 +91,7 @@ class Repository {
                 activity.startTime = startTime
                 activity.endTime = endTime
             }
+            updateLastLanguagePreference(language)
         }
 
         //(activities as MutableLiveData<List<Activity>?>).trigger()
@@ -103,6 +99,18 @@ class Repository {
 
     fun getTypes(): LiveData<List<ActivityType>?> {
         return types
+    }
+
+    fun getUserPreferences(): LiveData<UserPreferences> {
+        return userPreferences
+    }
+
+    fun updateLastLanguagePreference(language: String) {
+        realm!!.executeTransaction {
+            if(userPreferences.value?.languages?.find { it == language } == null) {
+                userPreferences.value?.languages?.add(0,language)
+            }
+        }
     }
 
     companion object {

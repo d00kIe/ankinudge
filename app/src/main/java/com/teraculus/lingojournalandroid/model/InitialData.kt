@@ -20,21 +20,22 @@ fun activityTypeData(): List<ActivityType> {
         ActivityType(ActivityCategory.WATCHING, "Movie"),
         ActivityType(ActivityCategory.EXAM, "Preparation"),
         ActivityType(ActivityCategory.EXAM, "Certificate"),
+        ActivityType(ActivityCategory.OTHER, "Nothing, being lazy."),
     )
 }
 
-fun activityData(): List<Activity> {
+fun activityData(activityTypes: List<ActivityType>): List<Activity> {
     val text = "This is a dummy note. This is a dummy note. This is a dummy note. This is a dummy note."
     return listOf(
-        Activity("Dummy title", text, "de", activityTypeData()[0], 45f, 50f),
-        Activity("Dummy title", text, "de", activityTypeData()[1], 25f, 10f),
-        Activity("Dummy title", text, "de", activityTypeData()[2], 5f, 90f),
-        Activity("Dummy title", text, "de", activityTypeData()[3], 25f, 51f),
-        Activity("Dummy title", text, "de", activityTypeData()[4], 45f, 53f),
-        Activity("Dummy title", text, "de", activityTypeData()[5], 45f, 100f),
-        Activity("Dummy title", text, "de", activityTypeData()[6], 35f, 2f),
-        Activity("Dummy title", text, "de", activityTypeData()[7], 25f, 60f),
-        Activity("Dummy title", text, "de", activityTypeData()[8], 15f, 30f),
-        Activity("Dummy title", text, "de", activityTypeData()[9], 65f, 58f),
+        Activity("Dummy title", text, "de", activityTypes[0], 05f, 50f),
+        Activity("Dummy title", text, "de", activityTypes[1], 25f, 0f),
+        Activity("Dummy title", text, "de", activityTypes[2], 0f, 100f),
+        Activity("Dummy title", text, "de", activityTypes[3], 25f, 50f),
+        Activity("Dummy title", text, "de", activityTypes[4], 50f, 50f),
+        Activity("Dummy title", text, "de", activityTypes[5], 50f, 100f),
+        Activity("Dummy title", text, "de", activityTypes[6], 25f, 0f),
+        Activity("Dummy title", text, "de", activityTypes[7], 25f, 50f),
+        Activity("Dummy title", text, "de", activityTypes[8], 25f, 50f),
+        Activity("Dummy title", text, "de", activityTypes[9], 75f, 50f),
     )
 }

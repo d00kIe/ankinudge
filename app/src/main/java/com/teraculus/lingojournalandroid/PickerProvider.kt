@@ -19,7 +19,7 @@ class PickerProvider() {
             _fragmentManager = value
         }
 
-    fun pickDate(title: CharSequence?, initialDate: LocalDate, onDateChange: (changedDate: LocalDate) -> Unit) {
+    suspend fun pickDate(title: CharSequence?, initialDate: LocalDate, onDateChange: (changedDate: LocalDate) -> Unit) {
         val c = Calendar.getInstance()
         c.time = localDateToDate(initialDate)
 
@@ -45,7 +45,7 @@ class PickerProvider() {
         picker.show(fragmentManager, picker.toString())
     }
 
-    fun pickTime(title: CharSequence?, initialTime: LocalTime, onTimeChange: (changedTime: LocalTime) -> Unit) {
+    suspend fun pickTime(title: CharSequence?, initialTime: LocalTime, onTimeChange: (changedTime: LocalTime) -> Unit) {
         val builder = MaterialTimePicker.Builder()
         val picker =
             builder

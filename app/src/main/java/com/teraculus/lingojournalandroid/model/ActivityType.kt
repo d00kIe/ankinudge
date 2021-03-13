@@ -1,6 +1,8 @@
 package com.teraculus.lingojournalandroid.model
 
+import io.realm.Realm
 import io.realm.RealmObject
+import io.realm.kotlin.where
 import org.bson.types.ObjectId
 import java.util.*
 
@@ -23,5 +25,19 @@ open class ActivityType() : RealmObject() {
         this.id = id
         this.created = created
         this.lastUsed = lastUsed
+    }
+
+    companion object {
+        fun createOrQuery(realm: Realm) : LiveRealmResults<ActivityType> {
+            val queryTypes = realm.where<ActivityType>()
+            val types = LiveRealmResults<ActivityType>(queryTypes.findAll())
+
+            if (types.value?.isEmpty() != false) {
+                val initialData = activityTypeData()
+                realm.executeTransaction { tr -> tr.insert(initialData) }
+            }
+
+            return types
+        }
     }
 }

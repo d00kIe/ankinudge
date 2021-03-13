@@ -1,5 +1,6 @@
 package com.teraculus.lingojournalandroid.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,7 @@ import com.teraculus.lingojournalandroid.ui.home.HomeScreen
 import com.teraculus.lingojournalandroid.ui.navi.Screen
 
 
+@ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
 fun Main() {

@@ -31,6 +31,7 @@ class EditActivityViewModel(private val repository: Repository, private val pick
             title.value = activity.title
             text.value = activity.text
             language.value = activity.language
+            type.value = activity.type
             confidence.value = activity.confidence
             motivation.value = activity.motivation
             date.value = activity.date
@@ -79,15 +80,15 @@ class EditActivityViewModel(private val repository: Repository, private val pick
             motivation.value = value
     }
 
-    fun pickDate() {
+    suspend fun pickDate() {
         pickerProvider.pickDate(null, date.value!!) { date.value = it; }
     }
 
-    fun pickStartTime() {
+    suspend fun pickStartTime() {
         pickerProvider.pickTime("Select start time", startTime.value!!) { startTime.value = it }
     }
 
-    fun pickEndTime() {
+    suspend fun pickEndTime() {
         pickerProvider.pickTime("Select end time", endTime.value!!) { endTime.value = it }
     }
 

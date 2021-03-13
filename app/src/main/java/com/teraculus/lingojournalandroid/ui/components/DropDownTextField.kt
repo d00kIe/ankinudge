@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 fun DropDownTextField(label: @Composable () -> Unit,
                       modifier: Modifier,
                       value: String,
+                      leadingIcon: @Composable (() -> Unit)? = null,
                       onClick: () -> Unit) {
 
     val focusManager = LocalFocusManager.current
@@ -21,6 +22,7 @@ fun DropDownTextField(label: @Composable () -> Unit,
         label = label,
         readOnly = true,
         value = value,
+        leadingIcon = leadingIcon,
         onValueChange = {},
         trailingIcon= { Icon(Icons.Rounded.ArrowDropDown, null) },
         modifier = modifier

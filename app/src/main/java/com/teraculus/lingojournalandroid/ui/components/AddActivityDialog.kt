@@ -1,23 +1,22 @@
 package com.teraculus.lingojournalandroid.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,13 +24,16 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.PickerProvider
 import com.teraculus.lingojournalandroid.data.Language
+import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.utils.toDateString
 import com.teraculus.lingojournalandroid.utils.toTimeString
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModelFactory
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 
+@ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
 fun AddActivityDialog(
@@ -45,6 +47,7 @@ fun AddActivityDialog(
     AddActivityDialog(show = show, onDismiss = onDismiss, model)
 }
 
+@ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
 fun AddActivityDialog(show: Boolean, onDismiss: () -> Unit, model: EditActivityViewModel) {
@@ -55,26 +58,40 @@ fun AddActivityDialog(show: Boolean, onDismiss: () -> Unit, model: EditActivityV
     }
 }
 
+@ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
 fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
     val title = model.title.observeAsState()
     val text = model.text.observeAsState()
     val date = model.date.observeAsState()
+    val type by model.type.observeAsState()
     val language = model.language.observeAsState()
     val startTime = model.startTime.observeAsState()
     val endTime = model.endTime.observeAsState()
     val confidence by model.confidence.observeAsState()
     val motivation by model.motivation.observeAsState()
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
+    var showActivityTypeDialog by rememberSaveable { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
 
     if(showLanguageDialog) {
         LanguageSelectDialog(
             onItemClick = {
-                            model.onLanguageChange((it as Language).code)
+                            model.onLanguageChange(it.code)
                             showLanguageDialog = false
                           },
             onDismissRequest = { showLanguageDialog = false })
+    }
+
+    if(showActivityTypeDialog) {
+        ActivityTypeSelectDialog(
+            onItemClick = {
+                model.onTypeChange(it)
+                showActivityTypeDialog = false
+            },
+            onDismissRequest = { showActivityTypeDialog = false })
     }
 
     Scaffold(
@@ -108,7 +125,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp, vertical = 8.dp),
-                    value = language.value.orEmpty() ,
+                    value = getLanguageDisplayName(language.value.orEmpty()) ,
                     onClick = { showLanguageDialog = true })
             }
             Row {
@@ -116,8 +133,9 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp, vertical = 8.dp),
-                    value = "",
-                    onClick = { /*TODO*/ })
+                    leadingIcon = { type?.category?.icon?.let { it1 -> painterResource(id = it1) }?.let { it2 -> Icon(painter = it2, modifier = Modifier.size(24.dp), contentDescription = null) } },
+                    value = "${type?.category?.title} : ${type?.name}",
+                    onClick = { showActivityTypeDialog = true })
             }
             Row {
                 OutlinedTextField(label = { Text("Title") },
@@ -141,9 +159,9 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
             DateAndTimeRow(date.value,
                 startTime.value,
                 endTime.value,
-                { model.pickDate() },
-                { model.pickStartTime() },
-                { model.pickEndTime() })
+                { coroutineScope.launch { model.pickDate() } },
+                { coroutineScope.launch { model.pickStartTime() } },
+                { coroutineScope.launch { model.pickEndTime() } })
 
             Row(Modifier.padding(bottom = 8.dp)) {
                 Text("Confidence",
