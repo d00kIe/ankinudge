@@ -15,6 +15,13 @@ fun toDateString(date: LocalDate?) : String {
     return date.format(dateFormatter)
 }
 
+fun toDateNoYearString(date: LocalDate?) : String {
+    if(date == null)
+        return ""
+    val dateFormatter = DateTimeFormatter.ofPattern("dd MMM", Locale.getDefault())
+    return date.format(dateFormatter)
+}
+
 fun toTimeString(time: LocalTime?) : String {
     if(time == null)
         return ""

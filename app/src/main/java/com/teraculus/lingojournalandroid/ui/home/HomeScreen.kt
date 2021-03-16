@@ -23,6 +23,7 @@ import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.activityData
 import com.teraculus.lingojournalandroid.model.activityTypeData
 import com.teraculus.lingojournalandroid.ui.components.ConfidenceMotivationIndicator
+import com.teraculus.lingojournalandroid.utils.toDateNoYearString
 import com.teraculus.lingojournalandroid.utils.toDateString
 import com.teraculus.lingojournalandroid.utils.toTimeString
 
@@ -55,7 +56,7 @@ fun ActivityList(activities: List<Activity>?, onItemClick: (id: String) -> Unit)
             groups?.forEach { (date, items) ->
                 item {
                     Column {
-                        Text(text = toDateString(date), style = MaterialTheme.typography.body1, modifier = Modifier.padding(16.dp))
+                        Text(text = toDateNoYearString(date), style = MaterialTheme.typography.body1, modifier = Modifier.padding(16.dp))
                         Divider(Modifier.padding(bottom = 8.dp))
                     }
                 }
@@ -97,7 +98,7 @@ fun ActivityRow(activity: Activity, onClick: (id: String) -> Unit) {
 }
 @Composable
 fun OverlineText(activity: Activity) {
-    val text = "${getLanguageDisplayName(activity.language)} · ${activity.type?.name} · ${toTimeString(activity.startTime)}"
+    val text = "${toTimeString(activity.startTime)} · ${getLanguageDisplayName(activity.language)} · ${activity.type?.name}"
     Text(text)
 }
 

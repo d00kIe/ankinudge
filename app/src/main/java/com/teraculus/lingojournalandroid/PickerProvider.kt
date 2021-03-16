@@ -37,7 +37,7 @@ class PickerProvider() {
 
             onDateChange(LocalDate.of(
                 newDate.get(Calendar.YEAR),
-                newDate.get(Calendar.MONTH),
+                newDate.get(Calendar.MONTH) + 1,
                 newDate.get(Calendar.DAY_OF_MONTH))
             )
         }

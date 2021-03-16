@@ -37,6 +37,8 @@ fun Main() {
     }
 }
 
+@ExperimentalFoundationApi
+@ExperimentalMaterialApi
 @Composable
 fun Main(navController: NavHostController, screens: List<Screen>, onAddActivity: () -> Unit, onActivityClick: (id: String) -> Unit) {
     Scaffold(
