@@ -1,6 +1,7 @@
 package com.teraculus.lingojournalandroid.utils
 
 import java.text.DateFormat
+import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
@@ -66,3 +67,12 @@ fun localDateToDate(localDate: LocalDate): Date {
     return calendar.time
 }
 
+fun getMonthForInt(num: Int): String {
+    var month = "wrong"
+    val dfs = DateFormatSymbols()
+    val months: Array<String> = dfs.months
+    if (num - 1 in 0..11) {
+        month = months[num - 1]
+    }
+    return month
+}
