@@ -16,6 +16,7 @@ import com.teraculus.lingojournalandroid.R
 import com.teraculus.lingojournalandroid.ui.components.AddActivityDialog
 import com.teraculus.lingojournalandroid.ui.home.HomeScreen
 import com.teraculus.lingojournalandroid.ui.navi.Screen
+import com.teraculus.lingojournalandroid.ui.stats.StatsScreen
 
 
 @ExperimentalFoundationApi
@@ -76,10 +77,10 @@ fun Main(navController: NavHostController, screens: List<Screen>, onAddActivity:
         }
     ) {
 
-        NavHost(navController, startDestination = Screen.Home.route) {
+        NavHost(navController, startDestination = Screen.Stats.route) {
             composable(Screen.Home.route) { HomeScreen(onItemClick = onActivityClick) }
             composable(Screen.Calendar.route) { HomeScreen(onItemClick = onActivityClick) }
-            composable(Screen.Stats.route) { HomeScreen(onItemClick = onActivityClick) }
+            composable(Screen.Stats.route) { StatsScreen() }
             composable(Screen.Settings.route) { HomeScreen(onItemClick = onActivityClick) }
         }
     }
