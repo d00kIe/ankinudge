@@ -1,9 +1,11 @@
 package com.teraculus.lingojournalandroid.ui.calendar
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -11,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,7 +25,13 @@ import java.time.LocalDate
 import java.time.YearMonth
 import kotlin.math.ceil
 
-data class DayData(val day: Int, val thisMonth: Boolean)
+data class DayData(
+    val day: Int,
+    val month: Int,
+    val year: Int,
+    val thisMonth: Boolean,
+    val today: Boolean,
+)
 
 fun getMonthItems(): List<YearMonth> {
     val months = 20 * 12
@@ -36,12 +45,14 @@ fun getMonthItems(): List<YearMonth> {
 }
 
 @Composable
-fun Calendar(modifier: Modifier) {
+fun Calendar(modifier: Modifier, onClick: (data: DayData) -> Unit) {
     val items = getMonthItems()
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = items.size - 1)
     val scope = rememberCoroutineScope()
     val dpToPx = with(LocalDensity.current) { 1.dp.toPx() }
-    val currentYearMonth = items[listState.firstVisibleItemIndex]
+    val currentYearMonthIdx =
+        if (listState.firstVisibleItemScrollOffset == 0) listState.firstVisibleItemIndex else listState.firstVisibleItemIndex + 1
+    val currentYearMonth = items[currentYearMonthIdx]
     BoxWithConstraints {
         val width = maxWidth
         val widthPx = width.value * dpToPx
@@ -60,7 +71,7 @@ fun Calendar(modifier: Modifier) {
                         }
                     }
                     items(items) {
-                        MonthItem(it.month.value, it.year, Modifier.width(width))
+                        MonthItem(it.month.value, it.year, Modifier.width(width), onClick)
                     }
                 }
             }
@@ -71,26 +82,46 @@ fun Calendar(modifier: Modifier) {
 @Preview
 @Composable
 fun MonthItem() {
-    MonthItem(3, 2020, Modifier.width(480.dp))
+    MonthItem(3, 2020, Modifier.width(480.dp)) {}
 }
 
 @Composable
-fun MonthItem(month: Int, year: Int, modifier: Modifier) {
-    val localDate: LocalDate = LocalDate.of(year, month, 1)
+fun MonthItem(month: Int, year: Int, modifier: Modifier,
+              onClick: (data: DayData) -> Unit) {
+    val today = LocalDate.now()
+    val firstDayOfMonth: LocalDate = LocalDate.of(year, month, 1)
+    val lastDatOfPrevMonth = firstDayOfMonth.minusDays(1)
+    val firstDayOfNextMonth: LocalDate = firstDayOfMonth.plusMonths(1)
     val dataItems = mutableListOf<DayData>()
 
-    val dayOfWeek = DayOfWeek.from(localDate)
+    val dayOfWeek = DayOfWeek.from(firstDayOfMonth)
     for (i in 1 until dayOfWeek.value) {
-        dataItems.add(DayData(0, false))
+        dataItems.add(DayData(
+            0,
+            lastDatOfPrevMonth.monthValue,
+            lastDatOfPrevMonth.year,
+            thisMonth = false,
+            today = false))
     }
 
+    val thisMonth = today.monthValue == month && today.year == year
     for (i in 1..31) {
-        dataItems.add(DayData(i, true))
+        dataItems.add(DayData(i,
+            month,
+            year,
+            thisMonth = true,
+            today = thisMonth && today.dayOfMonth == i))
     }
+
     val weekCount = ceil(dataItems.size / 7.0).toInt()
     val trailingDayCount = ceil(dataItems.size / 7.0).toInt() * 7 - dataItems.size
+
     for (i in 1..trailingDayCount) {
-        dataItems.add(DayData(0, false))
+        dataItems.add(DayData(0,
+            firstDayOfNextMonth.monthValue,
+            firstDayOfNextMonth.year,
+            false,
+            today = false))
     }
 
     Column(modifier = modifier) {
@@ -103,7 +134,7 @@ fun MonthItem(month: Int, year: Int, modifier: Modifier) {
                     for (d in 0 until 7) {
                         DayItem(dataItems[w * 7 + d], modifier = Modifier
                             .width(cellSize)
-                            .height(cellSize))
+                            .height(cellSize), onClick = onClick)
                     }
                 }
             }
@@ -113,16 +144,11 @@ fun MonthItem(month: Int, year: Int, modifier: Modifier) {
 
 @Composable
 private fun MonthHeader(modifier: Modifier = Modifier, month: String, year: String) {
-    Row(modifier = modifier) {
-        Text(
-            modifier = Modifier.weight(1f),
-            text = month,
-            style = MaterialTheme.typography.h6
-        )
+    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
         Text(
             modifier = Modifier.align(Alignment.CenterVertically),
-            text = year,
-            style = MaterialTheme.typography.caption
+            text = "$month $year",
+            style = MaterialTheme.typography.subtitle2
         )
     }
 }
@@ -130,19 +156,28 @@ private fun MonthHeader(modifier: Modifier = Modifier, month: String, year: Stri
 @Preview
 @Composable
 fun DayItem() {
-    DayItem(DayData(25, true))
+    DayItem(DayData(25, 3, 2020, thisMonth = true, today = false), onClick = {})
 }
 
 @Composable
 fun DayItem(
     data: DayData,
     modifier: Modifier = Modifier,
+    onClick: (data: DayData) -> Unit
 ) {
-    Surface(modifier = modifier, elevation = 0.dp) {
-        if (data.thisMonth)
-            Text(data.day.toString(),
-                style = MaterialTheme.typography.subtitle2,
-                textAlign = TextAlign.Center)
+    Surface(shape = CircleShape, modifier = modifier, elevation = 0.dp) {
+        if (!data.thisMonth)
+            null
+        else {
+            Column(verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable { onClick(data) }) {
+                Text(data.day.toString(),
+                    style = MaterialTheme.typography.caption,
+                    textAlign = TextAlign.Center,
+                    color = if (data.today) MaterialTheme.colors.secondary else Color.Unspecified)
+            }
+        }
     }
 
 }
