@@ -1,29 +1,20 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.LingoJournal" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Important for Jetpack Compose dialog to be full width -->
         <item name="android:dialogTheme">@style/Theme.DialogFullScreen</item>
 
+        <!-- Status bar color-->
+        <item name="colorPrimaryDark">#ffffff</item>
+        <item name="android:windowLightStatusBar">true</item>
+
         <!-- Primary brand color. -->
-        <item name="colorPrimary">#0c5b8f</item>
+        <item name="colorPrimary">#1976d2</item>
         <item name="colorOnPrimary">#ffffff</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">#0c5b8f</item>
+        <item name="colorSecondary">#00796b</item>
+        <item name="colorSecondaryVariant">#004c40</item>
         <item name="colorOnSecondary">#ffffff</item>
-        <!-- Customize your theme here. -->
-        <item name="android:colorBackground">#ffffff</item>
-        <item name="colorOnBackground">#000000</item>
-        <item name="colorSurface">#feffff</item>
-        <item name="colorOnSurface">#000000</item>
-
-<!--        <item name="colorPrimary">#0c5b8f</item>-->
-<!--        <item name="colorSecondary">#0c5b8f</item>-->
-<!--        <item name="colorBackground">#ffffff</item>-->
-<!--        <item name="colorSurface">#feffff</item>-->
-
-<!--        <item name="colorOnPrimary">#ffffff</item>-->
-<!--        <item name="colorOnBackground">#000000</item>-->
-<!--        <item name="colorOnSurface">#000000</item>-->
     </style>
 
     <style name="Theme.DialogFullScreen" parent="@style/ThemeOverlay.MaterialComponents.Dialog.Alert">
@@ -35,7 +26,4 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-
-    <style name="Theme.LingoJournal.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
-    <style name="Theme.LingoJournal.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Dark" />
 </resources>

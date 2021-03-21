@@ -1,20 +1,20 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.LingoJournal" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Important for Jetpack Compose dialog to be full width -->
         <item name="android:dialogTheme">@style/Theme.DialogFullScreen</item>
 
+        <!-- Status bar color-->
+        <item name="colorPrimaryDark">#121212</item>
+        <item name="android:windowLightStatusBar">false</item>
+
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorPrimary">#1976d2</item>
+        <item name="colorOnPrimary">#ffffff</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorOnSecondary">@color/colorOnPrimary</item>
-        <!-- Customize your theme here. -->
-        <item name="android:colorBackground">@color/colorBackground</item>
-        <item name="colorOnBackground">@color/colorOnBackground</item>
-        <item name="colorSurface">@color/colorSurface</item>
-        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="colorSecondary">#00796b</item>
+        <item name="colorSecondaryVariant">#004c40</item>
+        <item name="colorOnSecondary">#ffffff</item>
     </style>
 
     <style name="Theme.DialogFullScreen" parent="@style/ThemeOverlay.MaterialComponents.Dialog.Alert">
