@@ -13,8 +13,6 @@ import com.teraculus.lingojournalandroid.ui.calendar.Calendar
 @Composable
 fun StatsScreen() {
     Column(Modifier.fillMaxHeight()) {
-
-        Calendar(Modifier.fillMaxWidth(), onClick = {})
-        Divider()
+        StatsContent()
     }
 }
