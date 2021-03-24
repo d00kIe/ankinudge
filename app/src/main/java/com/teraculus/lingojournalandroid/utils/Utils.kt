@@ -3,8 +3,7 @@ package com.teraculus.lingojournalandroid.utils
 import java.text.DateFormat
 import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.LocalTime
+import java.time.*
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
@@ -65,6 +64,22 @@ fun localDateToDate(localDate: LocalDate): Date {
     //assuming start of day
     calendar[localDate.year, localDate.monthValue - 1] = localDate.dayOfMonth
     return calendar.time
+}
+
+fun asDate(localDate: LocalDate): Date {
+    return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
+}
+
+fun asDate(localDateTime: LocalDateTime): Date {
+    return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant())
+}
+
+fun asLocalDate(date: Date): LocalDate {
+    return Instant.ofEpochMilli(date.time).atZone(ZoneId.systemDefault()).toLocalDate()
+}
+
+fun asLocalDateTime(date: Date): LocalDateTime {
+    return Instant.ofEpochMilli(date.time).atZone(ZoneId.systemDefault()).toLocalDateTime()
 }
 
 fun getMonthForInt(num: Int): String {

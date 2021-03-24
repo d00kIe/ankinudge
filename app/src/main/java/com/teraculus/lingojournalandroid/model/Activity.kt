@@ -1,9 +1,6 @@
 package com.teraculus.lingojournalandroid.model
 
-import com.teraculus.lingojournalandroid.utils.parseRealmDateString
-import com.teraculus.lingojournalandroid.utils.parseRealmTimeString
-import com.teraculus.lingojournalandroid.utils.toRealmDateString
-import com.teraculus.lingojournalandroid.utils.toRealmTimeString
+import com.teraculus.lingojournalandroid.utils.*
 import io.realm.Realm
 import io.realm.RealmObject
 import io.realm.Sort
@@ -13,6 +10,7 @@ import io.realm.kotlin.where
 import org.bson.types.ObjectId
 import java.time.LocalDate
 import java.time.LocalTime
+import java.util.*
 
 open class Activity() :
     RealmObject() {
@@ -20,7 +18,6 @@ open class Activity() :
     @PrimaryKey
     var id = ObjectId()
 
-//    var language: String = "" TODO
     @Required
     var title: String = ""
     var language: String = ""
@@ -29,15 +26,15 @@ open class Activity() :
     var confidence: Float = 100f
     var motivation: Float = 100f
 
-    @Required private var _date: String = toRealmDateString(LocalDate.now())
+    @Required private var _date: Date = asDate(LocalDate.now())
     @Required private var _startTime: String = toRealmTimeString(LocalTime.now().minusHours(1))
     private var _endTime: String = toRealmTimeString(LocalTime.now())
 
     var date : LocalDate
         get() {
-            return parseRealmDateString(_date)
+            return asLocalDate(_date)
         }
-        set(value) { _date = toRealmDateString(value) }
+        set(value) { _date = asDate(value) }
 
     var startTime : LocalTime
         get() {

@@ -3,6 +3,8 @@ package com.teraculus.lingojournalandroid.data
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.teraculus.lingojournalandroid.model.*
+import com.teraculus.lingojournalandroid.utils.asDate
+import com.teraculus.lingojournalandroid.utils.toRealmDateString
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import io.realm.RealmModel
@@ -64,6 +66,14 @@ class Repository {
 
     fun getActivities(): LiveData<List<Activity>?> {
         return activities
+    }
+
+    fun getActivities(date: LocalDate): Activity? {
+        return realm!!.where<Activity>().equalTo("_date", asDate(date)).findFirst()
+    }
+
+    fun getActivities(from: LocalDate, to: LocalDate): LiveData<List<Activity>?> {
+        return LiveRealmResults<Activity>(realm!!.where<Activity>().between("_date", asDate(from), asDate(to)).findAll())
     }
 
     fun updateActivity(
