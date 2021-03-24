@@ -19,7 +19,7 @@ fun MonthStatsContent(model: StatisticsViewModel = viewModel("statisticsViewMode
 
     if(stats?.isNotEmpty() == true) {
         Column() {
-            Text(stats!![0].lanugage)
+            Text(stats!![0].language)
             Text(stats!![0].allHours.toString())
             Text(stats!![0].allCount.toString())
             Text(stats!![0].allConfidence.toString())

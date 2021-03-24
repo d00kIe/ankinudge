@@ -9,6 +9,7 @@ import com.teraculus.lingojournalandroid.model.ActivityType
 import java.time.Duration
 import java.time.LocalDate
 import java.time.YearMonth
+import kotlin.math.abs
 
 enum class StatisticRange(val title: String, val index: Int) {
     DAY("Day", 0),
@@ -16,8 +17,8 @@ enum class StatisticRange(val title: String, val index: Int) {
     ALL("All time", 2)
 }
 
-fun getHours(activity: Activity) : Float {
-    return abs(Duration.between(activity.endTime, activity.startTime).toMinutes() / 60f)
+fun getHours(activity: Activity): Float {
+    return abs(Duration.between(activity.startTime, activity.endTime).toMinutes() / 60f)
 }
 
 class ActivityTypeStat(val type: ActivityType?, activities: List<Activity>) {
@@ -27,7 +28,7 @@ class ActivityTypeStat(val type: ActivityType?, activities: List<Activity>) {
     val motivation: Float = activities.map { it -> it.motivation }.average().toFloat()
 }
 
-class LanguageStatData(val lanugage: String, typeStats: List<ActivityTypeStat>) {
+class LanguageStatData(val language: String, typeStats: List<ActivityTypeStat>) {
     val allHours: Float = typeStats.map { it -> it.hours }.sum()
     val allCount: Int = typeStats.map { it -> it.count }.sum()
     val allConfidence: Float = typeStats.map { it -> it.confidence }.average().toFloat()
@@ -64,11 +65,11 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
         stats.value = activities.value?.let { mapToStats(it) }
     }
 
-    fun groupByLanguage(items: List<Activity>?) : Map<String, List<Activity>>? {
+    fun groupByLanguage(items: List<Activity>?): Map<String, List<Activity>>? {
         return items?.groupBy { it -> it.language }
     }
 
-    fun groupByType(items: List<Activity>?) : Map<ActivityType?, List<Activity>>? {
+    fun groupByType(items: List<Activity>?): Map<ActivityType?, List<Activity>>? {
         return items?.groupBy { it -> it.type }
     }
 
@@ -83,9 +84,9 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
     }
 }
 
-class StatisticsViewModelFactory() : ViewModelProvider.Factory {
+class StatisticsViewModelFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if(modelClass.isAssignableFrom(StatisticsViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(StatisticsViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return StatisticsViewModel(Repository.getRepository()) as T
         }
