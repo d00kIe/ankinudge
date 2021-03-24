@@ -68,8 +68,8 @@ class Repository {
         return activities
     }
 
-    fun getActivities(date: LocalDate): Activity? {
-        return realm!!.where<Activity>().equalTo("_date", asDate(date)).findFirst()
+    fun getActivities(date: LocalDate): LiveData<List<Activity>?> {
+        return LiveRealmResults<Activity>(realm!!.where<Activity>().equalTo("_date", asDate(date)).findAll())
     }
 
     fun getActivities(from: LocalDate, to: LocalDate): LiveData<List<Activity>?> {
