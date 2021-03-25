@@ -19,9 +19,9 @@ import io.realm.RealmResults
  *
  * @param <T> the type of the RealmModel
 </T> */
-class LiveRealmResults<T : RealmModel?> @MainThread constructor(results: RealmResults<T>) :
+class LiveRealmResults<T : RealmModel?> @MainThread constructor(results: RealmResults<T>?) :
     MutableLiveData<List<T>?>() {
-    private val results: RealmResults<T>
+    private var results: RealmResults<T>? = null
 
     // The listener notifies the observers whenever a change occurs.
     // This could be expanded to also return the change set in a pair.
@@ -37,8 +37,8 @@ class LiveRealmResults<T : RealmModel?> @MainThread constructor(results: RealmRe
      */
     override fun onActive() {
         super.onActive()
-        if (results.isValid) { // invalidated results can no longer be observed.
-            results.addChangeListener(listener)
+        if (this.results?.isValid == true) { // invalidated results can no longer be observed.
+            this.results?.addChangeListener(listener)
         }
     }
 
@@ -47,8 +47,8 @@ class LiveRealmResults<T : RealmModel?> @MainThread constructor(results: RealmRe
      */
     override fun onInactive() {
         super.onInactive()
-        if (results.isValid) {
-            results.removeChangeListener(listener)
+        if (this.results?.isValid == true) {
+            this.results?.removeChangeListener(listener)
         }
     }
 
@@ -59,13 +59,34 @@ class LiveRealmResults<T : RealmModel?> @MainThread constructor(results: RealmRe
      *
      */
     init {
-        require(results.isManaged) { "LiveRealmResults only supports managed RealmModel instances!" }
-        require(results.isValid) { "The provided RealmResults is no longer valid because the Realm instance that owns it is closed. It can no longer be observed for changes." }
-        this.results = results
-        if (results.isLoaded) {
-            // we should not notify observers when results aren't ready yet (async query).
-            // however, synchronous query should be set explicitly.
-            value = results
+        reset(results)
+    }
+
+    fun reset (results : RealmResults<T>?) {
+        val hasActiveObservers = this.hasActiveObservers();
+        if(hasActiveObservers) {
+            if (this.results?.isValid == true) {
+                this.results?.removeChangeListener(listener)
+            }
+        }
+        if(results == null) {
+            this.results = null
+            value = null
+        } else {
+            require(results.isManaged) { "LiveRealmResults only supports managed RealmModel instances!" }
+            require(results.isValid) { "The provided RealmResults is no longer valid because the Realm instance that owns it is closed. It can no longer be observed for changes." }
+            this.results = results
+            if (results.isLoaded) {
+                // we should not notify observers when results aren't ready yet (async query).
+                // however, synchronous query should be set explicitly.
+                value = results
+            }
+
+            if(hasActiveObservers) {
+                if (this.results?.isValid == true) {
+                    this.results?.addChangeListener(listener)
+                }
+            }
         }
     }
 }

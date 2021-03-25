@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityType
+import com.teraculus.lingojournalandroid.model.LiveRealmResults
 import java.time.Duration
 import java.time.LocalDate
 import java.time.YearMonth
@@ -37,32 +38,32 @@ class LanguageStatData(val language: String, typeStats: List<ActivityTypeStat>) 
 
 
 class StatisticsViewModel(val repository: Repository) : ViewModel() {
-    val activities = MutableLiveData<List<Activity>?>()
+    val activities = LiveRealmResults<Activity>(null)
     val range = MutableLiveData<StatisticRange>(StatisticRange.MONTH)
     val stats = MutableLiveData<List<LanguageStatData>?>()
 
     init {
+        activities.observeForever {
+            stats.value = activities.value?.let { it1 -> mapToStats(it1) }
+        }
         setMonth(YearMonth.now())
     }
 
     fun setDay(date: LocalDate) {
         range.value = StatisticRange.DAY
-        activities.value = repository.getActivities(date).value
-        stats.value = activities.value?.let { mapToStats(it) }
+        activities.reset(repository.getActivities(date))
     }
 
     fun setMonth(month: YearMonth) {
         range.value = StatisticRange.MONTH
         val from = LocalDate.of(month.year, month.month, 1)
         val to = from.withDayOfMonth(month.lengthOfMonth())
-        activities.value = repository.getActivities(from, to).value
-        stats.value = activities.value?.let { mapToStats(it) }
+        activities.reset(repository.getActivities(from, to))
     }
 
     fun setAllTime() {
         range.value = StatisticRange.ALL
-        activities.value = repository.getActivities().value
-        stats.value = activities.value?.let { mapToStats(it) }
+        activities.reset(repository.getAllActivities())
     }
 
     fun groupByLanguage(items: List<Activity>?): Map<String, List<Activity>>? {

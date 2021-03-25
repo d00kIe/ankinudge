@@ -8,6 +8,7 @@ import com.teraculus.lingojournalandroid.utils.toRealmDateString
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import io.realm.RealmModel
+import io.realm.RealmResults
 import io.realm.kotlin.where
 import org.bson.types.ObjectId
 import java.time.LocalDate
@@ -68,12 +69,16 @@ class Repository {
         return activities
     }
 
-    fun getActivities(date: LocalDate): LiveData<List<Activity>?> {
-        return LiveRealmResults<Activity>(realm!!.where<Activity>().equalTo("_date", asDate(date)).findAll())
+    fun getAllActivities(): RealmResults<Activity>? {
+        return realm!!.where<Activity>().findAll()
     }
 
-    fun getActivities(from: LocalDate, to: LocalDate): LiveData<List<Activity>?> {
-        return LiveRealmResults<Activity>(realm!!.where<Activity>().between("_date", asDate(from), asDate(to)).findAll())
+    fun getActivities(date: LocalDate): RealmResults<Activity>? {
+        return realm!!.where<Activity>().equalTo("_date", asDate(date)).findAll()
+    }
+
+    fun getActivities(from: LocalDate, to: LocalDate): RealmResults<Activity>? {
+        return realm!!.where<Activity>().between("_date", asDate(from), asDate(to)).findAll()
     }
 
     fun updateActivity(
