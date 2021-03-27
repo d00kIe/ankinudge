@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.ui.calendar.Calendar
 
 // Month stats:
@@ -14,9 +16,9 @@ import com.teraculus.lingojournalandroid.ui.calendar.Calendar
 // 3. Activity type donut - time/count
 // 4. Per activity type - hours, count, average confidence / motivation, streak
 @Composable
-fun StatsContent(modifier: Modifier = Modifier) {
-    var tabIndex by remember { mutableStateOf(0)}
-    val tabs = listOf("Day", "Month", "All time")
+fun StatsContent(modifier: Modifier = Modifier, model: StatisticsViewModel = viewModel("statisticsViewModel", StatisticsViewModelFactory())) {
+    val tabIndex by model.rangeIndex.observeAsState(1)
+    val tabs = listOf(StatisticRange.DAY.title, StatisticRange.MONTH.title, StatisticRange.ALL.title)
     Column(modifier = modifier) {
         TabRow(selectedTabIndex = tabIndex,
             backgroundColor = MaterialTheme.colors.surface) {
@@ -24,14 +26,14 @@ fun StatsContent(modifier: Modifier = Modifier) {
                 Tab(
                     text = { Text(title) },
                     selected = index == tabIndex,
-                    onClick = { tabIndex = index}
+                    onClick = { model.setRangeIndex(index) }
                 )
             }
         }
         when(tabIndex) {
-            0 -> DayStatsContent()
-            1 -> MonthStatsContent()
-            2 -> AllTimeStatsContent()
+            0 -> DayStatsContent(model)
+            1 -> MonthStatsContent(model)
+            2 -> AllTimeStatsContent(model)
         }
     }
 }

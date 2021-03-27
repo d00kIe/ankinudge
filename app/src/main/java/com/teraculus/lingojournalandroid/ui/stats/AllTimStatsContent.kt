@@ -4,6 +4,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 
 @Composable
-fun AllTimeStatsContent() {
+fun AllTimeStatsContent(model: StatisticsViewModel) {
     Text("All time stats")
 }

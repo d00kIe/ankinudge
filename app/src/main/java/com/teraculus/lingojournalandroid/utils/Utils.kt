@@ -91,3 +91,17 @@ fun getMonthForInt(num: Int): String {
     }
     return month
 }
+
+fun getActivityTimeString(minutes: Long): String {
+    val hours = minutes / 60
+    val min = minutes % 60
+    val result = when {
+        (hours > 0L && min > 0L) -> "${hours}h ${min}m"
+        (hours == 0L && min > 0L) -> "${min}m"
+        (hours > 0L && min == 0L) -> "${hours}h"
+        else -> "0m"
+    }
+
+    return result
+}
+

@@ -1,11 +1,12 @@
 package com.teraculus.lingojournalandroid.ui.stats
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.Activity
-import com.teraculus.lingojournalandroid.model.ActivityType
+import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.LiveRealmResults
 import java.time.Duration
 import java.time.LocalDate
@@ -18,35 +19,44 @@ enum class StatisticRange(val title: String, val index: Int) {
     ALL("All time", 2)
 }
 
-fun getHours(activity: Activity): Float {
-    return abs(Duration.between(activity.startTime, activity.endTime).toMinutes() / 60f)
+fun getMinutes(activity: Activity): Long {
+    return abs(Duration.between(activity.startTime, activity.endTime).toMinutes())
 }
 
-class ActivityTypeStat(val type: ActivityType?, activities: List<Activity>) {
-    val hours: Float = activities.map { it -> getHours(it) }.sum()
+class ActivityCategoryStat(val category: ActivityCategory?, activities: List<Activity>) {
+    val minutes: Long = activities.map { it -> getMinutes(it) }.sum()
     val count: Int = activities.size
     val confidence: Float = activities.map { it -> it.confidence }.average().toFloat()
     val motivation: Float = activities.map { it -> it.motivation }.average().toFloat()
 }
 
-class LanguageStatData(val language: String, typeStats: List<ActivityTypeStat>) {
-    val allHours: Float = typeStats.map { it -> it.hours }.sum()
-    val allCount: Int = typeStats.map { it -> it.count }.sum()
-    val allConfidence: Float = typeStats.map { it -> it.confidence }.average().toFloat()
-    val allMotivation: Float = typeStats.map { it -> it.motivation }.average().toFloat()
+class LanguageStatData(val language: String, val categoryStats: List<ActivityCategoryStat>) {
+    val allMinutes: Long = categoryStats.map { it -> it.minutes }.sum()
+    val allCount: Int = categoryStats.map { it -> it.count }.sum()
+    val allConfidence: Float = categoryStats.map { it -> it.confidence }.average().toFloat()
+    val allMotivation: Float = categoryStats.map { it -> it.motivation }.average().toFloat()
 }
 
 
 class StatisticsViewModel(val repository: Repository) : ViewModel() {
     val activities = LiveRealmResults<Activity>(null)
-    val range = MutableLiveData<StatisticRange>(StatisticRange.MONTH)
     val stats = MutableLiveData<List<LanguageStatData>?>()
+    val range = MutableLiveData<StatisticRange>(StatisticRange.MONTH)
+    val rangeIndex = Transformations.map(range) { it.index }
 
     init {
         activities.observeForever {
-            stats.value = activities.value?.let { it1 -> mapToStats(it1) }
+            stats.value = it?.let { it1 -> mapToStats(it1) }
         }
         setMonth(YearMonth.now())
+    }
+
+    fun setRangeIndex(idx: Int) {
+        when(idx) {
+            0 -> setDay(LocalDate.now())
+            1 -> setMonth(YearMonth.now())
+            2 -> setAllTime()
+        }
     }
 
     fun setDay(date: LocalDate) {
@@ -70,15 +80,15 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
         return items?.groupBy { it -> it.language }
     }
 
-    fun groupByType(items: List<Activity>?): Map<ActivityType?, List<Activity>>? {
-        return items?.groupBy { it -> it.type }
+    fun groupByType(items: List<Activity>?): Map<ActivityCategory?, List<Activity>>? {
+        return items?.groupBy { it -> it.type?.category }
     }
 
     fun mapToStats(items: List<Activity>): List<LanguageStatData>? {
         return groupByLanguage(activities.value)?.map {
             val byType = groupByType(it.value)
             val typeStats = byType?.map { it ->
-                ActivityTypeStat(it.key, it.value)
+                ActivityCategoryStat(it.key, it.value)
             }
             LanguageStatData(it.key, typeStats!!)
         }
