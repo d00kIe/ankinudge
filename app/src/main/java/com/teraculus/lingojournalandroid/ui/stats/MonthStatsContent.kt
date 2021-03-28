@@ -1,8 +1,6 @@
 package com.teraculus.lingojournalandroid.ui.stats
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
@@ -31,9 +29,12 @@ fun MonthStatsContent(model: StatisticsViewModel) {
                         modifier = Modifier.padding(start = 16.dp, top = 16.dp))
                     DonutCard(stats = it)
                     CombinedStatsCard(stats = it)
+                    it.categoryStats.forEach { it1 ->
+                        CategoryCard(stats = it1)
+                    }
                 }
             }
         }
-
+        Spacer(modifier = Modifier.size(80.dp))
     }
 }
