@@ -36,6 +36,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Year
 import java.time.YearMonth
+import kotlin.math.abs
 import kotlin.math.ceil
 
 data class DayData(
@@ -113,6 +114,7 @@ fun Calendar(modifier: Modifier, model: StatisticsViewModel) {
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = items.indexOf(month))
     val scope = rememberCoroutineScope()
     val dpToPx = with(LocalDensity.current) { 1.dp.toPx() }
+    val swipeState by remember { mutableStateOf(CalendarSwipeState()) }
 
     BoxWithConstraints {
         val width = maxWidth
@@ -138,7 +140,7 @@ fun Calendar(modifier: Modifier, model: StatisticsViewModel) {
                         modifier = Modifier.padding(16.dp))
                 }
                 LazyRow(state = listState) {
-                    withSwipeBehaviour(listState, scope, widthPx)
+                    withSwipeBehaviour(listState, scope, widthPx, swipeState)
                     items(items) { it ->
                         MonthItem(it.month.value,
                             it.year,
@@ -154,17 +156,49 @@ fun Calendar(modifier: Modifier, model: StatisticsViewModel) {
     }
 }
 
+enum class SwipeDirection {
+    LEFT(),
+    RIGHT(),
+    NONE()
+}
+class CalendarSwipeState() {
+    private var lastOffset: Int = 0
+    private var lastIndex: Int = 0
+    var direction = SwipeDirection.NONE
+
+    fun set(offset: Int, index: Int) {
+        if(index == lastIndex && offset != lastOffset) {
+            direction = when {
+                (offset > lastOffset) -> SwipeDirection.LEFT
+                (offset < lastOffset) -> SwipeDirection.RIGHT
+                else -> SwipeDirection.NONE
+            }
+        }
+        lastOffset = offset
+        lastIndex = index
+    }
+}
+
 private fun withSwipeBehaviour(
     listState: LazyListState,
     scope: CoroutineScope,
     widthPx: Float,
+    state: CalendarSwipeState
 ) {
+    state.set(listState.firstVisibleItemScrollOffset, listState.firstVisibleItemIndex)
     if (!listState.isScrollInProgress && listState.firstVisibleItemScrollOffset != 0) {
         scope.launch {
-            if (listState.firstVisibleItemScrollOffset < (widthPx / 2))
-                listState.animateScrollToItem(listState.firstVisibleItemIndex)
-            else
-                listState.animateScrollToItem(listState.firstVisibleItemIndex + 1)
+            if(state.direction == SwipeDirection.RIGHT) {
+                if (abs(listState.firstVisibleItemScrollOffset) < (widthPx / 7) * 6)
+                    listState.animateScrollToItem(listState.firstVisibleItemIndex)
+                else
+                    listState.animateScrollToItem(listState.firstVisibleItemIndex + 1)
+            } else if (state.direction == SwipeDirection.LEFT) {
+                if (abs(listState.firstVisibleItemScrollOffset) > (widthPx / 7))
+                    listState.animateScrollToItem(listState.firstVisibleItemIndex + 1)
+                else
+                    listState.animateScrollToItem(listState.firstVisibleItemIndex)
+            }
         }
     }
 }
