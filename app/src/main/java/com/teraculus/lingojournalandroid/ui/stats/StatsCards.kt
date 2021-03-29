@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -182,6 +184,19 @@ fun DonutCard(stats: LanguageStatData) {
                     Text("Count", style = MaterialTheme.typography.caption)
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun Selector(modifier: Modifier = Modifier, onNext: () -> Unit, onPrev: () -> Unit, hasNext: Boolean, hasPrev: Boolean, content: @Composable() () -> Unit) {
+    Row(modifier = modifier, horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+        IconButton(onClick = onPrev, enabled = hasPrev) {
+            Icon(Icons.Rounded.KeyboardArrowLeft, contentDescription = null)
+        }
+        content()
+        IconButton(onClick = onNext, enabled = hasNext) {
+            Icon(Icons.Rounded.KeyboardArrowRight, contentDescription = null)
         }
     }
 }
