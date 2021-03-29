@@ -1,6 +1,5 @@
 package com.teraculus.lingojournalandroid.ui.stats
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -15,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.ui.calendar.Calendar
 
-@ExperimentalFoundationApi
 @Composable
 fun MonthStatsContent(model: StatisticsViewModel) {
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {

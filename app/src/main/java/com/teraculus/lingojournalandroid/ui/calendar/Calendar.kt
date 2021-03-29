@@ -1,6 +1,7 @@
 package com.teraculus.lingojournalandroid.ui.calendar
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
@@ -33,6 +34,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.Year
 import java.time.YearMonth
 import kotlin.math.ceil
 
@@ -56,60 +58,6 @@ fun getMonthItems(): List<YearMonth> {
     return result
 }
 
-@Composable
-fun Calendar(modifier: Modifier, model: StatisticsViewModel) {
-    val items by remember { mutableStateOf(getMonthItems()) }
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = items.size - 1)
-    val scope = rememberCoroutineScope()
-    val dpToPx = with(LocalDensity.current) { 1.dp.toPx() }
-    val currentYearMonthIdx =
-        if (listState.firstVisibleItemScrollOffset == 0) listState.firstVisibleItemIndex else listState.firstVisibleItemIndex + 1
-    val currentYearMonth = items[currentYearMonthIdx]
-    BoxWithConstraints {
-        val width = maxWidth
-        val widthPx = width.value * dpToPx
-        Surface(elevation = 0.dp, modifier = modifier) {
-            Column {
-                Selector( modifier.fillMaxWidth(),
-                    onNext = { scope.launch { listState.animateScrollToItem(listState.firstVisibleItemIndex + 1) } },
-                    onPrev = { scope.launch { listState.animateScrollToItem(listState.firstVisibleItemIndex - 1) } },
-                    hasNext = listState.firstVisibleItemIndex < items.size - 1,
-                    hasPrev = listState.firstVisibleItemIndex > 0) {
-                    MonthHeader(month = getMonthForInt(currentYearMonth.monthValue),
-                        year = currentYearMonth.year.toString(),
-                        modifier = Modifier.padding(16.dp))
-                }
-                LazyRow(state = listState) {
-                    withSwipeBehaviour(listState, scope, widthPx)
-                    items(items) { it ->
-                        MonthItem(it.month.value,
-                            it.year,
-                            Modifier.width(width),
-                            { it1 ->
-                                model.setDay(LocalDate.of(it1.year, it1.month, it1.day))
-                            },
-                            model.activities)
-                    }
-                }
-            }
-        }
-    }
-}
-
-private fun withSwipeBehaviour(
-    listState: LazyListState,
-    scope: CoroutineScope,
-    widthPx: Float,
-) {
-    if (!listState.isScrollInProgress && listState.firstVisibleItemScrollOffset != 0) {
-        scope.launch {
-            if (listState.firstVisibleItemScrollOffset < (widthPx / 2))
-                listState.animateScrollToItem(listState.firstVisibleItemIndex)
-            else
-                listState.animateScrollToItem(listState.firstVisibleItemIndex + 1)
-        }
-    }
-}
 
 fun List<Activity>.filterForDay(day: Int, month: Int, year: Int): List<Activity> {
     return this.filter { a -> a.date.year == year && a.date.monthValue == month && a.date.dayOfMonth == day }
@@ -158,20 +106,94 @@ fun getMonthDayData(month: Int, year: Int, activities: List<Activity>?): List<Da
 }
 
 @Composable
-fun MonthItem(
-    month: Int, year: Int, modifier: Modifier,
-    onClick: (data: DayData) -> Unit, activities: LiveRealmResults<Activity>,
+fun Calendar(modifier: Modifier, model: StatisticsViewModel) {
+    val items by remember { mutableStateOf(getMonthItems()) }
+    val month by model.month.observeAsState()
+    val activities by model.activities.observeAsState()
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = items.indexOf(month))
+    val scope = rememberCoroutineScope()
+    val dpToPx = with(LocalDensity.current) { 1.dp.toPx() }
+
+    BoxWithConstraints {
+        val width = maxWidth
+        val widthPx = width.value * dpToPx
+        Surface(elevation = 0.dp, modifier = modifier) {
+            Column {
+                val currentYearMonthIdx =
+                    if (listState.firstVisibleItemScrollOffset == 0) listState.firstVisibleItemIndex else listState.firstVisibleItemIndex + 1
+                val currentYearMonth = items[currentYearMonthIdx]
+
+                SideEffect {
+                    if(month != currentYearMonth) {
+                        model.setMonth(currentYearMonth)
+                    }
+                }
+                Selector( modifier.fillMaxWidth(),
+                    onNext = { scope.launch { listState.animateScrollToItem(listState.firstVisibleItemIndex + 1) } },
+                    onPrev = { scope.launch { listState.animateScrollToItem(listState.firstVisibleItemIndex - 1) } },
+                    hasNext = listState.firstVisibleItemIndex < items.size - 1,
+                    hasPrev = listState.firstVisibleItemIndex > 0) {
+                    MonthHeader(month = getMonthForInt(currentYearMonth.monthValue),
+                        year = currentYearMonth.year.toString(),
+                        modifier = Modifier.padding(16.dp))
+                }
+                LazyRow(state = listState) {
+                    withSwipeBehaviour(listState, scope, widthPx)
+                    items(items) { it ->
+                        MonthItem(it.month.value,
+                            it.year,
+                            Modifier.width(width),
+                            { it1 ->
+                                model.setDay(LocalDate.of(it1.year, it1.month, it1.day))
+                            },
+                            activities, !listState.isScrollInProgress && currentYearMonth == it)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun withSwipeBehaviour(
+    listState: LazyListState,
+    scope: CoroutineScope,
+    widthPx: Float,
 ) {
-    val activityItems by activities.observeAsState()
-    val dataItems: List<DayData> by remember {
+    if (!listState.isScrollInProgress && listState.firstVisibleItemScrollOffset != 0) {
+        scope.launch {
+            if (listState.firstVisibleItemScrollOffset < (widthPx / 2))
+                listState.animateScrollToItem(listState.firstVisibleItemIndex)
+            else
+                listState.animateScrollToItem(listState.firstVisibleItemIndex + 1)
+        }
+    }
+}
+
+
+@Composable
+fun MonthItem(
+    month: Int,
+    year: Int,
+    modifier: Modifier,
+    onClick: (data: DayData) -> Unit,
+    activities: List<Activity>?,
+    loaded: Boolean
+) {
+    val dataItems = remember {
         mutableStateOf(getMonthDayData(month,
             year,
-            activityItems))
+            activities))
     }
-    val weekCount by remember { mutableStateOf(ceil(dataItems.size / 7.0).toInt()) }
+    val weekCount = remember { mutableStateOf(ceil(dataItems.value.size / 7.0).toInt()) }
     var cellSize by remember { mutableStateOf(0.dp)}
-    Column(modifier = modifier) {
-        for (w in 0 until weekCount) {
+    if (loaded) {
+        dataItems.value = getMonthDayData(month,
+            year,
+            activities)
+        weekCount.value = ceil(dataItems.value.size / 7.0).toInt()
+    }
+    Column(modifier = modifier.padding(horizontal = 16.dp)) {
+        for (w in 0 until weekCount.value) {
             BoxWithConstraints {
                 if(cellSize != maxWidth / 7) {
                     cellSize = maxWidth / 7
@@ -182,10 +204,11 @@ fun MonthItem(
                     verticalAlignment = Alignment.CenterVertically) {
                     for (d in 0 until 7) {
                         val itemIdx by remember { mutableStateOf(w * 7 + d) }
-                        DayItem(dataItems[itemIdx], modifier = Modifier
-                            .size(cellSize)
-                            .clickable { onClick(dataItems[itemIdx]) }
-                        )
+                        var mod = Modifier.size(cellSize)
+                        if(loaded && dataItems.value[itemIdx].thisMonth) {
+                            mod = mod.clickable { onClick(dataItems.value[itemIdx]) }
+                        }
+                        DayItem(dataItems.value[itemIdx], modifier = mod)
                     }
                 }
             }
@@ -220,11 +243,11 @@ fun DayItem(
         if (data.thisMonth) {
             Column(verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(data.day.toString(),
-                            style = MaterialTheme.typography.caption,
-                            textAlign = TextAlign.Center,
-                            textDecoration = if (data.today) TextDecoration.Underline else null,
-                            fontWeight = if (data.today) FontWeight.Bold else null)
+                Text(data.day.toString(),
+                    style = MaterialTheme.typography.caption,
+                    textAlign = TextAlign.Center,
+                    textDecoration = if (data.today) TextDecoration.Underline else null,
+                    fontWeight = if (data.today) FontWeight.Black else null)
             }
         }
     }

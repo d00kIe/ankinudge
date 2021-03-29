@@ -14,11 +14,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.ui.calendar.Calendar
+import com.teraculus.lingojournalandroid.utils.toDayString
 
 @Composable
 fun DayStatsContent(model: StatisticsViewModel) {
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         val stats by model.stats.observeAsState()
+
+        val day by model.day.observeAsState()
+        Selector(Modifier.fillMaxWidth(),
+            onNext = { model.setDay(day?.plusDays(1)!!) },
+            onPrev = { model.setDay(day?.minusDays(1)!!) },
+            hasNext = true,
+            hasPrev = true) {
+            Text(modifier =  Modifier.padding(16.dp),
+                text = toDayString(day),
+                style = MaterialTheme.typography.subtitle2
+            )
+        }
 
         if (stats?.isNotEmpty() == true) {
             Column {

@@ -30,6 +30,13 @@ fun toTimeString(time: LocalTime?) : String {
     return time.format(timeFormatter)
 }
 
+fun toDayString(date: LocalDate?) : String {
+    if(date == null)
+        return ""
+    val dateFormatter = DateTimeFormatter.ofPattern("EE, dd MMM", Locale.getDefault())
+    return date.format(dateFormatter)
+}
+
 fun toRealmDateString(date: LocalDate) : String {
     val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
     return dateFormatter.format(date)

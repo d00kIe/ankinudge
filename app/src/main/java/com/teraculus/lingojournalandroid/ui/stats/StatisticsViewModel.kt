@@ -41,8 +41,10 @@ class LanguageStatData(val language: String, val categoryStats: List<ActivityCat
 class StatisticsViewModel(val repository: Repository) : ViewModel() {
     val activities = LiveRealmResults<Activity>(null)
     val stats = MutableLiveData<List<LanguageStatData>?>()
-    val range = MutableLiveData<StatisticRange>(StatisticRange.MONTH)
+    val range = MutableLiveData(StatisticRange.MONTH)
     val rangeIndex = Transformations.map(range) { it.index }
+    val day = MutableLiveData(LocalDate.now())
+    val month = MutableLiveData(YearMonth.now())
 
     init {
         activities.observeForever {
@@ -53,21 +55,23 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
 
     fun setRangeIndex(idx: Int) {
         when(idx) {
-            0 -> setDay(LocalDate.now())
-            1 -> setMonth(YearMonth.now())
+            0 -> setDay(day.value!!)
+            1 -> setMonth(month.value!!)
             2 -> setAllTime()
         }
     }
 
     fun setDay(date: LocalDate) {
         range.value = StatisticRange.DAY
+        day.value = date
         activities.reset(repository.getActivities(date))
     }
 
-    fun setMonth(month: YearMonth) {
+    fun setMonth(yearMonth: YearMonth) {
         range.value = StatisticRange.MONTH
-        val from = LocalDate.of(month.year, month.month, 1)
-        val to = from.withDayOfMonth(month.lengthOfMonth())
+        month.value = yearMonth
+        val from = LocalDate.of(yearMonth.year, yearMonth.month, 1)
+        val to = from.withDayOfMonth(yearMonth.lengthOfMonth())
         activities.reset(repository.getActivities(from, to))
     }
 
@@ -76,15 +80,15 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
         activities.reset(repository.getAllActivities())
     }
 
-    fun groupByLanguage(items: List<Activity>?): Map<String, List<Activity>>? {
+    private fun groupByLanguage(items: List<Activity>?): Map<String, List<Activity>>? {
         return items?.groupBy { it -> it.language }
     }
 
-    fun groupByType(items: List<Activity>?): Map<ActivityCategory?, List<Activity>>? {
+    private fun groupByType(items: List<Activity>?): Map<ActivityCategory?, List<Activity>>? {
         return items?.groupBy { it -> it.type?.category }
     }
 
-    fun mapToStats(items: List<Activity>): List<LanguageStatData>? {
+    private fun mapToStats(items: List<Activity>): List<LanguageStatData>? {
         return groupByLanguage(activities.value)?.map {
             val byType = groupByType(it.value)
             val typeStats = byType?.map { it ->
