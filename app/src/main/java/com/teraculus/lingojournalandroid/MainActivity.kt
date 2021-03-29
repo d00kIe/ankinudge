@@ -8,11 +8,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import com.teraculus.lingojournalandroid.ui.Main
 import android.view.WindowManager
-
-
+import androidx.compose.animation.ExperimentalAnimationApi
 
 
 class MainActivity : AppCompatActivity() {
+    @ExperimentalAnimationApi
     @ExperimentalFoundationApi
     @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {

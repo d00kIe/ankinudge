@@ -33,7 +33,7 @@ fun toTimeString(time: LocalTime?) : String {
 fun toDayString(date: LocalDate?) : String {
     if(date == null)
         return ""
-    val dateFormatter = DateTimeFormatter.ofPattern("EE, dd MMM", Locale.getDefault())
+    val dateFormatter = DateTimeFormatter.ofPattern("EEEE, dd MMMM", Locale.getDefault())
     return date.format(dateFormatter)
 }
 

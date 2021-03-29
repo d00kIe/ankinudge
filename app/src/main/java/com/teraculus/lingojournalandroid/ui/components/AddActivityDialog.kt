@@ -1,5 +1,9 @@
 package com.teraculus.lingojournalandroid.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -33,28 +37,27 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
 fun AddActivityDialog(
-    show: Boolean,
     onDismiss: () -> Unit,
     id: String? = null,
 ) {
     val model: EditActivityViewModel =
         viewModel("editActivityViewModel", EditActivityViewModelFactory())
     model.prepareActivity(id)
-    AddActivityDialog(show = show, onDismiss = onDismiss, model)
+    AddActivityDialog(onDismiss = onDismiss, model)
 }
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
-fun AddActivityDialog(show: Boolean, onDismiss: () -> Unit, model: EditActivityViewModel) {
-    if (show) {
-        Dialog(onDismissRequest = onDismiss) {
-            AddActivityDialogContent(onDismiss, model)
-        }
+fun AddActivityDialog(onDismiss: () -> Unit, model: EditActivityViewModel) {
+    Dialog(onDismissRequest = onDismiss) {
+        AddActivityDialogContent(onDismiss, model)
     }
 }
 

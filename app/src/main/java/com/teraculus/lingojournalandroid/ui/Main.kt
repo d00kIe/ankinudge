@@ -1,5 +1,9 @@
 package com.teraculus.lingojournalandroid.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
@@ -19,22 +23,24 @@ import com.teraculus.lingojournalandroid.ui.navi.Screen
 import com.teraculus.lingojournalandroid.ui.stats.StatsScreen
 
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
 fun Main() {
     val navController = rememberNavController()
-    val screen = listOf(Screen.Home, Screen.Calendar, Screen.Stats, Screen.Settings)
+    val screen = listOf(Screen.Home, Screen.Stats, Screen.Settings)
     var showAddActivityDialog by rememberSaveable { mutableStateOf(false) }
     var activityId: String? by rememberSaveable { mutableStateOf(null) }
 
     LingoTheme() {
         Main(navController,screen, onAddActivity = { showAddActivityDialog = true }, onActivityClick = { activityId = it; showAddActivityDialog = true })
-        AddActivityDialog(
-            show = showAddActivityDialog,
-            onDismiss = { showAddActivityDialog = false; activityId = null },
-            id = activityId
-        )
+        AnimatedVisibility(visible = showAddActivityDialog, enter = slideInHorizontally(), exit = slideOutHorizontally()) {
+            AddActivityDialog(
+                onDismiss = { showAddActivityDialog = false; activityId = null },
+                id = activityId
+            )
+        }
     }
 }
 
@@ -49,7 +55,7 @@ fun Main(navController: NavHostController, screens: List<Screen>, onAddActivity:
                 val currentRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
                 screens.forEach { screen ->
                     BottomNavigationItem(
-                        icon = { Icon(Icons.Filled.Favorite, null) },
+                        icon = { Icon(screen.icon, null) },
                         label = { Text(stringResource(screen.resourceId)) },
                         selected = currentRoute == screen.route,
                         onClick = {
@@ -68,18 +74,21 @@ fun Main(navController: NavHostController, screens: List<Screen>, onAddActivity:
             }
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddActivity) {
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = ""
-                )
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
+            if(currentRoute == "home") {
+                FloatingActionButton(onClick = onAddActivity) {
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = ""
+                    )
+                }
             }
         }
     ) {
 
-        NavHost(navController, startDestination = Screen.Stats.route) {
+        NavHost(navController, startDestination = Screen.Home.route) {
             composable(Screen.Home.route) { HomeScreen(onItemClick = onActivityClick) }
-            composable(Screen.Calendar.route) { HomeScreen(onItemClick = onActivityClick) }
             composable(Screen.Stats.route) { StatsScreen() }
             composable(Screen.Settings.route) { HomeScreen(onItemClick = onActivityClick) }
         }

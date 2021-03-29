@@ -272,11 +272,13 @@ fun DayItem(
     Surface(shape = RectangleShape,
         modifier = modifier,
         elevation = 0.dp,
-        color = if (data.hasActivities) MaterialTheme.colors.primary else MaterialTheme.colors.surface
     ) {
         if (data.thisMonth) {
-            Column(verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(modifier = modifier.fillMaxSize(),contentAlignment = Alignment.Center) {
+                Surface(shape = CircleShape,
+                    modifier = Modifier.size(32.dp),
+                    elevation = 0.dp,
+                    color = if (data.hasActivities) MaterialTheme.colors.primary.copy(alpha = 0.75f) else MaterialTheme.colors.surface) {}
                 Text(data.day.toString(),
                     style = MaterialTheme.typography.caption,
                     textAlign = TextAlign.Center,
