@@ -1,14 +1,12 @@
 package com.teraculus.lingojournalandroid.ui.calendar
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -22,19 +20,19 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
 import com.teraculus.lingojournalandroid.model.Activity
-import com.teraculus.lingojournalandroid.model.LiveRealmResults
 import com.teraculus.lingojournalandroid.ui.stats.Selector
 import com.teraculus.lingojournalandroid.ui.stats.StatisticsViewModel
+import com.teraculus.lingojournalandroid.ui.stats.getMinutes
 import com.teraculus.lingojournalandroid.utils.getMonthForInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.lang.Float.max
+import java.lang.Float.min
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.Year
 import java.time.YearMonth
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -46,6 +44,8 @@ data class DayData(
     val thisMonth: Boolean,
     val today: Boolean,
     val hasActivities: Boolean,
+    val minutes: Long,
+    val count: Int,
 )
 
 fun getMonthItems(): List<YearMonth> {
@@ -78,17 +78,22 @@ fun getMonthDayData(month: Int, year: Int, activities: List<Activity>?): List<Da
             lastDatOfPrevMonth.year,
             thisMonth = false,
             today = false,
-            hasActivities = false))
+            hasActivities = false,
+            minutes = 0,
+            count = 0))
     }
 
     val thisMonth = today.monthValue == month && today.year == year
     for (i in 1..firstDayOfMonth.lengthOfMonth()) {
+        val thisActivities = activities?.filterForDay(i, month, year)
         dataItems.add(DayData(i,
             month,
             year,
             thisMonth = true,
             today = thisMonth && today.dayOfMonth == i,
-            hasActivities = activities?.filterForDay(i, month, year)?.isNotEmpty()!!))
+            hasActivities = !thisActivities.isNullOrEmpty()!!,
+            minutes = thisActivities.orEmpty().sumOf { it-> getMinutes(it) },
+            count = thisActivities.orEmpty().size))
     }
 
 
@@ -100,7 +105,9 @@ fun getMonthDayData(month: Int, year: Int, activities: List<Activity>?): List<Da
             firstDayOfNextMonth.year,
             thisMonth = false,
             today = false,
-            hasActivities = false))
+            hasActivities = false,
+            minutes = 0,
+            count = 0))
     }
 
     return dataItems
@@ -111,6 +118,8 @@ fun Calendar(modifier: Modifier, model: StatisticsViewModel) {
     val items by remember { mutableStateOf(getMonthItems()) }
     val month by model.month.observeAsState()
     val activities by model.activities.observeAsState()
+    val maxMinutes by model.maxMinutes.observeAsState()
+    val maxCount by model.maxCount.observeAsState()
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = items.indexOf(month))
     val scope = rememberCoroutineScope()
     val dpToPx = with(LocalDensity.current) { 1.dp.toPx() }
@@ -148,7 +157,8 @@ fun Calendar(modifier: Modifier, model: StatisticsViewModel) {
                             { it1 ->
                                 model.setDay(LocalDate.of(it1.year, it1.month, it1.day))
                             },
-                            activities, !listState.isScrollInProgress && currentYearMonth == it)
+                            activities, !listState.isScrollInProgress && currentYearMonth == it,
+                            maxMinutes!!, maxCount!!)
                     }
                 }
             }
@@ -211,7 +221,9 @@ fun MonthItem(
     modifier: Modifier,
     onClick: (data: DayData) -> Unit,
     activities: List<Activity>?,
-    loaded: Boolean
+    loaded: Boolean,
+    maxMinutes: Long,
+    maxCount: Int
 ) {
     val dataItems = remember {
         mutableStateOf(getMonthDayData(month,
@@ -242,7 +254,7 @@ fun MonthItem(
                         if(loaded && dataItems.value[itemIdx].thisMonth) {
                             mod = mod.clickable { onClick(dataItems.value[itemIdx]) }
                         }
-                        DayItem(dataItems.value[itemIdx], modifier = mod)
+                        DayItem(dataItems.value[itemIdx], modifier = mod, maxMinutes = maxMinutes, maxCount = maxCount, cellSize = cellSize)
                     }
                 }
             }
@@ -258,29 +270,30 @@ private fun MonthHeader(modifier: Modifier = Modifier, month: String, year: Stri
     )
 }
 
-@Preview
-@Composable
-fun DayItem() {
-    DayItem(DayData(25, 3, 2020, thisMonth = true, today = false, hasActivities = true))
-}
-
 @Composable
 fun DayItem(
     data: DayData,
     modifier: Modifier = Modifier,
+    maxMinutes: Long,
+    maxCount: Int,
+    cellSize: Dp,
 ) {
+    val circleSize = (cellSize - 32.dp) / maxCount.coerceAtLeast(1) * data.count
+    val circleAlpha = min((0.35f / maxMinutes.coerceAtLeast(1)) * data.minutes, 0.35f)
+
     Surface(shape = RectangleShape,
-        modifier = modifier,
+        modifier = modifier.size(cellSize),
         elevation = 0.dp,
     ) {
         if (data.thisMonth) {
             Box(modifier = modifier.fillMaxSize(),contentAlignment = Alignment.Center) {
                 Surface(shape = CircleShape,
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(32.dp + circleSize),
                     elevation = 0.dp,
-                    color = if (data.hasActivities) MaterialTheme.colors.primary.copy(alpha = 0.75f) else MaterialTheme.colors.surface) {}
+                    color = if (data.hasActivities) MaterialTheme.colors.primary.copy(alpha = 0.65f + circleAlpha) else MaterialTheme.colors.surface) {}
                 Text(data.day.toString(),
                     style = MaterialTheme.typography.caption,
+                    color = if (data.hasActivities) MaterialTheme.colors.onPrimary else Color.Unspecified,
                     textAlign = TextAlign.Center,
                     textDecoration = if (data.today) TextDecoration.Underline else null,
                     fontWeight = if (data.today) FontWeight.Black else null)

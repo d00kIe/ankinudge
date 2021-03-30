@@ -1,5 +1,6 @@
 package com.teraculus.lingojournalandroid.ui.stats
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
@@ -30,14 +31,18 @@ class ActivityCategoryStat(val category: ActivityCategory?, activities: List<Act
     val motivation: Float = activities.map { it -> it.motivation }.average().toFloat()
 }
 
-class LanguageStatData(val language: String, val categoryStats: List<ActivityCategoryStat>) {
-    val allMinutes: Long = categoryStats.map { it -> it.minutes }.sum()
-    val allCount: Int = categoryStats.map { it -> it.count }.sum()
-    val allConfidence: Float = categoryStats.map { it -> it.confidence }.average().toFloat()
-    val allMotivation: Float = categoryStats.map { it -> it.motivation }.average().toFloat()
+class LanguageStatData(val language: String, val categoryStats: List<ActivityCategoryStat>, val maxMinutes: Long = 0L, val maxCount: Int = 0) {
+    val allMinutes: Long = if(categoryStats.isNotEmpty()) categoryStats.map { it -> it.minutes }.sum() else 0
+    val allCount: Int = if(categoryStats.isNotEmpty()) categoryStats.map { it -> it.count }.sum() else 0
+    val allConfidence: Float = if(categoryStats.isNotEmpty()) categoryStats.map { it -> it.confidence }.average().toFloat() else 0f
+    val allMotivation: Float = if(categoryStats.isNotEmpty()) categoryStats.map { it -> it.motivation }.average().toFloat() else 0f
+
+    companion object {
+        fun empty(): LanguageStatData {
+            return LanguageStatData("", listOf<ActivityCategoryStat>())
+        }
+    }
 }
-
-
 class StatisticsViewModel(val repository: Repository) : ViewModel() {
     val activities = LiveRealmResults<Activity>(null)
     val stats = MutableLiveData<List<LanguageStatData>?>()
@@ -45,10 +50,19 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
     val rangeIndex = Transformations.map(range) { it.index }
     val day = MutableLiveData(LocalDate.now())
     val month = MutableLiveData(YearMonth.now())
+    var maxMinutes = MutableLiveData<Long>(0L)
+    var maxCount = MutableLiveData(0)
 
     init {
         activities.observeForever {
             stats.value = it?.let { it1 -> mapToStats(it1) }
+            if(!stats.value.isNullOrEmpty()) {
+                maxMinutes.value = stats.value.orEmpty().maxOf { it2 -> it2.maxMinutes }
+                maxCount.value = stats.value.orEmpty().maxOf { it2 -> it2.maxCount }
+            } else {
+                maxMinutes.value = 0L
+                maxCount.value = 0
+            }
         }
         setMonth(YearMonth.now())
     }
@@ -94,7 +108,8 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
             val typeStats = byType?.map { it ->
                 ActivityCategoryStat(it.key, it.value)
             }
-            LanguageStatData(it.key, typeStats!!)
+            val groupByDay = items.groupBy { it -> it.date }
+            LanguageStatData(it.key, typeStats!!, groupByDay.values.maxOf { it -> it.sumOf { it1 -> getMinutes(it1) } }, groupByDay.maxOf { it -> it.value.size })
         }
     }
 }

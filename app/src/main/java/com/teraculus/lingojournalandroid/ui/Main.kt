@@ -6,13 +6,16 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.teraculus.lingojournalandroid.PickerProvider
@@ -77,10 +80,11 @@ fun Main(navController: NavHostController, screens: List<Screen>, onAddActivity:
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
             if(currentRoute == "home") {
-                FloatingActionButton(onClick = onAddActivity) {
+                FloatingActionButton(onClick = onAddActivity, backgroundColor= MaterialTheme.colors.surface, contentColor = MaterialTheme.colors.secondary) {
                     Icon(
                         imageVector = Icons.Rounded.Add,
-                        contentDescription = ""
+                        contentDescription = null,
+                        Modifier.size(32.dp)
                     )
                 }
             }

@@ -17,11 +17,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
+import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.utils.getActivityTimeString
 import kotlin.math.max
 
@@ -45,10 +47,16 @@ fun TextStatsItem(label: String, value: String, style: TextStyle = MaterialTheme
 fun ProgressStatsItem(label: String, value: Float, color: Color, modifier: Modifier = Modifier, strokeWidth : Dp = 16.dp) {
     val animatedValue by animateFloatAsState(targetValue = max(value / 100f, 0.01f))
     StatsItem(label = label) {
-        CircularProgressIndicator(progress = animatedValue,
-            color = color,
-            strokeWidth = strokeWidth,
-            modifier = modifier.size(80.dp))
+        Box() {
+            CircularProgressIndicator(progress = 1f,
+                color = Color.LightGray.copy(alpha = 0.2f),
+                strokeWidth = strokeWidth,
+                modifier = modifier.size(80.dp))
+            CircularProgressIndicator(progress = animatedValue,
+                color = color,
+                strokeWidth = strokeWidth,
+                modifier = modifier.size(80.dp))
+        }
     }
 }
 
@@ -96,7 +104,7 @@ fun Chip(
         ButtonDefaults.OutlinedBorderSize, MaterialTheme.colors.primary
     )
     OutlinedButton(
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(8.dp),
         modifier = modifier,
         onClick = onClick,
         border = when {
@@ -144,10 +152,18 @@ fun DonutCard(stats: LanguageStatData) {
         .fillMaxWidth(), elevation = 4.dp, shape = RoundedCornerShape(16.dp)) {
         Column {
             Row(modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly) {
-                Surface(modifier = Modifier.padding(16.dp)) {
-                    val perUnit = if (isTime) 1f / stats.allMinutes else 1f / stats.allCount
+                verticalAlignment = Alignment.CenterVertically) {
+                Box(modifier = Modifier
+                    .padding(16.dp)
+                    .weight(1f),
+                    contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(progress = 1f,
+                        color = Color.LightGray.copy(alpha = 0.2f),
+                        strokeWidth = 24.dp,
+                        modifier = Modifier.size(160.dp))
+
+
+                    val perUnit = if (isTime) 1f / (stats.allMinutes + Float.MIN_VALUE) else 1f / (stats.allCount + Float.MIN_VALUE)
                     var currentSpan = 1f
                     stats.categoryStats.forEach {
                         CircularProgressIndicator(progress = currentSpan,
@@ -157,17 +173,15 @@ fun DonutCard(stats: LanguageStatData) {
                         currentSpan -= perUnit * (if (isTime) it.minutes else it.count).toFloat()
                     }
                 }
-                Column(modifier = Modifier.padding(16.dp)) {
-                    stats.categoryStats.forEach {
-                        Row(modifier = Modifier.padding(top = 8.dp, start = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
-                            Box(modifier = Modifier
-                                .background(color = Color(it.category?.color!!),
-                                    shape = CircleShape)
-                                .size(6.dp))
-                            Text(modifier = Modifier.padding(horizontal = 8.dp),
-                                text = it.category.title,
-                                style = MaterialTheme.typography.caption)
+                Column(modifier = Modifier
+                    .padding(16.dp)
+                    .weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column() {
+                        if (stats.categoryStats.isEmpty()) {
+                            DonutLegendItem(title = "None", color = Color.LightGray.copy(alpha = 0.2f).toArgb())
+                        }
+                        stats.categoryStats.forEach {
+                            it.category?.let { it1 -> DonutLegendItem(it1.title, it1.color) }
                         }
                     }
                 }
@@ -185,6 +199,20 @@ fun DonutCard(stats: LanguageStatData) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun DonutLegendItem(title: String, color: Int) {
+    Row(modifier = Modifier.padding(top = 8.dp, start = 16.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        Box(modifier = Modifier
+            .background(color = Color(color),
+                shape = CircleShape)
+            .size(6.dp))
+        Text(modifier = Modifier.padding(horizontal = 8.dp),
+            text = title,
+            style = MaterialTheme.typography.caption)
     }
 }
 

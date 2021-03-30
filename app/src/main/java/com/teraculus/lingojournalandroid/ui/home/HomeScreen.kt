@@ -52,6 +52,9 @@ fun ActivityList(activities: List<Activity>?, onItemClick: (id: String) -> Unit)
     val groups = activities?.groupBy { it.date }
     LazyColumn(
     ) {
+        item {
+            Text("Journal", modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp), style = MaterialTheme.typography.h4)
+        }
         if (activities != null) {
             groups?.forEach { (date, items) ->
                 item {

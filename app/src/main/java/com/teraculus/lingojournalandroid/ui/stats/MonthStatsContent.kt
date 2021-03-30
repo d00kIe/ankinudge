@@ -16,11 +16,11 @@ import com.teraculus.lingojournalandroid.ui.calendar.Calendar
 
 @Composable
 fun MonthStatsContent(model: StatisticsViewModel) {
+    val stats by model.stats.observeAsState()
+
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         Calendar(Modifier.fillMaxWidth(), model)
         Divider()
-        val stats by model.stats.observeAsState()
-
         if (stats?.isNotEmpty() == true) {
             Column {
                 stats!!.forEach {
