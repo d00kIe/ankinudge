@@ -1,5 +1,6 @@
 package com.teraculus.lingojournalandroid.ui.stats
 
+import android.graphics.drawable.PaintDrawable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -61,11 +62,16 @@ fun ProgressStatsItem(label: String, value: Float, color: Color, modifier: Modif
 }
 
 @Composable
+fun StatsCard(modifier: Modifier = Modifier, content: @Composable() () -> Unit) {
+    Card(modifier = Modifier
+        .padding(start = 16.dp, top = 16.dp, end = 16.dp)
+        .fillMaxWidth(), elevation = 2.dp, shape = RoundedCornerShape(8.dp), content = content)
+}
+
+@Composable
 fun CombinedStatsCard(stats: LanguageStatData) {
     Column {
-        Card(modifier = Modifier
-            .padding(start = 16.dp, top = 16.dp, end = 16.dp)
-            .fillMaxWidth(), elevation = 4.dp, shape = RoundedCornerShape(16.dp)) {
+        StatsCard {
             Column {
                 Row(modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -75,9 +81,7 @@ fun CombinedStatsCard(stats: LanguageStatData) {
             }
         }
 
-        Card(modifier = Modifier
-            .padding(start = 16.dp, top = 16.dp, end = 16.dp)
-            .fillMaxWidth(), elevation = 4.dp, shape = RoundedCornerShape(16.dp)) {
+        StatsCard() {
             Column {
                 Row(modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -117,9 +121,7 @@ fun Chip(
 
 @Composable
 fun CategoryCard(stats: ActivityCategoryStat) {
-    Card(modifier = Modifier
-        .padding(start = 16.dp, top = 16.dp, end = 16.dp)
-        .fillMaxWidth(), elevation = 4.dp, shape = RoundedCornerShape(16.dp)) {
+    StatsCard() {
         Column() {
             Text(stats.category?.title!!,
                 style = MaterialTheme.typography.subtitle1,
@@ -147,9 +149,7 @@ fun CategoryCard(stats: ActivityCategoryStat) {
 fun DonutCard(stats: LanguageStatData) {
     var isTime: Boolean by rememberSaveable { mutableStateOf(true) }
 
-    Card(modifier = Modifier
-        .padding(start = 16.dp, top = 16.dp, end = 16.dp)
-        .fillMaxWidth(), elevation = 4.dp, shape = RoundedCornerShape(16.dp)) {
+    StatsCard() {
         Column {
             Row(modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically) {
@@ -226,5 +226,44 @@ fun Selector(modifier: Modifier = Modifier, onNext: () -> Unit, onPrev: () -> Un
         IconButton(onClick = onNext, enabled = hasNext) {
             Icon(Icons.Rounded.KeyboardArrowRight, contentDescription = null)
         }
+    }
+}
+
+@Composable
+fun TimeAndCountCard(stats: LanguageStatData) {
+    StatsCard() {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            TimeAndCountHeaderRow()
+            TimeAndCountRow(title = "All",
+                time = getActivityTimeString(stats.allMinutes),
+                count = stats.allCount.toString())
+            stats.categoryStats.forEach { it ->
+                if (it?.category != null) {
+                    TimeAndCountRow(title = it.category.title,
+                        time = getActivityTimeString(it.minutes),
+                        count = it.count.toString())
+                }
+            }
+        }
+    }
+}
+@Composable
+fun TimeAndCountHeaderRow() {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(16.dp), horizontalArrangement = Arrangement.End) {
+        Text(text = "", modifier = Modifier.weight(0.5f))
+        Text(text = "Time", modifier = Modifier.weight(0.25f), textAlign = TextAlign.Center)
+        Text(text = "Count", modifier = Modifier.weight(0.25f), textAlign = TextAlign.Center)
+    }
+}
+@Composable
+fun TimeAndCountRow(title: String, time: String, count: String) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(16.dp)) {
+        Text(text = title, modifier = Modifier.weight(0.5f))
+        Text(text = time, modifier = Modifier.weight(0.25f), textAlign = TextAlign.Center)
+        Text(text = count, modifier = Modifier.weight(0.25f), textAlign = TextAlign.Center)
     }
 }

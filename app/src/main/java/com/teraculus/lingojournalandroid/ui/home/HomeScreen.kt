@@ -1,6 +1,5 @@
 package com.teraculus.lingojournalandroid.ui.home
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,7 +12,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.layout.HorizontalAlignmentLine
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -22,9 +21,8 @@ import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.activityData
 import com.teraculus.lingojournalandroid.model.activityTypeData
-import com.teraculus.lingojournalandroid.ui.components.ConfidenceMotivationIndicator
 import com.teraculus.lingojournalandroid.utils.toDateNoYearString
-import com.teraculus.lingojournalandroid.utils.toDateString
+import com.teraculus.lingojournalandroid.utils.toDayString
 import com.teraculus.lingojournalandroid.utils.toTimeString
 
 @ExperimentalMaterialApi
@@ -59,7 +57,7 @@ fun ActivityList(activities: List<Activity>?, onItemClick: (id: String) -> Unit)
             groups?.forEach { (date, items) ->
                 item {
                     Column {
-                        Text(text = toDateNoYearString(date), style = MaterialTheme.typography.body1, modifier = Modifier.padding(16.dp))
+                        Text(text = toDayString(date), style = MaterialTheme.typography.body1, modifier = Modifier.padding(16.dp))
                         Divider(Modifier.padding(bottom = 8.dp))
                     }
                 }
@@ -86,13 +84,16 @@ fun ActivityList(activities: List<Activity>?, onItemClick: (id: String) -> Unit)
 @Composable
 fun ActivityRow(activity: Activity, onClick: (id: String) -> Unit) {
     val icon : Int = activity.type?.category?.icon!!
+    val color = activity.type?.category!!.color
     Card(elevation = 0.dp,
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = { onClick(activity.id.toString()) })) {
-        Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)) {
             ListItem(
-                icon = { ActivityRowIcon(icon, activity.confidence, activity.motivation) },
+                icon = { ActivityRowIcon(icon, activity.confidence, activity.motivation, color) },
                 text = { Text(activity.title)},
                 secondaryText = { if(activity.text.isNotEmpty()) Text(activity.text) else null },
                 overlineText = { OverlineText(activity) })
@@ -106,12 +107,11 @@ fun OverlineText(activity: Activity) {
 }
 
 @Composable
-fun ActivityRowIcon(icon: Int, confidence: Float, motivation: Float) {
-    Surface(elevation = 1.dp,modifier = Modifier.size(48.dp), shape = CircleShape) {
-        ConfidenceMotivationIndicator(confidence = confidence, motivation = motivation)
+fun ActivityRowIcon(icon: Int, confidence: Float, motivation: Float, color: Int) {
+    Surface(elevation = 1.dp,modifier = Modifier.size(48.dp), shape = CircleShape, color = Color(color)) {
+        //ConfidenceMotivationIndicator(confidence = confidence, motivation = motivation)
 
         Icon(painter = painterResource(id = icon), modifier = Modifier
-            .padding(12.dp)
-            .alpha(ContentAlpha.medium),  contentDescription = null)
+            .padding(12.dp), tint = MaterialTheme.colors.onPrimary, contentDescription = null)
     }
 }

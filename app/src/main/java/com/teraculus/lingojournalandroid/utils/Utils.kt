@@ -1,5 +1,11 @@
 package com.teraculus.lingojournalandroid.utils
 
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import androidx.lifecycle.LiveData
 import java.text.DateFormat
 import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
@@ -112,3 +118,17 @@ fun getActivityTimeString(minutes: Long): String {
     return result
 }
 
+@Composable
+fun <T> LiveData<T>.observeWithDelegate(delegate: (T) -> Unit): State<T?> = observeWithDelegate(value, delegate)
+
+@Composable
+fun <R, T : R> LiveData<T>.observeWithDelegate(initial: R, delegate: (T) -> Unit): State<R> {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val state = remember { mutableStateOf(initial) }
+    DisposableEffect(this, lifecycleOwner) {
+        val observer = Observer<T>(delegate)
+        observe(lifecycleOwner, observer)
+        onDispose { removeObserver(observer) }
+    }
+    return state
+}

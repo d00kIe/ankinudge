@@ -23,15 +23,13 @@ fun MonthStatsContent(model: StatisticsViewModel) {
         Divider()
         if (stats?.isNotEmpty() == true) {
             Column {
-                stats!!.forEach {
+                stats.orEmpty().forEach {
                     Text(getLanguageDisplayName(it.language),
                         style = MaterialTheme.typography.h6,
                         modifier = Modifier.padding(start = 16.dp, top = 16.dp))
                     DonutCard(stats = it)
                     CombinedStatsCard(stats = it)
-                    it.categoryStats.forEach { it1 ->
-                        CategoryCard(stats = it1)
-                    }
+                    TimeAndCountCard(stats = it)
                 }
             }
         }

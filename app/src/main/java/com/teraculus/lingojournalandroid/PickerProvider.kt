@@ -4,6 +4,7 @@ import androidx.fragment.app.FragmentManager
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.teraculus.lingojournalandroid.data.Repository
+import com.teraculus.lingojournalandroid.utils.asDate
 import com.teraculus.lingojournalandroid.utils.localDateToDate
 import java.time.LocalDate
 import java.time.LocalTime
@@ -21,7 +22,7 @@ class PickerProvider() {
 
     suspend fun pickDate(title: CharSequence?, initialDate: LocalDate, onDateChange: (changedDate: LocalDate) -> Unit) {
         val c = Calendar.getInstance()
-        c.time = localDateToDate(initialDate)
+        c.time = asDate(initialDate)
 
         val builder = MaterialDatePicker.Builder.datePicker()
         val picker = builder
