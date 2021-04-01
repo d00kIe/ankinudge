@@ -80,7 +80,7 @@ fun Main(navController: NavHostController, screens: List<Screen>, onAddActivity:
         floatingActionButton = {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
-            if(currentRoute == "home") {
+            if(currentRoute == "home" || currentRoute == "stats") {
                 FloatingActionButton(onClick = onAddActivity, backgroundColor= MaterialTheme.colors.surface, contentColor = MaterialTheme.colors.secondary) {
                     Icon(
                         imageVector = Icons.Rounded.Add,

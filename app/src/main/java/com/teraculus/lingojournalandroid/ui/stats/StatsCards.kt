@@ -27,11 +27,19 @@ import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.utils.getActivityTimeString
 import kotlin.math.max
-
+class Constants {
+    companion object {
+        val ItemBackground : Color
+            @Composable
+            get() {
+                return Color.LightGray.copy(alpha = ContentAlpha.disabled)
+            }
+    }
+}
 @Composable
 fun StatsItem(label: String, content: @Composable () -> Unit) {
     Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = label, style = MaterialTheme.typography.caption, textAlign = TextAlign.Center)
+        Text(text = label, style = MaterialTheme.typography.overline, textAlign = TextAlign.Center)
         Spacer(modifier = Modifier.padding(4.dp))
         content()
     }
@@ -50,7 +58,7 @@ fun ProgressStatsItem(label: String, value: Float, color: Color, modifier: Modif
     StatsItem(label = label) {
         Box() {
             CircularProgressIndicator(progress = 1f,
-                color = Color.LightGray.copy(alpha = 0.2f),
+                color = Constants.ItemBackground,
                 strokeWidth = strokeWidth,
                 modifier = modifier.size(80.dp))
             CircularProgressIndicator(progress = animatedValue,
@@ -75,10 +83,10 @@ fun CombinedStatsCard(stats: LanguageStatData) {
             Column {
                 Row(modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly) {
-                    ProgressStatsItem(label = "Confidence",
+                    ProgressStatsItem(label = "Avg. Confidence",
                         value = stats.allConfidence,
                         color = MaterialTheme.colors.primary)
-                    ProgressStatsItem(label = "Motivation",
+                    ProgressStatsItem(label = "Avg. Motivation",
                         value = stats.allMotivation,
                         color = MaterialTheme.colors.secondary)
                 }
@@ -94,44 +102,15 @@ fun Chip(
     onClick: () -> Unit,
     content: @Composable() () -> Unit,
 ) {
-    val selectedColors = BorderStroke(
-        ButtonDefaults.OutlinedBorderSize, MaterialTheme.colors.primary
-    )
     OutlinedButton(
-        shape = RoundedCornerShape(8.dp),
+        shape = MaterialTheme.shapes.small,
         modifier = modifier,
         onClick = onClick,
-        border = when {
-            isSelected -> selectedColors
-            else -> ButtonDefaults.outlinedBorder
+        colors = when {
+            isSelected -> ButtonDefaults.outlinedButtonColors(backgroundColor = MaterialTheme.colors.primary, contentColor = MaterialTheme.colors.onPrimary)
+            else -> ButtonDefaults.outlinedButtonColors()
         }) {
         content()
-    }
-}
-
-@Composable
-fun CategoryCard(stats: ActivityCategoryStat) {
-    StatsCard() {
-        Column() {
-            Text(stats.category?.title!!,
-                style = MaterialTheme.typography.subtitle1,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp))
-            Row(modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly) {
-                TextStatsItem(label = "Time", value = getActivityTimeString(stats.minutes), style = MaterialTheme.typography.body1)
-                TextStatsItem(label = "Activities", value = stats.count.toString(), style = MaterialTheme.typography.body1)
-                ProgressStatsItem(label = "Confidence",
-                    value = stats.confidence,
-                    color = MaterialTheme.colors.primary,
-                    modifier = Modifier.size(20.dp),
-                    strokeWidth = 4.dp)
-                ProgressStatsItem(label = "Motivation",
-                    value = stats.motivation,
-                    color = MaterialTheme.colors.secondary,
-                    modifier = Modifier.size(20.dp),
-                    strokeWidth = 4.dp)
-            }
-        }
     }
 }
 
@@ -148,7 +127,7 @@ fun DonutCard(stats: LanguageStatData) {
                     .weight(1f),
                     contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(progress = 1f,
-                        color = Color.LightGray.copy(alpha = 0.2f),
+                        color = Constants.ItemBackground,
                         strokeWidth = 16.dp,
                         modifier = Modifier.size(120.dp))
 
@@ -170,7 +149,7 @@ fun DonutCard(stats: LanguageStatData) {
                     .weight(1f)) {
                     Column() {
                         if (stats.categoryStats.isEmpty()) {
-                            DonutLegendItem(title = "None", color = Color.LightGray.copy(alpha = 0.2f).toArgb())
+                            DonutLegendItem(title = "None", color = Constants.ItemBackground.toArgb())
                         }
                         stats.categoryStats.forEach {
                             it.category?.let { it1 -> DonutLegendItem(it1.title, it1.color) }
@@ -226,44 +205,5 @@ fun Selector(modifier: Modifier = Modifier, onNext: () -> Unit, onPrev: () -> Un
         IconButton(onClick = onNext, enabled = hasNext) {
             Icon(Icons.Rounded.KeyboardArrowRight, contentDescription = null)
         }
-    }
-}
-
-@Composable
-fun TimeAndCountCard(stats: LanguageStatData) {
-    StatsCard() {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            TimeAndCountHeaderRow()
-            TimeAndCountRow(title = "All",
-                time = getActivityTimeString(stats.allMinutes),
-                count = stats.allCount.toString())
-            stats.categoryStats.forEach { it ->
-                if (it?.category != null) {
-                    TimeAndCountRow(title = it.category.title,
-                        time = getActivityTimeString(it.minutes),
-                        count = it.count.toString())
-                }
-            }
-        }
-    }
-}
-@Composable
-fun TimeAndCountHeaderRow() {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(16.dp), horizontalArrangement = Arrangement.End) {
-        Text(text = "", modifier = Modifier.weight(0.5f))
-        Text(text = "Time", modifier = Modifier.weight(0.25f), textAlign = TextAlign.Center)
-        Text(text = "Count", modifier = Modifier.weight(0.25f), textAlign = TextAlign.Center)
-    }
-}
-@Composable
-fun TimeAndCountRow(title: String, time: String, count: String) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(16.dp)) {
-        Text(text = title, modifier = Modifier.weight(0.5f))
-        Text(text = time, modifier = Modifier.weight(0.25f), textAlign = TextAlign.Center)
-        Text(text = count, modifier = Modifier.weight(0.25f), textAlign = TextAlign.Center)
     }
 }
