@@ -71,16 +71,6 @@ fun StatsCard(modifier: Modifier = Modifier, content: @Composable() () -> Unit) 
 @Composable
 fun CombinedStatsCard(stats: LanguageStatData) {
     Column {
-        StatsCard {
-            Column {
-                Row(modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly) {
-                    TextStatsItem(label = "Time", value = getActivityTimeString(stats.allMinutes))
-                    TextStatsItem(label = "Activities", value = stats.allCount.toString())
-                }
-            }
-        }
-
         StatsCard() {
             Column {
                 Row(modifier = Modifier.fillMaxWidth(),
@@ -159,8 +149,8 @@ fun DonutCard(stats: LanguageStatData) {
                     contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(progress = 1f,
                         color = Color.LightGray.copy(alpha = 0.2f),
-                        strokeWidth = 24.dp,
-                        modifier = Modifier.size(160.dp))
+                        strokeWidth = 16.dp,
+                        modifier = Modifier.size(120.dp))
 
 
                     val perUnit = if (isTime) 1f / (stats.allMinutes + Float.MIN_VALUE) else 1f / (stats.allCount + Float.MIN_VALUE)
@@ -168,20 +158,30 @@ fun DonutCard(stats: LanguageStatData) {
                     stats.categoryStats.forEach {
                         CircularProgressIndicator(progress = currentSpan,
                             color = Color(it.category?.color!!),
-                            strokeWidth = 24.dp,
-                            modifier = Modifier.size(160.dp))
+                            strokeWidth = 16.dp,
+                            modifier = Modifier.size(120.dp))
                         currentSpan -= perUnit * (if (isTime) it.minutes else it.count).toFloat()
                     }
+
+                    Text(text = if(isTime) getActivityTimeString(stats.allMinutes) else stats.allCount.toString())
                 }
-                Column(modifier = Modifier
+                Row(modifier = Modifier
                     .padding(16.dp)
-                    .weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                    .weight(1f)) {
                     Column() {
                         if (stats.categoryStats.isEmpty()) {
                             DonutLegendItem(title = "None", color = Color.LightGray.copy(alpha = 0.2f).toArgb())
                         }
                         stats.categoryStats.forEach {
                             it.category?.let { it1 -> DonutLegendItem(it1.title, it1.color) }
+                        }
+                    }
+                    Column() {
+                        if (stats.categoryStats.isEmpty()) {
+                            Text("--", modifier = Modifier.padding(top = 8.dp, start = 16.dp), style = MaterialTheme.typography.caption)
+                        }
+                        stats.categoryStats.forEach {
+                            Text(if(isTime) getActivityTimeString(it.minutes) else it.count.toString(), modifier = Modifier.padding(top = 8.dp, start = 16.dp), style = MaterialTheme.typography.caption)
                         }
                     }
                 }

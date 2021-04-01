@@ -111,5 +111,4 @@ fun StatsContent(
 private fun LanguageStatContent(it: LanguageStatData) {
     DonutCard(stats = it)
     CombinedStatsCard(stats = it)
-    TimeAndCountCard(stats = it)
 }
