@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.ui.stats.Selector
 import com.teraculus.lingojournalandroid.ui.stats.StatisticsViewModel
-import com.teraculus.lingojournalandroid.ui.stats.getMinutes
+import com.teraculus.lingojournalandroid.utils.getMinutes
 import com.teraculus.lingojournalandroid.utils.getMonthForInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

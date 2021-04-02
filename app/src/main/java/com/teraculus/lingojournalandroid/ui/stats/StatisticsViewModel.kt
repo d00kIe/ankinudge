@@ -1,6 +1,5 @@
 package com.teraculus.lingojournalandroid.ui.stats
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
@@ -9,19 +8,24 @@ import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.LiveRealmResults
+import com.teraculus.lingojournalandroid.utils.getMinutes
 import java.time.Duration
 import java.time.LocalDate
 import java.time.YearMonth
 import kotlin.math.abs
 
+
+// Ideas:
+// Language split
+// Activitie types split per category
+// Compared to previous day/month
+// Achieved level : Add additional button to add achieved language competency
+// Streak per activity category
+// Average daily tasks
 enum class StatisticRange(val title: String, val index: Int) {
     DAY("Day", 0),
     MONTH("Month", 1),
     ALL("All time", 2)
-}
-
-fun getMinutes(activity: Activity): Long {
-    return abs(Duration.between(activity.startTime, activity.endTime).toMinutes())
 }
 
 class ActivityCategoryStat(val category: ActivityCategory?, activities: List<Activity>) {
@@ -31,11 +35,22 @@ class ActivityCategoryStat(val category: ActivityCategory?, activities: List<Act
     val motivation: Float = activities.map { it -> it.motivation }.average().toFloat()
 }
 
-class LanguageStatData(val language: String, val categoryStats: List<ActivityCategoryStat>, val maxMinutes: Long = 0L, val maxCount: Int = 0) {
-    val allMinutes: Long = if(categoryStats.isNotEmpty()) categoryStats.map { it -> it.minutes }.sum() else 0
-    val allCount: Int = if(categoryStats.isNotEmpty()) categoryStats.map { it -> it.count }.sum() else 0
-    val allConfidence: Float = if(categoryStats.isNotEmpty()) categoryStats.map { it -> it.confidence }.average().toFloat() else 0f
-    val allMotivation: Float = if(categoryStats.isNotEmpty()) categoryStats.map { it -> it.motivation }.average().toFloat() else 0f
+class LanguageStatData(
+    val language: String,
+    val categoryStats: List<ActivityCategoryStat>,
+    val maxMinutes: Long = 0L,
+    val maxCount: Int = 0,
+) {
+    val allMinutes: Long =
+        if (categoryStats.isNotEmpty()) categoryStats.map { it -> it.minutes }.sum() else 0
+    val allCount: Int =
+        if (categoryStats.isNotEmpty()) categoryStats.map { it -> it.count }.sum() else 0
+    val allConfidence: Float =
+        if (categoryStats.isNotEmpty()) categoryStats.map { it -> it.confidence }.average()
+            .toFloat() else 0f
+    val allMotivation: Float =
+        if (categoryStats.isNotEmpty()) categoryStats.map { it -> it.motivation }.average()
+            .toFloat() else 0f
 
     companion object {
         fun empty(): LanguageStatData {
@@ -43,6 +58,7 @@ class LanguageStatData(val language: String, val categoryStats: List<ActivityCat
         }
     }
 }
+
 class StatisticsViewModel(val repository: Repository) : ViewModel() {
     val activities = LiveRealmResults<Activity>(null)
     val stats = MutableLiveData<List<LanguageStatData>?>()
@@ -56,7 +72,7 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
     init {
         activities.observeForever {
             stats.value = it?.let { it1 -> mapToStats(it1) }
-            if(!stats.value.isNullOrEmpty()) {
+            if (!stats.value.isNullOrEmpty()) {
                 maxMinutes.value = stats.value.orEmpty().maxOf { it2 -> it2.maxMinutes }
                 maxCount.value = stats.value.orEmpty().maxOf { it2 -> it2.maxCount }
             } else {
@@ -68,7 +84,7 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
     }
 
     fun setRangeIndex(idx: Int) {
-        when(idx) {
+        when (idx) {
             0 -> setDay(day.value!!)
             1 -> setMonth(month.value!!)
             2 -> setAllTime()
@@ -103,13 +119,16 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
     }
 
     private fun mapToStats(items: List<Activity>): List<LanguageStatData>? {
-        return groupByLanguage(activities.value)?.map {
+        return groupByLanguage(activities.value).orEmpty().map {
             val byType = groupByType(it.value)
-            val typeStats = byType?.map { it ->
+            val typeStats = byType.orEmpty().map { it ->
                 ActivityCategoryStat(it.key, it.value)
             }
             val groupByDay = items.groupBy { it -> it.date }
-            LanguageStatData(it.key, typeStats!!, groupByDay.values.maxOf { it -> it.sumOf { it1 -> getMinutes(it1) } }, groupByDay.maxOf { it -> it.value.size })
+            LanguageStatData(it.key,
+                typeStats.orEmpty(),
+                groupByDay.values.maxOf { it -> it.sumOf { it1 -> getMinutes(it1) } },
+                groupByDay.maxOf { it -> it.value.size })
         }
     }
 }

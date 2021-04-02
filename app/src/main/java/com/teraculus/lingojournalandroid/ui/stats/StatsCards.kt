@@ -1,8 +1,6 @@
 package com.teraculus.lingojournalandroid.ui.stats
 
-import android.graphics.drawable.PaintDrawable
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -23,9 +21,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
-import com.teraculus.lingojournalandroid.model.ActivityCategory
-import com.teraculus.lingojournalandroid.utils.getActivityTimeString
+import com.teraculus.lingojournalandroid.utils.getDurationString
 import kotlin.math.max
 class Constants {
     companion object {
@@ -142,7 +138,7 @@ fun DonutCard(stats: LanguageStatData) {
                         currentSpan -= perUnit * (if (isTime) it.minutes else it.count).toFloat()
                     }
 
-                    Text(text = if(isTime) getActivityTimeString(stats.allMinutes) else stats.allCount.toString())
+                    Text(text = if(isTime) getDurationString(stats.allMinutes) else stats.allCount.toString())
                 }
                 Row(modifier = Modifier
                     .padding(16.dp)
@@ -160,7 +156,7 @@ fun DonutCard(stats: LanguageStatData) {
                             Text("--", modifier = Modifier.padding(top = 8.dp, start = 16.dp), style = MaterialTheme.typography.caption)
                         }
                         stats.categoryStats.forEach {
-                            Text(if(isTime) getActivityTimeString(it.minutes) else it.count.toString(), modifier = Modifier.padding(top = 8.dp, start = 16.dp), style = MaterialTheme.typography.caption)
+                            Text(if(isTime) getDurationString(it.minutes) else it.count.toString(), modifier = Modifier.padding(top = 8.dp, start = 16.dp), style = MaterialTheme.typography.caption)
                         }
                     }
                 }
@@ -188,7 +184,7 @@ private fun DonutLegendItem(title: String, color: Int) {
         Box(modifier = Modifier
             .background(color = Color(color),
                 shape = CircleShape)
-            .size(6.dp))
+            .size(12.dp))
         Text(modifier = Modifier.padding(horizontal = 8.dp),
             text = title,
             style = MaterialTheme.typography.caption)

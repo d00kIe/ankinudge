@@ -6,6 +6,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.LiveData
+import com.teraculus.lingojournalandroid.model.Activity
 import java.text.DateFormat
 import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
@@ -13,6 +14,7 @@ import java.time.*
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
+import kotlin.math.abs
 
 fun toDateString(date: LocalDate?) : String {
     if(date == null)
@@ -105,7 +107,7 @@ fun getMonthForInt(num: Int): String {
     return month
 }
 
-fun getActivityTimeString(minutes: Long): String {
+fun getDurationString(minutes: Long): String {
     val hours = minutes / 60
     val min = minutes % 60
     val result = when {
@@ -131,4 +133,12 @@ fun <R, T : R> LiveData<T>.observeWithDelegate(initial: R, delegate: (T) -> Unit
         onDispose { removeObserver(observer) }
     }
     return state
+}
+
+fun getMinutes(activity: Activity): Long {
+    return getMinutes(activity.startTime, activity.endTime)
+}
+
+fun getMinutes(start: LocalTime, end: LocalTime): Long {
+    return abs(Duration.between(start, end).toMinutes())
 }

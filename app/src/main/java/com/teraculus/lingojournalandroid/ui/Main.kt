@@ -14,6 +14,7 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -38,7 +39,7 @@ fun Main() {
     var activityId: String? by rememberSaveable { mutableStateOf(null) }
 
     LingoTheme() {
-        Main(navController,screen, onAddActivity = { showAddActivityDialog = true }, onActivityClick = { activityId = it; showAddActivityDialog = true })
+        Main(navController, screen, onAddActivity = { showAddActivityDialog = true }, onActivityClick = { activityId = it; showAddActivityDialog = true })
         AnimatedVisibility(visible = showAddActivityDialog, enter = slideInHorizontally(), exit = slideOutHorizontally()) {
             AddActivityDialog(
                 onDismiss = { showAddActivityDialog = false; activityId = null },

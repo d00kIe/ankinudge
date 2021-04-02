@@ -3,11 +3,13 @@ package com.teraculus.lingojournalandroid
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat.CLOCK_24H
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.utils.asDate
 import com.teraculus.lingojournalandroid.utils.localDateToDate
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.ZoneOffset
 import java.util.*
 
 class PickerProvider() {
@@ -21,15 +23,12 @@ class PickerProvider() {
         }
 
     suspend fun pickDate(title: CharSequence?, initialDate: LocalDate, onDateChange: (changedDate: LocalDate) -> Unit) {
-        val c = Calendar.getInstance()
-        c.time = asDate(initialDate)
-
         val builder = MaterialDatePicker.Builder.datePicker()
         val picker = builder
             .setTitleText(title)
             .setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR)
             .setTheme(MaterialDatePicker.STYLE_NORMAL)
-            .setSelection(c.timeInMillis)
+            .setSelection(initialDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli())
             .build()
 
         picker.addOnPositiveButtonClickListener {
@@ -52,6 +51,28 @@ class PickerProvider() {
             builder
                 .setTitleText(title)
                 .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+                .setTimeFormat(CLOCK_24H)
+                .setHour(initialTime.hour)
+                .setMinute(initialTime.minute)
+                .build()
+
+        picker.addOnPositiveButtonClickListener {
+            onTimeChange(LocalTime.of(
+                picker.hour,
+                picker.minute
+            ))
+        }
+
+        picker.show(fragmentManager, picker.toString())
+    }
+
+    suspend fun pickDuration(title: CharSequence?, initialTime: LocalTime, onTimeChange: (changedTime: LocalTime) -> Unit) {
+        val builder = MaterialTimePicker.Builder()
+        val picker =
+            builder
+                .setTitleText(title)
+                .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+                .setTimeFormat(CLOCK_24H)
                 .setHour(initialTime.hour)
                 .setMinute(initialTime.minute)
                 .build()

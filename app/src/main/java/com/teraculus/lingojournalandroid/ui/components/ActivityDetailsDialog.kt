@@ -34,12 +34,12 @@ import java.time.LocalTime
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
-fun AddActivityDialog(
+fun ActivityDetailsDialog(
     onDismiss: () -> Unit,
     id: String? = null,
 ) {
     val model: EditActivityViewModel =
-        viewModel("editActivityViewModel", EditActivityViewModelFactory())
+        viewModel("activityDetailsViewModel", EditActivityViewModelFactory())
     model.prepareActivity(id)
     AddActivityDialog(onDismiss = onDismiss, model)
 }
@@ -48,16 +48,16 @@ fun AddActivityDialog(
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
-fun AddActivityDialog(onDismiss: () -> Unit, model: EditActivityViewModel) {
+fun ActivityDetailsDialog(onDismiss: () -> Unit, model: EditActivityViewModel) {
     Dialog(onDismissRequest = onDismiss) {
-        AddActivityDialogContent(onDismiss, model)
+        ActivityDetailsDialogContent(onDismiss, model)
     }
 }
 
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
-fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
+fun ActivityDetailsDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
     val title = model.title.observeAsState()
     val text = model.text.observeAsState()
     val date = model.date.observeAsState()
@@ -194,13 +194,13 @@ private fun DateAndTimeRow(
 ) {
     Column(Modifier
         .fillMaxSize()) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 16.dp, start = 16.dp, end = 16.dp)) {
             DropDownTextField(
                 label = { Text("Date") },
                 value = toDateString(date),
                 modifier = Modifier
                     .weight(0.5f)
-                    .padding(end = 8.dp),
+                    .padding(start = 8.dp),
                 onClick = onPickDate
             )
             DropDownTextField(
@@ -208,7 +208,7 @@ private fun DateAndTimeRow(
                 value = toTimeString(startTime),
                 modifier = Modifier
                     .weight(0.5f)
-                    .padding(start = 8.dp),
+                    .padding(end = 8.dp),
                 onClick = onPickStartTime
             )
         }
