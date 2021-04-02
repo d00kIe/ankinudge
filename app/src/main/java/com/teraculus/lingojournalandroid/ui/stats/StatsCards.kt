@@ -32,6 +32,7 @@ class Constants {
             }
     }
 }
+
 @Composable
 fun StatsItem(label: String, content: @Composable () -> Unit) {
     Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {

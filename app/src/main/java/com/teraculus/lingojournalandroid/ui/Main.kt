@@ -21,6 +21,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.teraculus.lingojournalandroid.PickerProvider
 import com.teraculus.lingojournalandroid.R
+import com.teraculus.lingojournalandroid.ui.components.ActivityDetailsDialog
 import com.teraculus.lingojournalandroid.ui.components.AddActivityDialog
 import com.teraculus.lingojournalandroid.ui.home.HomeScreen
 import com.teraculus.lingojournalandroid.ui.navi.Screen
@@ -36,13 +37,21 @@ fun Main() {
     val navController = rememberNavController()
     val screen = listOf(Screen.Home, Screen.Stats, Screen.Settings)
     var showAddActivityDialog by rememberSaveable { mutableStateOf(false) }
+    var showActivityDetailsDialog by rememberSaveable { mutableStateOf(false) }
     var activityId: String? by rememberSaveable { mutableStateOf(null) }
 
     LingoTheme() {
-        Main(navController, screen, onAddActivity = { showAddActivityDialog = true }, onActivityClick = { activityId = it; showAddActivityDialog = true })
-        AnimatedVisibility(visible = showAddActivityDialog, enter = slideInHorizontally(), exit = slideOutHorizontally()) {
+        Main(navController, screen, onAddActivity = { showAddActivityDialog = true }, onActivityClick = { activityId = it; showActivityDetailsDialog = true })
+        if(showAddActivityDialog) {
             AddActivityDialog(
                 onDismiss = { showAddActivityDialog = false; activityId = null },
+                id = activityId
+            )
+        }
+
+        if(showActivityDetailsDialog) {
+            ActivityDetailsDialog(
+                onDismiss = { showActivityDetailsDialog = false; activityId = null },
                 id = activityId
             )
         }
