@@ -15,6 +15,7 @@ import java.time.LocalTime
 class EditActivityViewModel(
     private val repository: Repository,
     private val pickerProvider: PickerProvider,
+    id: String?,
 ) : ViewModel() {
     val types = repository.getTypes()
     private var preparedId: String? = null
@@ -29,8 +30,12 @@ class EditActivityViewModel(
     val confidence = MutableLiveData(75f)
     val motivation = MutableLiveData(75f)
 
-    fun prepareActivity(id: String?) {
-        val activity = id?.let { repository.getActivity(it) }
+    init {
+        prepareActivity(id)
+    }
+
+    private fun prepareActivity(id: String?) {
+        val activity = id?.let { repository.getActivity(it).value }
         if (activity != null) {
             preparedId = id
             title.value = activity.title
@@ -112,7 +117,7 @@ class EditActivityViewModel(
             .plusMinutes(it.minute.toLong())
     }
 
-    fun addNote() {
+    private fun addNote() {
         repository.addActivity(Activity(title.value!!,
             text.value!!,
             language.value!!,
@@ -124,7 +129,7 @@ class EditActivityViewModel(
             endTime.value!!))
     }
 
-    fun updateNote(id: String) {
+    private fun updateNote(id: String) {
         repository.updateActivity(id,
             title.value!!,
             text.value!!,
@@ -144,13 +149,12 @@ class EditActivityViewModel(
     }
 }
 
-class EditActivityViewModelFactory :
+class EditActivityViewModelFactory(val id: String?, private val pickerProvider: PickerProvider) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(EditActivityViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return EditActivityViewModel(Repository.getRepository(),
-                PickerProvider.getPickerProvider()) as T
+            return EditActivityViewModel(Repository.getRepository(), pickerProvider, id) as T
         }
 
         throw IllegalArgumentException("Unknown view model class")

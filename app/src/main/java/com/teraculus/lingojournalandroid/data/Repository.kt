@@ -33,7 +33,7 @@ class Repository {
         userPreferences = UserPreferences.createOrQuery(realm!!)
 
         // types
-        types = ActivityType.createOrQuery(realm!!);
+        types = ActivityType.createOrQuery(realm!!)
 
         // dummy activities
         activities = Activity.createOrQuery(realm!!, types.value)
@@ -61,8 +61,8 @@ class Repository {
         }
     }
 
-    fun getActivity(id: String): Activity? {
-        return realm!!.where<Activity>().equalTo("id", ObjectId(id)).findFirst()
+    fun getActivity(id: String): LiveRealmObject<Activity?> {
+        return LiveRealmObject(realm!!.where<Activity>().equalTo("id", ObjectId(id)).findFirst())
     }
 
     fun getActivities(): LiveData<List<Activity>?> {
@@ -93,7 +93,7 @@ class Repository {
         startTime: LocalTime,
         endTime: LocalTime
     ) {
-        val activity = getActivity(id)
+        val activity = getActivity(id).value
         activity?.let {
             realm!!.executeTransaction {
                 activity.title = title
@@ -108,8 +108,6 @@ class Repository {
             }
             updateLastLanguagePreference(language)
         }
-
-        //(activities as MutableLiveData<List<Activity>?>).trigger()
     }
 
     fun getTypes(): LiveData<List<ActivityType>?> {

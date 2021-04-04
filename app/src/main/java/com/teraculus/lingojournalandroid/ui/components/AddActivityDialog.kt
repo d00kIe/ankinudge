@@ -30,30 +30,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
-@Composable
-fun AddActivityDialog(
-    onDismiss: () -> Unit,
-    id: String? = null,
-) {
-    val model: EditActivityViewModel =
-        viewModel("editActivityViewModel", EditActivityViewModelFactory())
-    model.prepareActivity(id)
-    AddActivityDialog(onDismiss = onDismiss, model)
-}
-
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
-@Composable
-fun AddActivityDialog(onDismiss: () -> Unit, model: EditActivityViewModel) {
-    Dialog(onDismissRequest = onDismiss) {
-        AddActivityDialogContent(onDismiss, model)
-    }
-}
-
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable

@@ -18,10 +18,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        PickerProvider.getPickerProvider().fragmentManager = supportFragmentManager
-
         setContent {
-            Main()
+            Main(
+                onActivityClick = { launchDetailsActivity(this, it) },
+                onOpenEditor = { launchEditorActivity(this, it) }
+            )
         }
     }
 

@@ -1,28 +1,18 @@
 package com.teraculus.lingojournalandroid.ui
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import com.teraculus.lingojournalandroid.PickerProvider
-import com.teraculus.lingojournalandroid.R
-import com.teraculus.lingojournalandroid.ui.components.ActivityDetailsDialog
-import com.teraculus.lingojournalandroid.ui.components.AddActivityDialog
 import com.teraculus.lingojournalandroid.ui.home.HomeScreen
 import com.teraculus.lingojournalandroid.ui.navi.Screen
 import com.teraculus.lingojournalandroid.ui.settings.SettingsScreen
@@ -33,31 +23,16 @@ import com.teraculus.lingojournalandroid.ui.stats.StatsScreen
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
-fun Main() {
+fun Main(onActivityClick: (id: String) -> Unit, onOpenEditor: (id: String?) -> Unit) {
     val navController = rememberNavController()
     val screen = listOf(Screen.Home, Screen.Stats, Screen.Settings)
-    var showAddActivityDialog by rememberSaveable { mutableStateOf(false) }
-    var showActivityDetailsDialog by rememberSaveable { mutableStateOf(false) }
-    var activityId: String? by rememberSaveable { mutableStateOf(null) }
 
     LingoTheme() {
-        Main(navController, screen, onAddActivity = { showAddActivityDialog = true }, onActivityClick = { activityId = it; showActivityDetailsDialog = true })
-        if(showAddActivityDialog) {
-            AddActivityDialog(
-                onDismiss = { showAddActivityDialog = false; activityId = null },
-                id = activityId
-            )
-        }
-
-        if(showActivityDetailsDialog) {
-            ActivityDetailsDialog(
-                onDismiss = { showActivityDetailsDialog = false; activityId = null },
-                id = activityId
-            )
-        }
+        Main(navController, screen, onAddActivity = { onOpenEditor(null) }, onActivityClick = onActivityClick)
     }
 }
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable

@@ -1,5 +1,6 @@
 package com.teraculus.lingojournalandroid.ui.stats
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -11,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.ui.calendar.Calendar
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @Composable
 fun StatsScreen() {

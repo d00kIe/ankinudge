@@ -25,6 +25,7 @@ import io.realm.RealmObjectChangeListener
 </T> */
 class LiveRealmObject<T : RealmModel?> @MainThread constructor(obj: T?) : MutableLiveData<T>(obj) {
 
+    private var lastHashBeforeGettingInactive: Int = 0
     private val listener =
         RealmObjectChangeListener<T> { obj, objectChangeSet ->
             if (!objectChangeSet!!.isDeleted) {
@@ -41,6 +42,9 @@ class LiveRealmObject<T : RealmModel?> @MainThread constructor(obj: T?) : Mutabl
         super.onActive()
         val obj = value
         if (obj != null && RealmObject.isValid(obj)) {
+            if(obj.toString().hashCode() != lastHashBeforeGettingInactive) {
+                value = obj // something changed, trigger an update
+            }
             RealmObject.addChangeListener(obj, listener)
         }
     }
@@ -52,6 +56,7 @@ class LiveRealmObject<T : RealmModel?> @MainThread constructor(obj: T?) : Mutabl
         super.onInactive()
         val obj = value
         if (obj != null && RealmObject.isValid(obj)) {
+            lastHashBeforeGettingInactive = obj.toString().hashCode()
             RealmObject.removeChangeListener(obj, listener)
         }
     }

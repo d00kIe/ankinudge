@@ -139,6 +139,9 @@ fun getMinutes(activity: Activity): Long {
     return getMinutes(activity.startTime, activity.endTime)
 }
 
-fun getMinutes(start: LocalTime, end: LocalTime): Long {
-    return abs(Duration.between(start, end).toMinutes())
+fun getMinutes(start: LocalTime?, end: LocalTime?): Long {
+    return if(start == null || end == null)
+        0
+    else
+        abs(Duration.between(start, end).toMinutes())
 }

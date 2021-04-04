@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.RealmModel
+import io.realm.RealmObject
 import io.realm.RealmResults
 
 
@@ -38,6 +39,11 @@ class LiveRealmResults<T : RealmModel?> @MainThread constructor(results: RealmRe
     override fun onActive() {
         super.onActive()
         if (this.results?.isValid == true) { // invalidated results can no longer be observed.
+            if (this.results?.isLoaded == true) {
+                // we should not notify observers when results aren't ready yet (async query).
+                // however, synchronous query should be set explicitly.
+                value = results
+            }
             this.results?.addChangeListener(listener)
         }
     }
@@ -63,7 +69,7 @@ class LiveRealmResults<T : RealmModel?> @MainThread constructor(results: RealmRe
     }
 
     fun reset (results : RealmResults<T>?) {
-        val hasActiveObservers = this.hasActiveObservers();
+        val hasActiveObservers = this.hasActiveObservers()
         if(hasActiveObservers) {
             if (this.results?.isValid == true) {
                 this.results?.removeChangeListener(listener)
