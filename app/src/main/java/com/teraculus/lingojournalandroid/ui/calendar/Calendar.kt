@@ -278,7 +278,7 @@ fun DayItem(
     maxCount: Int,
     cellSize: Dp,
 ) {
-    val circleSize = (cellSize - 32.dp) / maxCount.coerceAtLeast(1) * data.count
+    val circleSize = (cellSize - 28.dp) / maxCount.coerceAtLeast(1) * data.count
     val circleAlpha = min((0.35f / maxMinutes.coerceAtLeast(1)) * data.minutes, 0.35f)
 
     Surface(shape = RectangleShape,
@@ -288,12 +288,12 @@ fun DayItem(
         if (data.thisMonth) {
             Box(modifier = modifier.fillMaxSize(),contentAlignment = Alignment.Center) {
                 Surface(shape = CircleShape,
-                    modifier = Modifier.size(32.dp + circleSize),
+                    modifier = Modifier.size(28.dp + circleSize),
                     elevation = 0.dp,
-                    color = if (data.hasActivities) MaterialTheme.colors.primary.copy(alpha = 0.65f + circleAlpha) else MaterialTheme.colors.surface) {}
+                    color = if (data.hasActivities) MaterialTheme.colors.secondary.copy(alpha = 0.65f + circleAlpha) else MaterialTheme.colors.surface) {}
                 Text(data.day.toString(),
                     style = MaterialTheme.typography.caption,
-                    color = if (data.hasActivities) MaterialTheme.colors.onPrimary else Color.Unspecified,
+                    color = if (data.hasActivities) MaterialTheme.colors.onSecondary else Color.Unspecified,
                     textAlign = TextAlign.Center,
                     textDecoration = if (data.today) TextDecoration.Underline else null,
                     fontWeight = if (data.today) FontWeight.Black else null)

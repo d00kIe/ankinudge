@@ -23,10 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.Activity
-import com.teraculus.lingojournalandroid.utils.getDurationString
-import com.teraculus.lingojournalandroid.utils.getMinutes
-import com.teraculus.lingojournalandroid.utils.toDateString
-import com.teraculus.lingojournalandroid.utils.toTimeString
+import com.teraculus.lingojournalandroid.utils.*
 import com.teraculus.lingojournalandroid.viewmodel.ActivityDetailsViewModel
 import com.teraculus.lingojournalandroid.viewmodel.ActivityDetailsViewModelFactory
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
@@ -136,7 +133,7 @@ fun ActivityDetailsDialogContent(onDismiss: () -> Unit,
                     confidence?.let {
                         val progress = max(it / 100f, 0.01f)
                         CircularProgressIndicator(progress = progress,
-                            color = MaterialTheme.colors.primary,
+                            color = MaterialTheme.colors.secondary,
                             strokeWidth = 4.dp,
                             modifier = Modifier
                                 .size(24.dp))
@@ -161,19 +158,6 @@ fun ActivityDetailsDialogContent(onDismiss: () -> Unit,
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun ApplyTextStyle(
-    textStyle: TextStyle,
-    contentAlpha: Float,
-    icon: @Composable (() -> Unit)?,
-) {
-    if (icon != null) {
-        CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
-            ProvideTextStyle(textStyle, icon)
         }
     }
 }

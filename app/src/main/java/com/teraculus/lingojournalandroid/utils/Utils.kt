@@ -1,7 +1,10 @@
 package com.teraculus.lingojournalandroid.utils
 
+import androidx.compose.material.LocalContentAlpha
+import androidx.compose.material.ProvideTextStyle
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
@@ -144,4 +147,18 @@ fun getMinutes(start: LocalTime?, end: LocalTime?): Long {
         0
     else
         abs(Duration.between(start, end).toMinutes())
+}
+
+
+@Composable
+fun ApplyTextStyle(
+    textStyle: TextStyle,
+    contentAlpha: Float,
+    icon: @Composable (() -> Unit)?,
+) {
+    if (icon != null) {
+        CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
+            ProvideTextStyle(textStyle, icon)
+        }
+    }
 }

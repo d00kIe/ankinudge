@@ -20,10 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
-import com.teraculus.lingojournalandroid.utils.getDurationString
-import com.teraculus.lingojournalandroid.utils.getMinutes
-import com.teraculus.lingojournalandroid.utils.toDateString
-import com.teraculus.lingojournalandroid.utils.toTimeString
+import com.teraculus.lingojournalandroid.utils.*
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModelFactory
 import kotlinx.coroutines.launch
@@ -119,7 +116,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
             }
             Row {
                 OutlinedTextField(label = { Text("Note") },
-                    maxLines = 3,
+                    maxLines = 5,
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -136,20 +133,22 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
                 { coroutineScope.launch { model.pickDuration() } })
 
             Row(Modifier.padding(bottom = 8.dp)) {
-                Text("Confidence",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.subtitle2)
+                ApplyTextStyle(MaterialTheme.typography.body1, ContentAlpha.medium) {
+                    Text("Confidence",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center)
+                }
             }
             SentimentIcons(value = confidence,
                 onSentimentChange = { model.onConfidenceChange(it) },
-                color = MaterialTheme.colors.primary,
+                color = MaterialTheme.colors.secondary,
                 size = 36.dp)
             Row(Modifier.padding(top = 16.dp, bottom = 8.dp)) {
-                Text("Motivation",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.subtitle2)
+                ApplyTextStyle(MaterialTheme.typography.body1, ContentAlpha.medium) {
+                    Text("Motivation",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center)
+                }
             }
             SentimentIcons(value = motivation,
                 onSentimentChange = { model.onMotivationChange(it) },

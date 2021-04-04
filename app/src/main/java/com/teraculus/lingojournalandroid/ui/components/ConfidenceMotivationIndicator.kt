@@ -23,7 +23,7 @@ fun ConfidenceMotivationIndicator(confidence: Float, motivation: Float,
                                   modifier: Modifier = Modifier) {
     Surface(modifier = modifier, shape = CircleShape, elevation = 1.dp) {
         CircularProgressIndicator(progress = max(confidence / 100f, 0.01f),
-            color = MaterialTheme.colors.primary,
+            color = MaterialTheme.colors.secondary,
             strokeWidth = 2.dp,
             modifier = Modifier
                 .size(24.dp))

@@ -6,10 +6,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Tab
-import androidx.compose.material.TabRow
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -18,9 +15,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.ui.calendar.Calendar
+import com.teraculus.lingojournalandroid.ui.components.ActivityRow
 import com.teraculus.lingojournalandroid.utils.observeWithDelegate
 import com.teraculus.lingojournalandroid.utils.toDayString
 
+@ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @Composable
@@ -28,6 +27,7 @@ fun StatsContent(
     modifier: Modifier = Modifier,
     model: StatisticsViewModel = viewModel("statisticsViewModel",
         StatisticsViewModelFactory()),
+    onItemClick: (id: String) -> Unit,
 ) {
     val tabIndex by model.rangeIndex.observeAsState(1)
     val tabs by rememberSaveable {
@@ -86,8 +86,14 @@ fun StatsContent(
                     }
                     LanguageStatContent(notNullStats[languageTab])
                 }
+                if (tabIndex == 0) {
+                    Divider(Modifier.padding(vertical = 16.dp))
+                    ActivitiesForTheDay(model = model,
+                        onItemClick = onItemClick,
+                        language = notNullStats[languageTab].language)
+                }
             } else {
-                Column() {
+                Column {
                     TabRow(selectedTabIndex = 0,
                         backgroundColor = MaterialTheme.colors.surface,
                         modifier = Modifier.fillMaxWidth(),
@@ -111,4 +117,19 @@ fun StatsContent(
 private fun LanguageStatContent(it: LanguageStatData) {
     DonutCard(stats = it)
     CombinedStatsCard(stats = it)
+}
+
+@ExperimentalMaterialApi
+@Composable
+private fun ActivitiesForTheDay(
+    model: StatisticsViewModel,
+    onItemClick: (id: String) -> Unit,
+    language: String,
+) {
+    val activities by model.activities.observeAsState()
+    Column {
+        activities.orEmpty().filter { it.language == language }.forEach { activity ->
+            ActivityRow(activity, onClick = onItemClick)
+        }
+    }
 }

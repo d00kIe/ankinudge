@@ -7,13 +7,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @ExperimentalMaterialApi
 @Composable
 fun SettingsContent() {
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-        TopAppBar() {
+        TopAppBar(
+            elevation = 0.dp,
+            backgroundColor = Color.Transparent
+        ) {
             Text(text = "Settings", style = MaterialTheme.typography.h6, modifier = Modifier.padding(horizontal = 16.dp))
         }
         ListItem(text = { Text("Theme")})

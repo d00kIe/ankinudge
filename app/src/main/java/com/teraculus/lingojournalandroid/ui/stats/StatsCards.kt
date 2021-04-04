@@ -50,18 +50,18 @@ fun TextStatsItem(label: String, value: String, style: TextStyle = MaterialTheme
 }
 
 @Composable
-fun ProgressStatsItem(label: String, value: Float, color: Color, modifier: Modifier = Modifier, strokeWidth : Dp = 16.dp) {
+fun ProgressStatsItem(label: String, value: Float, color: Color, modifier: Modifier = Modifier, strokeWidth : Dp = 8.dp) {
     val animatedValue by animateFloatAsState(targetValue = max(value / 100f, 0.01f))
     StatsItem(label = label) {
         Box() {
             CircularProgressIndicator(progress = 1f,
                 color = Constants.ItemBackground,
                 strokeWidth = strokeWidth,
-                modifier = modifier.size(80.dp))
+                modifier = modifier.size(60.dp))
             CircularProgressIndicator(progress = animatedValue,
                 color = color,
                 strokeWidth = strokeWidth,
-                modifier = modifier.size(80.dp))
+                modifier = modifier.size(60.dp))
         }
     }
 }
@@ -82,7 +82,7 @@ fun CombinedStatsCard(stats: LanguageStatData) {
                     horizontalArrangement = Arrangement.SpaceEvenly) {
                     ProgressStatsItem(label = "Avg. Confidence",
                         value = stats.allConfidence,
-                        color = MaterialTheme.colors.primary)
+                        color = MaterialTheme.colors.secondary)
                     ProgressStatsItem(label = "Avg. Motivation",
                         value = stats.allMotivation,
                         color = MaterialTheme.colors.secondary)
@@ -104,8 +104,8 @@ fun Chip(
         modifier = modifier,
         onClick = onClick,
         colors = when {
-            isSelected -> ButtonDefaults.outlinedButtonColors(backgroundColor = MaterialTheme.colors.primary, contentColor = MaterialTheme.colors.onPrimary)
-            else -> ButtonDefaults.outlinedButtonColors()
+            isSelected -> ButtonDefaults.outlinedButtonColors(backgroundColor = MaterialTheme.colors.surface, contentColor = MaterialTheme.colors.secondary)
+            else -> ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colors.onSurface,)
         }) {
         content()
     }
@@ -114,7 +114,7 @@ fun Chip(
 @Composable
 fun DonutCard(stats: LanguageStatData) {
     var isTime: Boolean by rememberSaveable { mutableStateOf(true) }
-
+    val strokeWidth = 12.dp
     StatsCard() {
         Column {
             Row(modifier = Modifier.fillMaxWidth(),
@@ -125,7 +125,7 @@ fun DonutCard(stats: LanguageStatData) {
                     contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(progress = 1f,
                         color = Constants.ItemBackground,
-                        strokeWidth = 16.dp,
+                        strokeWidth = strokeWidth,
                         modifier = Modifier.size(120.dp))
 
 
@@ -134,7 +134,7 @@ fun DonutCard(stats: LanguageStatData) {
                     stats.categoryStats.forEach {
                         CircularProgressIndicator(progress = currentSpan,
                             color = Color(it.category?.color!!),
-                            strokeWidth = 16.dp,
+                            strokeWidth = strokeWidth,
                             modifier = Modifier.size(120.dp))
                         currentSpan -= perUnit * (if (isTime) it.minutes else it.count).toFloat()
                     }
@@ -162,17 +162,11 @@ fun DonutCard(stats: LanguageStatData) {
                     }
                 }
             }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                Chip(modifier = Modifier.padding(8.dp),
-                    isSelected = isTime,
-                    { if (!isTime) isTime = true }) {
-                    Text("Time", style = MaterialTheme.typography.caption)
-                }
-                Chip(modifier = Modifier.padding(8.dp),
-                    isSelected = !isTime,
-                    { if (isTime) isTime = false }) {
-                    Text("Count", style = MaterialTheme.typography.caption)
-                }
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+                Text("Show count", style = MaterialTheme.typography.caption, modifier = Modifier.padding(horizontal = 8.dp))
+                Switch(checked = !isTime, onCheckedChange = {
+                    isTime = !it
+                })
             }
         }
     }

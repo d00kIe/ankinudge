@@ -39,7 +39,11 @@ fun Main(onActivityClick: (id: String) -> Unit, onOpenEditor: (id: String?) -> U
 fun Main(navController: NavHostController, screens: List<Screen>, onAddActivity: () -> Unit, onActivityClick: (id: String) -> Unit) {
     Scaffold(
         bottomBar = {
-            BottomNavigation {
+            BottomNavigation(
+                backgroundColor = MaterialTheme.colors.surface,
+                contentColor = MaterialTheme.colors.onSurface,
+                elevation = 8.dp
+            ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
                 screens.forEach { screen ->
@@ -79,7 +83,7 @@ fun Main(navController: NavHostController, screens: List<Screen>, onAddActivity:
 
         NavHost(navController, startDestination = Screen.Home.route) {
             composable(Screen.Home.route) { HomeScreen(onItemClick = onActivityClick) }
-            composable(Screen.Stats.route) { StatsScreen() }
+            composable(Screen.Stats.route) { StatsScreen(onItemClick = onActivityClick) }
             composable(Screen.Settings.route) { SettingsScreen() }
         }
     }
