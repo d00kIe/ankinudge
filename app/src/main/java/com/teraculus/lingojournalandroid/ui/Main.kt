@@ -51,6 +51,7 @@ fun Main(navController: NavHostController, screens: List<Screen>, onAddActivity:
                         icon = { Icon(screen.icon, null) },
                         label = { Text(stringResource(screen.resourceId)) },
                         selected = currentRoute == screen.route,
+                        alwaysShowLabel = false,
                         onClick = {
                             navController.navigate(screen.route) {
                                 // Pop up to the start destination of the graph to
