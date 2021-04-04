@@ -87,7 +87,7 @@ fun StatsContent(
                     LanguageStatContent(notNullStats[languageTab])
                 }
                 if (tabIndex == 0) {
-                    Divider(Modifier.padding(vertical = 16.dp))
+                    Spacer(Modifier.size(16.dp))
                     ActivitiesForTheDay(model = model,
                         onItemClick = onItemClick,
                         language = notNullStats[languageTab].language)

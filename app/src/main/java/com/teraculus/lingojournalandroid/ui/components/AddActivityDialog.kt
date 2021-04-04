@@ -87,7 +87,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
     {
         Column(Modifier
             .fillMaxSize()
-            .padding(8.dp)
+            .padding(horizontal= 8.dp)
             .verticalScroll(rememberScrollState())) {
             Row {
                 DropDownTextField(label = { Text("Language") },

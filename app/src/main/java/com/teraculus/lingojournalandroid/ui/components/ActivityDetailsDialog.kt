@@ -81,7 +81,7 @@ fun ActivityDetailsDialogContent(onDismiss: () -> Unit,
     {
         Column(Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal= 16.dp)
             .verticalScroll(rememberScrollState())) {
             Text(title.orEmpty(), style = MaterialTheme.typography.h5)
             Spacer(Modifier.size(8.dp))
