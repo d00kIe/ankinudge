@@ -1,6 +1,5 @@
 package com.teraculus.lingojournalandroid.ui.components
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -17,12 +16,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.utils.*
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
-import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModelFactory
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
@@ -40,6 +36,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
     val endTime = model.endTime.observeAsState()
     val confidence by model.confidence.observeAsState()
     val motivation by model.motivation.observeAsState()
+    val preferences by model.preferences.observeAsState()
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
     var showActivityTypeDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -51,7 +48,8 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
                             model.onLanguageChange(it.code)
                             showLanguageDialog = false
                           },
-            onDismissRequest = { showLanguageDialog = false })
+            onDismissRequest = { showLanguageDialog = false },
+            preferences = preferences)
     }
 
     if(showActivityTypeDialog) {
@@ -87,7 +85,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
     {
         Column(Modifier
             .fillMaxSize()
-            .padding(horizontal= 8.dp)
+            .padding(horizontal = 8.dp)
             .verticalScroll(rememberScrollState())) {
             Row {
                 DropDownTextField(label = { Text("Language") },

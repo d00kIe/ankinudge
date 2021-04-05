@@ -29,6 +29,7 @@ class EditActivityViewModel(
     val type = MutableLiveData(types.value!!.first())
     val confidence = MutableLiveData(75f)
     val motivation = MutableLiveData(75f)
+    val preferences = repository.getUserPreferences()
 
     init {
         prepareActivity(id)

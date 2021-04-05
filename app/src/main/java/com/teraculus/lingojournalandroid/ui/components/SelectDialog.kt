@@ -1,12 +1,13 @@
 package com.teraculus.lingojournalandroid.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -23,6 +24,7 @@ import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.data.getAllLanguages
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.ActivityType
+import com.teraculus.lingojournalandroid.model.UserPreferences
 
 @Composable
 fun SelectDialog(
@@ -46,14 +48,32 @@ fun SelectDialog(
 
 @ExperimentalMaterialApi
 @Composable
-fun LanguageSelectDialog(onItemClick: (item: Language) -> Unit, onDismissRequest: () -> Unit) {
-    val languages by remember { mutableStateOf(getAllLanguages()) }
+fun LanguageSelectDialog(
+    onItemClick: (item: Language) -> Unit,
+    onDismissRequest: () -> Unit,
+    preferences: UserPreferences?
+) {
+    val languages by remember {
+        mutableStateOf(getAllLanguages().filter { preferences?.languages?.contains(it.code) == false })
+    }
+    val usedLanguages by remember {
+        mutableStateOf(getAllLanguages().filter { preferences?.languages?.contains(it.code) == true })
+    }
     SelectDialog(
         onDismissRequest = onDismissRequest,
         title = "Language",
     ) {
+
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            if(usedLanguages.isNotEmpty()) {
+                items(usedLanguages) { item ->
+                    LanguageItem(item, onClick = onItemClick, isRecent = true)
+                }
+                item {
+                    Divider()
+                }
+            }
             items(languages) { item ->
                 LanguageItem(item, onClick = onItemClick)
             }
@@ -63,8 +83,14 @@ fun LanguageSelectDialog(onItemClick: (item: Language) -> Unit, onDismissRequest
 
 @ExperimentalMaterialApi
 @Composable
-fun LanguageItem(lang: Language, onClick: (item: Language) -> Unit) {
-    ListItem(text = { Text(lang.name) }, modifier = Modifier.clickable { onClick(lang) })
+fun LanguageItem(lang: Language, onClick: (item: Language) -> Unit, isRecent: Boolean = false) {
+    ListItem(
+        text = { Text(lang.name) },
+        modifier = Modifier.clickable { onClick(lang) },
+        trailing = {
+            if(isRecent)
+                Icon(Icons.Rounded.History, contentDescription = null)
+        })
 }
 
 
