@@ -28,7 +28,10 @@ class Constants {
         val ItemBackground : Color
             @Composable
             get() {
-                return Color.LightGray.copy(alpha = ContentAlpha.disabled)
+                return if(MaterialTheme.colors.isLight)
+                        Color.LightGray.copy(alpha = ContentAlpha.disabled)
+                    else
+                        Color.Gray.copy(alpha = ContentAlpha.disabled)
             }
     }
 }
@@ -50,7 +53,7 @@ fun TextStatsItem(label: String, value: String, style: TextStyle = MaterialTheme
 }
 
 @Composable
-fun ProgressStatsItem(label: String, value: Float, color: Color, modifier: Modifier = Modifier, strokeWidth : Dp = 8.dp) {
+fun ProgressStatsItem(label: String, value: Float, color: Color, modifier: Modifier = Modifier, strokeWidth : Dp = 4.dp) {
     val animatedValue by animateFloatAsState(targetValue = max(value / 100f, 0.01f))
     StatsItem(label = label) {
         Box() {
@@ -114,7 +117,7 @@ fun Chip(
 @Composable
 fun DonutCard(stats: LanguageStatData) {
     var isTime: Boolean by rememberSaveable { mutableStateOf(true) }
-    val strokeWidth = 12.dp
+    val strokeWidth = 8.dp
     StatsCard() {
         Column {
             Row(modifier = Modifier.fillMaxWidth(),

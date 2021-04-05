@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.R
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
+import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.toDayString
 
 @ExperimentalMaterialApi
@@ -49,8 +50,10 @@ fun ActivityList(
             groups.orEmpty().forEach { (date, items) ->
                 item {
                     Column {
-                        Text(text = toDayString(date), style = MaterialTheme.typography.body1, modifier = Modifier.padding(16.dp))
-                        Divider(Modifier.padding(bottom = 8.dp))
+                        ApplyTextStyle(textStyle = MaterialTheme.typography.caption, contentAlpha = ContentAlpha.medium) {
+                            Text(text = toDayString(date), modifier = Modifier.padding(top=24.dp, bottom = 16.dp, start = 16.dp))
+                        }
+                        Divider()
                     }
                 }
                 items(items.filter { it.isValid }) { activity ->
