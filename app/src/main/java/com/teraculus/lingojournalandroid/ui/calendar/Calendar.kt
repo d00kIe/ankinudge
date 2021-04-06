@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -29,7 +30,6 @@ import com.teraculus.lingojournalandroid.utils.getMinutes
 import com.teraculus.lingojournalandroid.utils.getMonthForInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.lang.Float.max
 import java.lang.Float.min
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -239,18 +239,18 @@ fun MonthItem(
         weekCount.value = ceil(dataItems.value.size / 7.0).toInt()
     }
     Column(modifier = modifier.padding(horizontal = 16.dp)) {
+        WeekDaysRow()
         for (w in 0 until weekCount.value) {
             BoxWithConstraints {
                 if(cellSize != maxWidth / 7) {
                     cellSize = maxWidth / 7
                 }
-
                 Row(modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically) {
                     for (d in 0 until 7) {
                         val itemIdx by remember { mutableStateOf(w * 7 + d) }
-                        var mod = Modifier.size(cellSize)
+                        var mod = Modifier.width(cellSize).height(44.dp)
                         if(loaded && dataItems.value[itemIdx].thisMonth) {
                             mod = mod.clickable { onClick(dataItems.value[itemIdx]) }
                         }
@@ -263,10 +263,28 @@ fun MonthItem(
 }
 
 @Composable
+private fun WeekDaysRow() {
+    val days by remember { mutableStateOf(listOf("M", "T", "W", "T", "F", "S", "S")) }
+    var cellSize by remember { mutableStateOf(0.dp)}
+    BoxWithConstraints {
+        if (cellSize != maxWidth / 7) {
+            cellSize = maxWidth / 7
+        }
+        Row(modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically) {
+            for (d in days) {
+                TextCell(cellText = d, cellSize = cellSize)
+            }
+        }
+    }
+}
+
+@Composable
 private fun MonthHeader(modifier: Modifier = Modifier, month: String, year: String) {
     Text(modifier = modifier,
         text = "$month $year",
-        style = MaterialTheme.typography.subtitle2
+        style = MaterialTheme.typography.body1
     )
 }
 
@@ -278,17 +296,17 @@ fun DayItem(
     maxCount: Int,
     cellSize: Dp,
 ) {
-    val circleSize = (cellSize - 28.dp) / maxCount.coerceAtLeast(1) * data.count
+    val circleSize = (20.dp) / maxCount.coerceAtLeast(1) * data.count
     val circleAlpha = min((0.35f / maxMinutes.coerceAtLeast(1)) * data.minutes, 0.35f)
 
     Surface(shape = RectangleShape,
-        modifier = modifier.size(cellSize),
+        modifier = modifier,
         elevation = 0.dp,
     ) {
         if (data.thisMonth) {
             Box(modifier = modifier.fillMaxSize(),contentAlignment = Alignment.Center) {
                 Surface(shape = CircleShape,
-                    modifier = Modifier.size(28.dp + circleSize),
+                    modifier = Modifier.size(24.dp + circleSize),
                     elevation = 0.dp,
                     color = if (data.hasActivities) MaterialTheme.colors.secondary.copy(alpha = 0.65f + circleAlpha) else MaterialTheme.colors.surface) {}
                 Text(data.day.toString(),
@@ -298,6 +316,26 @@ fun DayItem(
                     textDecoration = if (data.today) TextDecoration.Underline else null,
                     fontWeight = if (data.today) FontWeight.Black else null)
             }
+        }
+    }
+}
+
+@Composable
+fun TextCell(
+    cellText: String,
+    modifier: Modifier = Modifier,
+    cellSize: Dp,
+) {
+    Surface(shape = RectangleShape,
+        modifier = modifier.width(cellSize).height(32.dp),
+        elevation = 0.dp,
+    ) {
+        Box(modifier = modifier.fillMaxSize(),contentAlignment = Alignment.Center) {
+            Text(cellText,
+                style = MaterialTheme.typography.caption,
+                color = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold)
         }
     }
 }

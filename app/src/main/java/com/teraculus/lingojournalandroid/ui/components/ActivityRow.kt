@@ -37,7 +37,7 @@ fun ActivityRow(activity: Activity, onClick: (id: String) -> Unit) {
     ListItem(
         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).clickable(onClick = { onClick(activity.id.toString()) }),
         icon = { ActivityRowIcon(category?.icon, confidence, motivation, category?.color) },
-        text = { Text(title.orEmpty()) },
+        text = { Text(title.orEmpty(), maxLines = 2, overflow = TextOverflow.Ellipsis) },
         secondaryText = { if(text.orEmpty().isNotEmpty()) Text(text.orEmpty(), maxLines = 3, overflow = TextOverflow.Ellipsis) },
         overlineText = { OverlineText(startTime, language, type?.name) })
 
@@ -52,10 +52,10 @@ fun OverlineText(startTime: LocalTime?, language: String?, typeName: String?) {
 @Composable
 fun ActivityRowIcon(icon: Int?, confidence: Float?, motivation: Float?, color: Int?) {
     if(icon != null && confidence != null && motivation != null && color != null)
-        Surface(elevation = 1.dp,modifier = Modifier.size(48.dp), shape = CircleShape, color = Color(color)) {
+        Surface(elevation = 1.dp,modifier = Modifier.size(42.dp), shape = CircleShape, color = Color(color)) {
             //ConfidenceMotivationIndicator(confidence = confidence, motivation = motivation)
 
             Icon(painter = painterResource(id = icon), modifier = Modifier
-                .padding(12.dp), tint = MaterialTheme.colors.onPrimary, contentDescription = null)
+                .padding(8.dp), tint = MaterialTheme.colors.onPrimary, contentDescription = null)
         }
 }

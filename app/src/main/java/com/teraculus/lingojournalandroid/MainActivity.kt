@@ -1,7 +1,10 @@
 package com.teraculus.lingojournalandroid
 
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -17,6 +20,7 @@ class MainActivity : AppCompatActivity() {
     @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        makeStatusBarTransparent()
 
         setContent {
             Main(
@@ -25,6 +29,7 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
+
 
     override fun onResume() {
         super.onResume()
@@ -38,5 +43,9 @@ class MainActivity : AppCompatActivity() {
 //                Log.d("SCREEN", "Keeping screen on for debugging is now deactivated.")
 //            }
         }
+    }
+
+    private fun makeStatusBarTransparent() {
+        window.statusBarColor = Color.TRANSPARENT
     }
 }

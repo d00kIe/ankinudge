@@ -14,12 +14,6 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SettingsContent() {
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-        TopAppBar(
-            elevation = 0.dp,
-            backgroundColor = Color.Transparent
-        ) {
-            Text(text = "Settings", style = MaterialTheme.typography.h6, modifier = Modifier.padding(horizontal = 16.dp))
-        }
         ListItem(text = { Text("Theme")})
         Divider()
         ListItem(text = { Text("Privacy policy")})

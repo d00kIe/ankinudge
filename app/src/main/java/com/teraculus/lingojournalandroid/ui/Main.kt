@@ -2,12 +2,12 @@ package com.teraculus.lingojournalandroid.ui
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -38,14 +38,23 @@ fun Main(onActivityClick: (id: String) -> Unit, onOpenEditor: (id: String?) -> U
 @Composable
 fun Main(navController: NavHostController, screens: List<Screen>, onAddActivity: () -> Unit, onActivityClick: (id: String) -> Unit) {
     Scaffold(
+        topBar = {
+            val screen = getCurrentScreenFrom(screens = screens, route = getCurrentRoute(navController = navController))
+            val elevation = if(!MaterialTheme.colors.isLight) 0.dp else AppBarDefaults.TopAppBarElevation
+            TopAppBar(
+              backgroundColor = MaterialTheme.colors.background,
+              elevation = elevation) {
+              if(screen != null)
+                Text(stringResource(id = screen.resourceId), modifier = Modifier.padding(start = 24.dp), style = MaterialTheme.typography.h6)
+          }
+        },
         bottomBar = {
             BottomNavigation(
                 backgroundColor = MaterialTheme.colors.surface,
                 contentColor = MaterialTheme.colors.onSurface,
                 elevation = 8.dp
             ) {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
+                val currentRoute = getCurrentRoute(navController)
                 screens.forEach { screen ->
                     BottomNavigationItem(
                         icon = { Icon(screen.icon, null) },
@@ -68,8 +77,7 @@ fun Main(navController: NavHostController, screens: List<Screen>, onAddActivity:
             }
         },
         floatingActionButton = {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
+            val currentRoute = getCurrentRoute(navController = navController)
             if(currentRoute == "home" || currentRoute == "stats") {
                 FloatingActionButton(onClick = onAddActivity, backgroundColor= MaterialTheme.colors.surface, contentColor = MaterialTheme.colors.secondary) {
                     Icon(
@@ -88,4 +96,15 @@ fun Main(navController: NavHostController, screens: List<Screen>, onAddActivity:
             composable(Screen.Settings.route) { SettingsScreen() }
         }
     }
+}
+
+@Composable
+private fun getCurrentRoute(navController: NavHostController): String? {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    return navBackStackEntry?.arguments?.getString(KEY_ROUTE)
+}
+
+@Composable
+private fun getCurrentScreenFrom(screens: List<Screen>, route: String?): Screen? {
+    return screens.find { it.route == route }
 }

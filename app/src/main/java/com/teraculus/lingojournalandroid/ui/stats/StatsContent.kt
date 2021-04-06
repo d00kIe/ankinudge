@@ -62,7 +62,7 @@ fun StatsContent(
                     hasPrev = true) {
                     Text(modifier = Modifier.padding(16.dp),
                         text = toDayString(day),
-                        style = MaterialTheme.typography.subtitle2
+                        style = MaterialTheme.typography.body1
                     )
                 }
             }

@@ -38,22 +38,11 @@ fun ActivityList(
 
     LazyColumn(
     ) {
-        item {
-//            if(MaterialTheme.colors.isLight) {
-//                Image(painter = painterResource(id = R.drawable.lightbackground), contentDescription = null)
-//            } else {
-//                Image(painter = painterResource(id = R.drawable.darkbackground), contentDescription = null)
-//            }
-            Text("Journal", modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp), style = MaterialTheme.typography.h4)
-        }
         if (groups != null && groups.orEmpty().isNotEmpty()) {
             groups.orEmpty().forEach { (date, items) ->
                 item {
-                    Column {
-                        ApplyTextStyle(textStyle = MaterialTheme.typography.caption, contentAlpha = ContentAlpha.medium) {
-                            Text(text = toDayString(date), modifier = Modifier.padding(top=24.dp, bottom = 16.dp, start = 16.dp))
-                        }
-                        Divider()
+                    ApplyTextStyle(textStyle = MaterialTheme.typography.caption, contentAlpha = ContentAlpha.medium) {
+                        Text(text = toDayString(date), modifier = Modifier.padding(top=24.dp, start = 16.dp))
                     }
                 }
                 items(items.filter { it.isValid }) { activity ->
