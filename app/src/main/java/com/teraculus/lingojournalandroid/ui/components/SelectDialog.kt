@@ -105,7 +105,7 @@ fun ActivityTypeSelectDialog(
     val groups = types?.groupBy { it.category }
     SelectDialog(
         onDismissRequest = onDismissRequest,
-        title = "Language",
+        title = "Activity type",
     ) {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {

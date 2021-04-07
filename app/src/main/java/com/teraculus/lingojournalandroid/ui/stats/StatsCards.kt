@@ -39,7 +39,7 @@ class Constants {
 @Composable
 fun StatsItem(label: String, content: @Composable () -> Unit) {
     Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = label, style = MaterialTheme.typography.overline, textAlign = TextAlign.Center)
+        Text(text = label, style = MaterialTheme.typography.caption, textAlign = TextAlign.Center)
         Spacer(modifier = Modifier.padding(4.dp))
         content()
     }
@@ -72,25 +72,21 @@ fun ProgressStatsItem(label: String, value: Float, color: Color, modifier: Modif
 @Composable
 fun StatsCard(modifier: Modifier = Modifier, content: @Composable() () -> Unit) {
     Card(modifier = Modifier
-        .padding(start = 16.dp, top = 16.dp, end = 16.dp)
-        .fillMaxWidth(), elevation = 2.dp, shape = RoundedCornerShape(8.dp), content = content)
+        .padding(horizontal = 16.dp, vertical = 8.dp), elevation = 2.dp, content = content)
 }
 
 @Composable
 fun CombinedStatsCard(stats: LanguageStatData) {
-    Column {
-        StatsCard() {
-            Column {
-                Row(modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly) {
-                    ProgressStatsItem(label = "Avg. Confidence",
-                        value = stats.allConfidence,
-                        color = MaterialTheme.colors.secondary)
-                    ProgressStatsItem(label = "Avg. Motivation",
-                        value = stats.allMotivation,
-                        color = MaterialTheme.colors.secondary)
-                }
-            }
+    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Card(elevation = 2.dp, modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+            ProgressStatsItem(label = "Avg. Confidence",
+                value = stats.allConfidence,
+                color = MaterialTheme.colors.secondary)
+        }
+        Card(elevation = 2.dp, modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+            ProgressStatsItem(label = "Avg. Motivation",
+                value = stats.allMotivation,
+                color = MaterialTheme.colors.secondary)
         }
     }
 }

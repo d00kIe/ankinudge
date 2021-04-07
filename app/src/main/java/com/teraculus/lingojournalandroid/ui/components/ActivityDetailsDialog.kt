@@ -158,6 +158,7 @@ fun ActivityDetailsDialogContent(onDismiss: () -> Unit,
                     }
                 }
             }
+            Spacer(Modifier.size(32.dp))
         }
     }
 }

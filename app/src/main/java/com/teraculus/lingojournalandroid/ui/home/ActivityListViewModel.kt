@@ -26,7 +26,7 @@ class ActivityListViewModelFactory() : ViewModelProvider.Factory {
 
 
 class ActivityItemViewModel(rawActivity: Activity) : ViewModel() {
-    val activity = LiveRealmObject(rawActivity)
+    val activity : LiveRealmObject<Activity> = LiveRealmObject(rawActivity)
     val id = Transformations.map(activity) { it.id }
     val title = Transformations.map(activity) { it.title }
     val text = Transformations.map(activity) { it.text }
@@ -38,6 +38,7 @@ class ActivityItemViewModel(rawActivity: Activity) : ViewModel() {
     val type = Transformations.map(activity) { it.type }
     val category = Transformations.map(type) { it?.category }
     val language = Transformations.map(activity) { it.language }
+
 }
 
 class ActivityItemViewModelFactory(private val rawActivity: Activity) : ViewModelProvider.Factory {

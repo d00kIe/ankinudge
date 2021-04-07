@@ -16,6 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.ui.calendar.Calendar
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
+import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.observeWithDelegate
 import com.teraculus.lingojournalandroid.utils.toDayString
 
@@ -42,7 +43,7 @@ fun StatsContent(
         languageTab = 0
     }
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier.verticalScroll(rememberScrollState())) {
         TabRow(selectedTabIndex = tabIndex,
             backgroundColor = MaterialTheme.colors.surface) {
             tabs.forEachIndexed { index, title ->
@@ -53,8 +54,8 @@ fun StatsContent(
                 )
             }
         }
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-            AnimatedVisibility(visible = tabIndex == 0) {
+        AnimatedVisibility(visible = tabIndex == 0) {
+            Column() {
                 Selector(Modifier.fillMaxWidth(),
                     onNext = { model.setDay(day?.plusDays(1)!!) },
                     onPrev = { model.setDay(day?.minusDays(1)!!) },
@@ -65,50 +66,56 @@ fun StatsContent(
                         style = MaterialTheme.typography.body1
                     )
                 }
+                Divider()
             }
-            AnimatedVisibility(visible = tabIndex == 1) {
+        }
+        AnimatedVisibility(visible = tabIndex == 1) {
+            Column() {
                 Calendar(Modifier.fillMaxWidth(), model)
+                Divider()
             }
-            val notNullStats = stats.orEmpty()
-            if (notNullStats.isNotEmpty()) {
-                Column {
-                    TabRow(selectedTabIndex = languageTab,
-                        backgroundColor = MaterialTheme.colors.surface,
-                        modifier = Modifier.fillMaxWidth(),
-                        indicator = { null }) {
-                        notNullStats.forEachIndexed { index, stats ->
-                            Tab(
-                                text = { Text(getLanguageDisplayName(stats.language)) },
-                                selected = index == languageTab,
-                                onClick = { languageTab = index }
-                            )
-                        }
-                    }
-                    LanguageStatContent(notNullStats[languageTab])
-                }
-                if (tabIndex == 0) {
-                    Spacer(Modifier.size(16.dp))
-                    ActivitiesForTheDay(model = model,
-                        onItemClick = onItemClick,
-                        language = notNullStats[languageTab].language)
-                }
-            } else {
-                Column {
-                    TabRow(selectedTabIndex = 0,
-                        backgroundColor = MaterialTheme.colors.surface,
-                        modifier = Modifier.fillMaxWidth(),
-                        indicator = { null }) {
+        }
+        val notNullStats = stats.orEmpty()
+        if (notNullStats.isNotEmpty()) {
+            Column {
+                TabRow(selectedTabIndex = languageTab,
+                    backgroundColor = MaterialTheme.colors.surface,
+                    modifier = Modifier.fillMaxWidth()) {
+                    notNullStats.forEachIndexed { index, stats ->
                         Tab(
-                            text = { Text("No activities") },
-                            selected = true,
-                            onClick = { }
+                            text = { Text(getLanguageDisplayName(stats.language)) },
+                            selected = index == languageTab,
+                            onClick = { languageTab = index }
                         )
                     }
-                    LanguageStatContent(it = LanguageStatData.empty())
                 }
+                Spacer(modifier = Modifier.size(8.dp))
+                LanguageStatContent(notNullStats[languageTab])
             }
-            Spacer(modifier = Modifier.size(80.dp))
+            if (tabIndex == 0) {
+                ApplyTextStyle(textStyle = MaterialTheme.typography.caption, contentAlpha = ContentAlpha.medium) {
+                    Text(text = "Activities", modifier = Modifier.padding(start = 16.dp, top = 8.dp))
+                }
+                ActivitiesForTheDay(model = model,
+                    onItemClick = onItemClick,
+                    language = notNullStats[languageTab].language)
+            }
+        } else {
+            Column {
+                TabRow(selectedTabIndex = 0,
+                    backgroundColor = MaterialTheme.colors.surface,
+                    modifier = Modifier.fillMaxWidth()) {
+                    Tab(
+                        text = { Text("No activities") },
+                        selected = true,
+                        onClick = { }
+                    )
+                }
+                Spacer(modifier = Modifier.size(8.dp))
+                LanguageStatContent(it = LanguageStatData.empty())
+            }
         }
+        Spacer(modifier = Modifier.size(80.dp))
     }
 }
 

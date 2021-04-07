@@ -19,20 +19,22 @@ fun PreviewConfidenceMotivationIndicator() {
 }
 
 @Composable
-fun ConfidenceMotivationIndicator(confidence: Float, motivation: Float,
+fun ConfidenceMotivationIndicator(confidence: Float?, motivation: Float?,
                                   modifier: Modifier = Modifier) {
-    Surface(modifier = modifier, shape = CircleShape, elevation = 1.dp) {
-        CircularProgressIndicator(progress = max(confidence / 100f, 0.01f),
-            color = MaterialTheme.colors.secondary,
-            strokeWidth = 2.dp,
-            modifier = Modifier
-                .size(24.dp))
+    if(confidence != null && motivation != null) {
+        Surface(modifier = modifier, shape = CircleShape, elevation = 1.dp) {
+            CircularProgressIndicator(progress = max(confidence / 100f, 0.01f),
+                color = MaterialTheme.colors.secondary,
+                strokeWidth = 2.dp,
+                modifier = Modifier
+                    .size(24.dp))
 
-        CircularProgressIndicator(progress = max(motivation / 100f, 0.01f),
-            color = MaterialTheme.colors.secondary,
-            strokeWidth = 2.dp,
-            modifier = Modifier
-                .size(24.dp)
-                .padding(4.dp))
+            CircularProgressIndicator(progress = max(motivation / 100f, 0.01f),
+                color = MaterialTheme.colors.secondary,
+                strokeWidth = 2.dp,
+                modifier = Modifier
+                    .size(24.dp)
+                    .padding(4.dp))
+        }
     }
 }

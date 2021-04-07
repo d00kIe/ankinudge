@@ -9,7 +9,7 @@
         <item name="android:windowLightStatusBar">true</item>
 
         <!-- Primary brand color. -->
-        <item name="colorPrimary">#1976d2</item>
+        <item name="colorPrimary">#00796b</item>
         <item name="colorOnPrimary">#ffffff</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">#00796b</item>
