@@ -24,6 +24,7 @@ import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.data.getAllLanguages
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.ActivityType
+import com.teraculus.lingojournalandroid.model.ThemePreference
 import com.teraculus.lingojournalandroid.model.UserPreferences
 
 @Composable
@@ -140,3 +141,20 @@ fun ActivityTypeItem(type: ActivityType, onClick: (item: ActivityType) -> Unit) 
     ListItem(text = { Text(type.name) }, modifier = Modifier.clickable { onClick(type) })
 }
 
+@ExperimentalMaterialApi
+@Composable
+fun ThemeSelectDialog(
+    onDismissRequest: () -> Unit,
+) {
+    SelectDialog(
+        onDismissRequest = onDismissRequest,
+        title = "Select theme",
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            ListItem(text = { Text("Light") }, modifier = Modifier.clickable { Repository.getRepository().updateThemePreference(ThemePreference.LIGHT); onDismissRequest() })
+            ListItem(text = { Text("Dark") }, modifier = Modifier.clickable { Repository.getRepository().updateThemePreference(ThemePreference.DARK); onDismissRequest() })
+            ListItem(text = { Text("System") }, modifier = Modifier.clickable { Repository.getRepository().updateThemePreference(ThemePreference.SYSTEM); onDismissRequest() })
+        }
+    }
+}

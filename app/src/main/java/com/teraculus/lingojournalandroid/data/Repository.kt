@@ -126,6 +126,12 @@ class Repository {
         }
     }
 
+    fun updateThemePreference(theme: String) {
+        realm!!.executeTransaction {
+            userPreferences.value?.theme = theme
+        }
+    }
+
     companion object {
         private var INSTANCE: Repository? = null
 
