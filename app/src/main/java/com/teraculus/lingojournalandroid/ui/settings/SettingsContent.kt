@@ -7,27 +7,50 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
-import com.teraculus.lingojournalandroid.ui.components.LanguageSelectDialog
-import com.teraculus.lingojournalandroid.ui.components.ThemeSelectDialog
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
+import com.teraculus.lingojournalandroid.data.Repository
+import com.teraculus.lingojournalandroid.model.ThemePreference
+import com.teraculus.lingojournalandroid.ui.components.RadioSelectDialog
+
+
+class SettingsViewModel(val repository: Repository = Repository.getRepository()) : ViewModel() {
+    private val preferences = repository.getUserPreferences()
+    val theme = Transformations.map(preferences) { it.theme }
+    val themeOptions = listOf(ThemePreference.DARK, ThemePreference.LIGHT, ThemePreference.SYSTEM)
+
+    fun setTheme(theme: String) {
+        if(themeOptions.contains(theme)) {
+            repository.updateThemePreference(theme)
+        }
+    }
+}
 
 @ExperimentalMaterialApi
 @Composable
-fun SettingsContent() {
+fun SettingsContent(viewModel : SettingsViewModel = SettingsViewModel()) {
+    val theme by viewModel.theme.observeAsState()
+    val options = viewModel.themeOptions
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
-
+    LocalWindowInfo
     if(showThemeDialog) {
-        ThemeSelectDialog(
-            onDismissRequest = { showThemeDialog = false },)
+        RadioSelectDialog(
+            title="Theme",
+            selected = theme.orEmpty(),
+            options = options,
+            onSelect = { viewModel.setTheme(it); showThemeDialog = false; },
+            onDismissRequest = { showThemeDialog = false })
     }
 
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         ListItem(text = { Text("Theme")}, modifier = Modifier.clickable { showThemeDialog = true })
-        Divider()
         ListItem(text = { Text("Privacy policy")})
-        Divider()
     }
 }

@@ -31,5 +31,5 @@ open class UserPreferences : RealmObject() {
 object ThemePreference {
     const val LIGHT = "Light"
     const val DARK = "Dark"
-    const val SYSTEM = "System"
+    const val SYSTEM = "System default"
 }

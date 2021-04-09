@@ -12,6 +12,11 @@ import androidx.compose.material.ExperimentalMaterialApi
 import com.teraculus.lingojournalandroid.ui.Main
 import android.view.WindowManager
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.core.view.WindowCompat
+import com.teraculus.lingojournalandroid.utils.LocalSysUiController
+import com.teraculus.lingojournalandroid.utils.SystemUiController
 
 
 class MainActivity : AppCompatActivity() {
@@ -20,32 +25,17 @@ class MainActivity : AppCompatActivity() {
     @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        makeStatusBarTransparent()
+        // This app draws behind the system bars, so we want to handle fitting system windows
+        //WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            Main(
-                onActivityClick = { launchDetailsActivity(this, it) },
-                onOpenEditor = { launchEditorActivity(this, it) }
-            )
+            val systemUiController = remember { SystemUiController(window) }
+            CompositionLocalProvider(LocalSysUiController provides systemUiController) {
+                Main(
+                    onActivityClick = { launchDetailsActivity(this, it) },
+                    onOpenEditor = { launchEditorActivity(this, it) }
+                )
+            }
         }
-    }
-
-
-    override fun onResume() {
-        super.onResume()
-        if (BuildConfig.DEBUG) { // don't even consider it otherwise
-//            if (Debug.isDebuggerConnected()) {
-                Log.d("SCREEN",
-                    "Keeping screen on for debugging, detach debugger and force an onResume to turn it off.")
-                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-//            } else {
-//                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-//                Log.d("SCREEN", "Keeping screen on for debugging is now deactivated.")
-//            }
-        }
-    }
-
-    private fun makeStatusBarTransparent() {
-        window.statusBarColor = Color.TRANSPARENT
     }
 }

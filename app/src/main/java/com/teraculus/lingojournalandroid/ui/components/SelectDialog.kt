@@ -26,6 +26,10 @@ import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.model.ThemePreference
 import com.teraculus.lingojournalandroid.model.UserPreferences
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.Role
 
 @Composable
 fun SelectDialog(
@@ -143,18 +147,51 @@ fun ActivityTypeItem(type: ActivityType, onClick: (item: ActivityType) -> Unit) 
 
 @ExperimentalMaterialApi
 @Composable
-fun ThemeSelectDialog(
+fun RadioSelectDialog(
+    title: String,
+    options: List<String>,
+    selected: String,
+    onSelect: (text: String) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     SelectDialog(
         onDismissRequest = onDismissRequest,
-        title = "Select theme",
+        title = title,
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            ListItem(text = { Text("Light") }, modifier = Modifier.clickable { Repository.getRepository().updateThemePreference(ThemePreference.LIGHT); onDismissRequest() })
-            ListItem(text = { Text("Dark") }, modifier = Modifier.clickable { Repository.getRepository().updateThemePreference(ThemePreference.DARK); onDismissRequest() })
-            ListItem(text = { Text("System") }, modifier = Modifier.clickable { Repository.getRepository().updateThemePreference(ThemePreference.SYSTEM); onDismissRequest() })
+        Column(Modifier.selectableGroup()) {
+            options.forEach { text ->
+                RadioWithText(text, text == selected, onSelect)
+            }
         }
+    }
+}
+
+@Composable
+private fun RadioWithText(
+    text: String,
+    selected: Boolean,
+    onSelect: (text: String) -> Unit,
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .selectable(
+                selected = selected,
+                onClick = { onSelect(text) },
+                role = Role.RadioButton
+            )
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = null // null recommended for accessibility with screenreaders
+        )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.body1.merge(),
+            modifier = Modifier.padding(start = 16.dp)
+        )
     }
 }
