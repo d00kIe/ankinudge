@@ -4,11 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.teraculus.lingojournalandroid.model.*
 import com.teraculus.lingojournalandroid.utils.asDate
-import com.teraculus.lingojournalandroid.utils.toRealmDateString
-import io.realm.Realm
-import io.realm.RealmConfiguration
-import io.realm.RealmModel
-import io.realm.RealmResults
+import io.realm.*
 import io.realm.kotlin.where
 import org.bson.types.ObjectId
 import java.time.LocalDate
@@ -118,10 +114,19 @@ class Repository {
         return userPreferences
     }
 
-    fun updateLastLanguagePreference(language: String) {
+    private val maxRecentLangSize = 3
+    private fun updateLastLanguagePreference(language: String) {
         realm!!.executeTransaction {
-            if(userPreferences.value?.languages?.find { it == language } == null) {
-                userPreferences.value?.languages?.add(0,language)
+            userPreferences.value?.languages?.let { languages ->
+            if(languages.find { it == language } == null) {
+                languages.add(0,language)
+            } else {
+                languages.remove(language)
+                languages.add(0,language)
+            }
+
+            if(languages.size > maxRecentLangSize)
+                languages.removeAll(languages.takeLast(languages.size - maxRecentLangSize))
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.teraculus.lingojournalandroid.viewmodel
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.teraculus.lingojournalandroid.PickerProvider
@@ -51,7 +52,7 @@ class EditActivityViewModel(
         } else {
             title.value = ""
             text.value = ""
-            language.value = ""
+            language.value = preferences.value?.languages?.first()
             type.value = types.value!!.first()
             confidence.value = 50f
             motivation.value = 50f

@@ -65,7 +65,6 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
         topBar = {
             TopAppBar(
                 title = { Text("Activity") },
-                elevation = 0.dp,
                 backgroundColor = Color.Transparent,
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
@@ -88,6 +87,14 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
             .padding(horizontal = 8.dp)
             .verticalScroll(rememberScrollState())) {
             Row {
+                OutlinedTextField(label = { Text("Title") },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    value = title.value.toString(),
+                    onValueChange = { model.onTitleChange(it) })
+            }
+            Row {
                 DropDownTextField(label = { Text("Language") },
                     modifier = Modifier
                         .weight(1f)
@@ -104,14 +111,9 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
                     value = "${type?.category?.title} : ${type?.name}",
                     onClick = { showActivityTypeDialog = true })
             }
-            Row {
-                OutlinedTextField(label = { Text("Title") },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    value = title.value.toString(),
-                    onValueChange = { model.onTitleChange(it) })
-            }
+
+            Divider(Modifier.padding(top = 16.dp))
+
             Row {
                 OutlinedTextField(label = { Text("Note") },
                     maxLines = 5,
@@ -121,8 +123,6 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
                     value = text.value.toString(),
                     onValueChange = { model.onTextChange(it) })
             }
-            Divider(Modifier.padding(top = 16.dp))
-
             DateAndTimeRow(date.value,
                 startTime.value,
                 getDurationString(getMinutes(startTime.value!!, endTime.value!!)),
