@@ -22,6 +22,9 @@ class ActivityDetailsViewModel(id: String,
     val confidence = Transformations.map(activity) { it?.confidence }
     val motivation = Transformations.map(activity) { it?.motivation }
     val type = Transformations.map(activity) { it?.type }
+    val typeName = Transformations.map(type) { it?.name }
+    val category = Transformations.map(type) { it?.category }
+    val categoryTitle = Transformations.map(category) { it?.title }
     val language = Transformations.map(activity) { it?.language }
 
 

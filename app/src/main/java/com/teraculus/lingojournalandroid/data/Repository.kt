@@ -7,6 +7,7 @@ import com.teraculus.lingojournalandroid.utils.asDate
 import io.realm.*
 import io.realm.kotlin.where
 import org.bson.types.ObjectId
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -101,6 +102,7 @@ class Repository {
                 activity.date = date
                 activity.startTime = startTime
                 activity.endTime = endTime
+                activity.lastChangeTs = Instant.now().toEpochMilli()
             }
             updateLastLanguagePreference(language)
         }

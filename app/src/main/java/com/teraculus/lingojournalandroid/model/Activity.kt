@@ -8,7 +8,9 @@ import io.realm.annotations.PrimaryKey
 import io.realm.annotations.Required
 import io.realm.kotlin.where
 import org.bson.types.ObjectId
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.*
 
@@ -25,6 +27,7 @@ open class Activity() :
     var type: ActivityType? = null
     var confidence: Float = 100f
     var motivation: Float = 100f
+    var lastChangeTs: Long = 0 // allows LiveData to update correctly if only "type" was changed, see LiveRealmObject::onActive
 
     @Required private var _date: Date = asDate(LocalDate.now())
     @Required private var _startTime: String = toRealmTimeString(LocalTime.now().minusHours(1))
@@ -70,6 +73,7 @@ open class Activity() :
         this.endTime = endTime
         this.confidence = confidence
         this.motivation = motivation
+        this.lastChangeTs = Instant.now().toEpochMilli()
     }
 
     companion object {
