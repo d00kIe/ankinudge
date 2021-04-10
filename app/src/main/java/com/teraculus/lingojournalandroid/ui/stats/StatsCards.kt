@@ -77,13 +77,19 @@ fun StatsCard(modifier: Modifier = Modifier, content: @Composable() () -> Unit) 
 
 @Composable
 fun CombinedStatsCard(stats: LanguageStatData) {
-    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Card(elevation = 2.dp, modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Card(elevation = 2.dp, modifier = Modifier
+            .weight(1f)
+            .padding(end = 8.dp)) {
             ProgressStatsItem(label = "Avg. Confidence",
                 value = stats.allConfidence,
                 color = MaterialTheme.colors.secondary)
         }
-        Card(elevation = 2.dp, modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+        Card(elevation = 2.dp, modifier = Modifier
+            .weight(1f)
+            .padding(start = 8.dp)) {
             ProgressStatsItem(label = "Avg. Motivation",
                 value = stats.allMotivation,
                 color = MaterialTheme.colors.secondary)
@@ -161,7 +167,9 @@ fun DonutCard(stats: LanguageStatData) {
                     }
                 }
             }
-            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
                 Text("Show count", style = MaterialTheme.typography.caption, modifier = Modifier.padding(horizontal = 8.dp))
                 Switch(checked = !isTime, onCheckedChange = {
                     isTime = !it
@@ -194,6 +202,22 @@ fun Selector(modifier: Modifier = Modifier, onNext: () -> Unit, onPrev: () -> Un
         content()
         IconButton(onClick = onNext, enabled = hasNext) {
             Icon(Icons.Rounded.KeyboardArrowRight, contentDescription = null)
+        }
+    }
+}
+
+@Composable
+fun DayStreak(stats: DayLanguageStreakData) {
+    StatsCard(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            TextStatsItem(label = "Streak", value = stats.streak.toString())
+//            stats.typeStreaks.forEach {
+//                it.category?.let { category ->
+//                    Spacer(modifier = Modifier.size(16.dp))
+//                    Text(text = category.title, style = MaterialTheme.typography.caption)
+//                    LinearProgressIndicator(progress = (1f / stats.streak) * it.streak, color = Color(category.color))
+//                }
+//            }
         }
     }
 }

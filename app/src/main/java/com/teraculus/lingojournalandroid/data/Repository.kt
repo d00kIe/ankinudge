@@ -74,6 +74,10 @@ class Repository {
         return realm!!.where<Activity>().equalTo("_date", asDate(date)).findAll()
     }
 
+    fun getActivitiesFromBeginningTo(date: LocalDate): RealmResults<Activity>? {
+        return realm!!.where<Activity>().lessThanOrEqualTo("_date", asDate(date)).findAll()
+    }
+
     fun getActivities(from: LocalDate, to: LocalDate): RealmResults<Activity>? {
         return realm!!.where<Activity>().between("_date", asDate(from), asDate(to)).findAll()
     }

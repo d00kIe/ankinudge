@@ -37,6 +37,7 @@ fun StatsContent(
             StatisticRange.ALL.title))
     }
     val stats by model.stats.observeAsState()
+    val dayStreak by model.dayStreakData.observeAsState()
     val day by model.day.observeAsState()
     var languageTab by remember { mutableStateOf(0) }
     model.stats.observeWithDelegate {
@@ -90,6 +91,11 @@ fun StatsContent(
                     }
                 }
                 Spacer(modifier = Modifier.size(8.dp))
+                AnimatedVisibility(visible = tabIndex == 0) {
+                    if (dayStreak.orEmpty().isNotEmpty()) {
+                        DayStreakContent(dayStreak.orEmpty()[languageTab])
+                    }
+                }
                 LanguageStatContent(notNullStats[languageTab])
             }
             if (tabIndex == 0) {
@@ -119,6 +125,10 @@ fun StatsContent(
     }
 }
 
+@Composable
+private fun DayStreakContent(it: DayLanguageStreakData) {
+    DayStreak(stats = it)
+}
 
 @Composable
 private fun LanguageStatContent(it: LanguageStatData) {
