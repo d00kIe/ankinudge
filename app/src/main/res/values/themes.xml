@@ -4,10 +4,6 @@
         <!-- Important for Jetpack Compose dialog to be full width -->
         <item name="android:dialogTheme">@style/Theme.DialogFullScreen</item>
 
-        <!-- Status bar color-->
-        <item name="colorPrimaryDark">#ffffff</item>
-        <item name="android:windowLightStatusBar">true</item>
-
         <!-- Primary brand color. -->
         <item name="colorPrimary">#00796b</item>
         <item name="colorOnPrimary">#ffffff</item>
