@@ -91,6 +91,7 @@ fun StatsContent(
             val notNullStats = stats.orEmpty()
             if (notNullStats.isNotEmpty()) {
                 Column {
+                    Divider()
                     Spacer(modifier = Modifier.size(8.dp))
                     ScrollableTabRow(
                         selectedTabIndex = languageTab,

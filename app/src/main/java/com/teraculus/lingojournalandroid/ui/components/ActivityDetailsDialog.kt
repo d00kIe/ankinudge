@@ -126,39 +126,12 @@ fun ActivityDetailsDialogContent(onDismiss: () -> Unit,
             Spacer(Modifier.size(16.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("Confidence", style = MaterialTheme.typography.body2)
-                Box(contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(progress = 1f,
-                        color = Color.LightGray.copy(alpha = ContentAlpha.disabled),
-                        strokeWidth = 4.dp,
-                        modifier = Modifier
-                            .size(24.dp))
-                    confidence?.let {
-                        val progress = max(it / 100f, 0.01f)
-                        CircularProgressIndicator(progress = progress,
-                            color = MaterialTheme.colors.secondary,
-                            strokeWidth = 4.dp,
-                            modifier = Modifier
-                                .size(24.dp))
-                    }
-                }
+                SentimentIcon(value = confidence)
             }
             Spacer(Modifier.size(16.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("Motivation", style = MaterialTheme.typography.body2)
-                Box(contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(progress = 1f,
-                        color = Color.LightGray.copy(alpha = ContentAlpha.disabled),
-                        strokeWidth = 4.dp,
-                        modifier = Modifier
-                            .size(24.dp))
-                    motivation?.let {
-                        CircularProgressIndicator(progress = max(it / 100f, 0.01f),
-                            color = MaterialTheme.colors.secondary,
-                            strokeWidth = 4.dp,
-                            modifier = Modifier
-                                .size(24.dp))
-                    }
-                }
+                SentimentIcon(value = motivation)
             }
             Spacer(Modifier.size(32.dp))
         }

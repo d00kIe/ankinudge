@@ -21,6 +21,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.teraculus.lingojournalandroid.ui.components.SentimentIcon
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.getDurationString
 import kotlin.math.max
@@ -94,16 +95,16 @@ fun CombinedStatsCard(stats: LanguageStatData) {
         Card(elevation = 2.dp, modifier = Modifier
             .weight(1f)
             .padding(end = 8.dp)) {
-            ProgressStatsItem(label = "Avg. Confidence",
-                value = stats.allConfidence,
-                color = MaterialTheme.colors.secondary)
+            StatsItem(label = "Avg. Confidence") {
+                SentimentIcon(value = stats.allConfidence, modifier = Modifier.size(48.dp))
+            }
         }
         Card(elevation = 2.dp, modifier = Modifier
             .weight(1f)
             .padding(start = 8.dp)) {
-            ProgressStatsItem(label = "Avg. Motivation",
-                value = stats.allMotivation,
-                color = MaterialTheme.colors.secondary)
+            StatsItem(label = "Avg. Motivation") {
+                SentimentIcon(value = stats.allMotivation, modifier = Modifier.size(48.dp))
+            }
         }
     }
 }

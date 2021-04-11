@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlin.math.abs
 
 @Composable
 fun selectedSentimentColor(value: Float?, expected: Float, color: Color) : Color {
@@ -52,6 +53,37 @@ fun SentimentIcons(value: Float?, onSentimentChange: (Float) -> Unit, color: Col
 
         IconButton(onClick = { onSentimentChange(100f) }) {
             Icon(Icons.Rounded.SentimentVerySatisfied, contentDescription = "verysatisfied", Modifier.size(size), tint = selectedSentimentColor(value,100f, color))
+        }
+    }
+}
+
+val iconMap = mapOf(
+    0f to Icons.Rounded.SentimentVeryDissatisfied,
+    25f to Icons.Rounded.SentimentDissatisfied,
+    50f to Icons.Rounded.SentimentNeutral,
+    75f to Icons.Rounded.SentimentSatisfiedAlt,
+    100f to Icons.Rounded.SentimentVerySatisfied,
+)
+
+fun closest(of: Float, values: List<Float>): Float {
+    var min = Float.MAX_VALUE
+    var closest = of
+    for (v in values) {
+        val diff = abs(v - of)
+        if (diff < min) {
+            min = diff
+            closest = v
+        }
+    }
+    return closest
+}
+
+@Composable
+fun SentimentIcon(value: Float?, modifier: Modifier = Modifier) {
+    value?.let {
+        val closestValue = closest(value, iconMap.keys.sorted())
+        iconMap[closestValue]?.let { icon ->
+            Icon(icon, contentDescription = null, tint = MaterialTheme.colors.primary, modifier = modifier)
         }
     }
 }
