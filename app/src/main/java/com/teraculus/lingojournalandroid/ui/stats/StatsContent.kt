@@ -12,13 +12,11 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.ui.calendar.Calendar
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
-import com.teraculus.lingojournalandroid.ui.navi.Screen
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.observeWithDelegate
 import com.teraculus.lingojournalandroid.utils.toDayString
@@ -123,11 +121,6 @@ fun StatsContent(
                             DayStreakContent(dayStreak.orEmpty()[languageTab])
                         }
                     }
-                    ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
-                        contentAlpha = ContentAlpha.medium) {
-                        Text(text = "Splits",
-                            modifier = Modifier.padding(start = 16.dp, top = 8.dp))
-                    }
                     LanguageStatContent(notNullStats[languageTab])
                 }
                 if (tabIndex == 0) {
@@ -163,7 +156,7 @@ private fun DayStreakContent(it: DayLanguageStreakData) {
 @Composable
 private fun LanguageStatContent(it: LanguageStatData) {
     DonutCard(stats = it)
-    CombinedStatsCard(stats = it)
+    SentimentStatsCard(stats = it)
 }
 
 @ExperimentalMaterialApi

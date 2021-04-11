@@ -88,7 +88,11 @@ fun StatsCard(modifier: Modifier = Modifier, content: @Composable() () -> Unit) 
 }
 
 @Composable
-fun CombinedStatsCard(stats: LanguageStatData) {
+fun SentimentStatsCard(stats: LanguageStatData) {
+    ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
+        contentAlpha = ContentAlpha.medium) {
+        Text(text = "Confidence & Motivation", modifier = Modifier.padding(start = 16.dp, top = 8.dp))
+    }
     Row(modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 16.dp, vertical = 8.dp)) {
@@ -114,6 +118,23 @@ fun DonutCard(stats: LanguageStatData) {
     var isTime: Boolean by rememberSaveable { mutableStateOf(true) }
     val strokeWidth = 8.dp
 
+    ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
+        contentAlpha = ContentAlpha.medium) {
+        Row(horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 8.dp, end = 16.dp)) {
+            Text(text = "Splits")
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Show count",
+                    style = MaterialTheme.typography.caption,
+                    modifier = Modifier.padding(horizontal = 8.dp))
+                Switch(checked = !isTime, onCheckedChange = {
+                    isTime = !it
+                })
+            }
+        }
+    }
+
     StatsCard() {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(modifier = Modifier.fillMaxWidth(),
@@ -137,35 +158,21 @@ fun DonutCard(stats: LanguageStatData) {
                         currentSpan -= perUnit * (if (isTime) it.minutes else it.count).toFloat()
                     }
 
-                    Text(text = if(isTime) getDurationString(stats.allMinutes) else stats.allCount.toString())
+                    Text(text = if(isTime) getDurationString(stats.allMinutes) else "${stats.allCount}x")
                 }
                 Row(modifier = Modifier
                     .weight(1f)) {
                     Column() {
-                        if (stats.categoryStats.isEmpty()) {
-                            DonutLegendItem(title = "None", color = Constants.ItemBackground.toArgb())
-                        }
                         stats.categoryStats.forEach {
                             it.category?.let { it1 -> DonutLegendItem(it1.title, it1.color) }
                         }
                     }
                     Column() {
-                        if (stats.categoryStats.isEmpty()) {
-                            Text("--", modifier = Modifier.padding(top = 8.dp, start = 16.dp), style = MaterialTheme.typography.caption)
-                        }
                         stats.categoryStats.forEach {
-                            Text(if(isTime) getDurationString(it.minutes) else it.count.toString(), modifier = Modifier.padding(top = 8.dp, start = 16.dp), style = MaterialTheme.typography.caption)
+                            Text(if(isTime) getDurationString(it.minutes) else "${it.count}x", modifier = Modifier.padding(top = 8.dp, start = 16.dp), style = MaterialTheme.typography.caption)
                         }
                     }
                 }
-            }
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
-                Text("Show count", style = MaterialTheme.typography.caption, modifier = Modifier.padding(horizontal = 8.dp))
-                Switch(checked = !isTime, onCheckedChange = {
-                    isTime = !it
-                })
             }
         }
     }

@@ -29,7 +29,7 @@ import java.time.LocalTime
 @Composable
 fun ActivityRow(activity: Activity, onClick: (id: String) -> Unit, model: ActivityItemViewModel = viewModel("activityRow${activity.id}", ActivityItemViewModelFactory(activity))) {
     val title by model.title.observeAsState()
-    val text by model.text.observeAsState()
+//    val text by model.text.observeAsState()
     val type by model.type.observeAsState()
     val category by model.category.observeAsState()
     val startTime by model.startTime.observeAsState()

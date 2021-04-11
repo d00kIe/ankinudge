@@ -41,7 +41,7 @@ fun ActivityList(
         if (groups != null && groups.orEmpty().isNotEmpty()) {
             groups.orEmpty().forEach { (date, items) ->
                 item {
-                    ApplyTextStyle(textStyle = MaterialTheme.typography.caption, contentAlpha = ContentAlpha.medium) {
+                    ApplyTextStyle(textStyle = MaterialTheme.typography.body1, contentAlpha = ContentAlpha.medium) {
                         Text(text = toDayString(date), modifier = Modifier.padding(top=24.dp, start = 16.dp))
                     }
                 }

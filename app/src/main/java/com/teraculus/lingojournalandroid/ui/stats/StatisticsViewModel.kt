@@ -44,10 +44,10 @@ open class LanguageStatData(
     val allCount: Int =
         if (categoryStats.isNotEmpty()) categoryStats.map { it.count }.sum() else 0
     val allConfidence: Float =
-        if (categoryStats.isNotEmpty()) categoryStats.map { it.confidence }.average()
+        if (categoryStats.isNotEmpty()) categoryStats.filter { !it.confidence.isNaN() }.map { it.confidence }.average()
             .toFloat() else 0f
     val allMotivation: Float =
-        if (categoryStats.isNotEmpty()) categoryStats.map { it.motivation }.average()
+        if (categoryStats.isNotEmpty()) categoryStats.filter { !it.motivation.isNaN() }.map { it.motivation }.average()
             .toFloat() else 0f
 
     companion object {
@@ -113,19 +113,23 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
         activities.reset(repository.getAllActivities())
     }
 
-    private fun groupByLanguage(items: List<Activity>?): Map<String, List<Activity>>? {
-        return items?.groupBy { it -> it.language }
+    private fun groupByLanguage(items: List<Activity>?): Map<String, List<Activity>> {
+        return items?.groupBy { it -> it.language }.orEmpty()
     }
 
-    private fun groupByCategory(items: List<Activity>?): Map<ActivityCategory?, List<Activity>>? {
-        return items?.groupBy { it -> it.type?.category }
+    private fun groupByCategory(items: List<Activity>?): Map<ActivityCategory?, List<Activity>> {
+        return items?.groupBy { it -> it.type?.category }.orEmpty()
     }
 
     private fun mapToStats(items: List<Activity>): List<LanguageStatData>? {
-        return groupByLanguage(items).orEmpty().map { languageGroup ->
+        return groupByLanguage(items).map { languageGroup ->
             val byCategory = groupByCategory(languageGroup.value)
-            val typeStats = byCategory.orEmpty().map {
-                ActivityCategoryStat(it.key, it.value)
+            val typeStats = ActivityCategory.values().map {
+                if(byCategory.containsKey(it)) {
+                    ActivityCategoryStat(it, byCategory[it].orEmpty())
+                } else {
+                    ActivityCategoryStat(it, emptyList())
+                }
             }
             val groupByDay = items.groupBy { it.date }
             LanguageStatData(languageGroup.key,
