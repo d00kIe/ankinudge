@@ -91,10 +91,16 @@ fun StatsContent(
                     }
                 }
                 Spacer(modifier = Modifier.size(8.dp))
-                AnimatedVisibility(visible = tabIndex == 0) {
-                    if (dayStreak.orEmpty().isNotEmpty()) {
+                AnimatedVisibility(visible = tabIndex == 0 && dayStreak.orEmpty().isNotEmpty()) {
+                    Column() {
+                        ApplyTextStyle(textStyle = MaterialTheme.typography.caption, contentAlpha = ContentAlpha.medium) {
+                            Text(text = "Streak", modifier = Modifier.padding(start = 16.dp, top = 8.dp))
+                        }
                         DayStreakContent(dayStreak.orEmpty()[languageTab])
                     }
+                }
+                ApplyTextStyle(textStyle = MaterialTheme.typography.caption, contentAlpha = ContentAlpha.medium) {
+                    Text(text = "Splits", modifier = Modifier.padding(start = 16.dp, top = 8.dp))
                 }
                 LanguageStatContent(notNullStats[languageTab])
             }

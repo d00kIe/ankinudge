@@ -33,7 +33,7 @@ class ActivityCategoryStat(val category: ActivityCategory?, activities: List<Act
     val motivation: Float = activities.map { it.motivation }.average().toFloat()
 }
 
-class LanguageStatData(
+open class LanguageStatData(
     val language: String,
     val categoryStats: List<ActivityCategoryStat>,
     val maxMinutes: Long = 0L,
@@ -59,11 +59,13 @@ class LanguageStatData(
 
 class DayCategoryStreakData(val category: ActivityCategory?, val streak: Int)
 
-class DayLanguageStreakData(
-    val language: String,
-    val streak: Int,
-    val typeStreaks: List<DayCategoryStreakData>
-)
+class DayLanguageStreakData (
+    language: String,
+    categoryStats: List<ActivityCategoryStat>,
+    streakMap:  Map<LocalDate, List<Activity>>
+) : LanguageStatData(language, categoryStats) {
+    val streak: Int = streakMap.size
+}
 
 class StatisticsViewModel(val repository: Repository) : ViewModel() {
     val activitiesFromBeginning = LiveRealmResults<Activity>(null)
@@ -121,8 +123,8 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
 
     private fun mapToStats(items: List<Activity>): List<LanguageStatData>? {
         return groupByLanguage(items).orEmpty().map { languageGroup ->
-            val byType = groupByCategory(languageGroup.value)
-            val typeStats = byType.orEmpty().map {
+            val byCategory = groupByCategory(languageGroup.value)
+            val typeStats = byCategory.orEmpty().map {
                 ActivityCategoryStat(it.key, it.value)
             }
             val groupByDay = items.groupBy { it.date }
@@ -160,12 +162,13 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
             .orEmpty()
             .filter { availableLanguages.contains(it.key) }
             .map { languageGroup ->
-                val byCategory = groupByCategory(languageGroup.value)
-                val typeStreaks = byCategory.orEmpty().map {
-                    DayCategoryStreakData(it.key, streakFromDate(it.value, date).size)
-                }
                 val streak = streakFromDate(languageGroup.value, date)
-                DayLanguageStreakData(languageGroup.key, streak.size, typeStreaks)
+                val streakActivities = streak.values.flatten()
+                val byCategory = groupByCategory(streakActivities)
+                val categoryStats = byCategory.orEmpty().map {
+                    ActivityCategoryStat(it.key, it.value)
+                }
+                DayLanguageStreakData(languageGroup.key, categoryStats, streak)
             }
             .sortedBy { it.language }
     }

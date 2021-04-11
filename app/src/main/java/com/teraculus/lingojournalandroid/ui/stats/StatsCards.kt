@@ -21,6 +21,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.getDurationString
 import kotlin.math.max
 class Constants {
@@ -37,17 +38,27 @@ class Constants {
 }
 
 @Composable
-fun StatsItem(label: String, content: @Composable () -> Unit) {
-    Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = label, style = MaterialTheme.typography.caption, textAlign = TextAlign.Center)
-        Spacer(modifier = Modifier.padding(4.dp))
-        content()
+fun StatsItem(label: String, bottomLabel: Boolean = false, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Column(modifier = modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        if(bottomLabel) {
+            content()
+            Spacer(modifier = Modifier.padding(4.dp))
+            Text(text = label,
+                style = MaterialTheme.typography.caption,
+                textAlign = TextAlign.Center)
+        } else {
+            Text(text = label,
+                style = MaterialTheme.typography.caption,
+                textAlign = TextAlign.Center)
+            Spacer(modifier = Modifier.padding(4.dp))
+            content()
+        }
     }
 }
 
 @Composable
-fun TextStatsItem(label: String, value: String, style: TextStyle = MaterialTheme.typography.h5) {
-    StatsItem(label = label) {
+fun TextStatsItem(label: String, value: String, style: TextStyle = MaterialTheme.typography.h5, bottomLabel: Boolean = false, modifier: Modifier = Modifier) {
+    StatsItem(label = label, bottomLabel = bottomLabel, modifier = modifier) {
         Text(text = value, style = style, textAlign = TextAlign.Center)
     }
 }
@@ -98,34 +109,15 @@ fun CombinedStatsCard(stats: LanguageStatData) {
 }
 
 @Composable
-fun Chip(
-    modifier: Modifier = Modifier,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    content: @Composable() () -> Unit,
-) {
-    OutlinedButton(
-        shape = MaterialTheme.shapes.small,
-        modifier = modifier,
-        onClick = onClick,
-        colors = when {
-            isSelected -> ButtonDefaults.outlinedButtonColors(backgroundColor = MaterialTheme.colors.surface, contentColor = MaterialTheme.colors.secondary)
-            else -> ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colors.onSurface,)
-        }) {
-        content()
-    }
-}
-
-@Composable
 fun DonutCard(stats: LanguageStatData) {
     var isTime: Boolean by rememberSaveable { mutableStateOf(true) }
     val strokeWidth = 8.dp
+
     StatsCard() {
-        Column {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically) {
                 Box(modifier = Modifier
-                    .padding(16.dp)
                     .weight(1f),
                     contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(progress = 1f,
@@ -147,7 +139,6 @@ fun DonutCard(stats: LanguageStatData) {
                     Text(text = if(isTime) getDurationString(stats.allMinutes) else stats.allCount.toString())
                 }
                 Row(modifier = Modifier
-                    .padding(16.dp)
                     .weight(1f)) {
                     Column() {
                         if (stats.categoryStats.isEmpty()) {
@@ -169,7 +160,7 @@ fun DonutCard(stats: LanguageStatData) {
             }
             Row(modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+                .padding(top = 8.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
                 Text("Show count", style = MaterialTheme.typography.caption, modifier = Modifier.padding(horizontal = 8.dp))
                 Switch(checked = !isTime, onCheckedChange = {
                     isTime = !it
@@ -209,15 +200,14 @@ fun Selector(modifier: Modifier = Modifier, onNext: () -> Unit, onPrev: () -> Un
 @Composable
 fun DayStreak(stats: DayLanguageStreakData) {
     StatsCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            TextStatsItem(label = "Streak", value = stats.streak.toString())
-//            stats.typeStreaks.forEach {
-//                it.category?.let { category ->
-//                    Spacer(modifier = Modifier.size(16.dp))
-//                    Text(text = category.title, style = MaterialTheme.typography.caption)
-//                    LinearProgressIndicator(progress = (1f / stats.streak) * it.streak, color = Color(category.color))
-//                }
-//            }
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                TextStatsItem(label = "Days", value = stats.streak.toString(), bottomLabel = true, modifier = Modifier.weight(1f))
+                TextStatsItem(label = "Hours", value = getDurationString(stats.allMinutes), bottomLabel = true, modifier = Modifier.weight(1f))
+                TextStatsItem(label = "Activities", value = stats.allCount.toString(), bottomLabel = true, modifier = Modifier.weight(1f))
+            }
         }
     }
 }
