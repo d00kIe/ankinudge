@@ -1,28 +1,37 @@
 package com.teraculus.lingojournalandroid
 
+import android.content.Context
+import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
-import com.teraculus.lingojournalandroid.ui.Main
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import com.teraculus.lingojournalandroid.data.Repository
+import com.teraculus.lingojournalandroid.ui.LingoTheme
+import com.teraculus.lingojournalandroid.ui.settings.SettingsContent
 import com.teraculus.lingojournalandroid.utils.LocalSysUiController
 import com.teraculus.lingojournalandroid.utils.SystemUiController
 import com.teraculus.lingojournalandroid.utils.initStatusBarColor
 
+fun launchSettingsActivity(context: Context) {
+    context.startActivity(createSettingsActivityIntent(context))
+}
 
-class MainActivity : AppCompatActivity() {
-    @ExperimentalAnimationApi
-    @ExperimentalFoundationApi
+fun createSettingsActivityIntent(context: Context): Intent {
+    return Intent(context, SettingsActivity::class.java)
+}
+
+class SettingsActivity : AppCompatActivity() {
+
     @ExperimentalMaterialApi
+    @ExperimentalFoundationApi
+    @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // This app draws behind the system bars, so we want to handle fitting system windows
-        //WindowCompat.setDecorFitsSystemWindows(window, false)
 
         Repository.getRepository().getUserPreferences().value?.let {
             initStatusBarColor(this, it)
@@ -31,11 +40,9 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val systemUiController = remember { SystemUiController(window) }
             CompositionLocalProvider(LocalSysUiController provides systemUiController) {
-                Main(
-                    onActivityClick = { launchDetailsActivity(this, it) },
-                    onOpenEditor = { launchEditorActivity(this, it) },
-                    onOpenSettings = { launchSettingsActivity(this) }
-                )
+                LingoTheme {
+                    SettingsContent(onDismiss = { finish() })
+                }
             }
         }
     }

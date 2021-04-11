@@ -5,17 +5,20 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.ui.calendar.Calendar
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
+import com.teraculus.lingojournalandroid.ui.navi.Screen
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.observeWithDelegate
 import com.teraculus.lingojournalandroid.utils.toDayString
@@ -44,90 +47,110 @@ fun StatsContent(
         languageTab = 0
     }
 
-    Column(modifier = modifier.verticalScroll(rememberScrollState())) {
-        TabRow(selectedTabIndex = tabIndex,
-            backgroundColor = MaterialTheme.colors.surface) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    text = { Text(title) },
-                    selected = index == tabIndex,
-                    onClick = { model.setRangeIndex(index) }
-                )
-            }
-        }
-        AnimatedVisibility(visible = tabIndex == 0) {
-            Column() {
-                Selector(Modifier.fillMaxWidth(),
-                    onNext = { model.setDay(day?.plusDays(1)!!) },
-                    onPrev = { model.setDay(day?.minusDays(1)!!) },
-                    hasNext = true,
-                    hasPrev = true) {
-                    Text(modifier = Modifier.padding(16.dp),
-                        text = toDayString(day),
-                        style = MaterialTheme.typography.body1
+    Scaffold(topBar = {
+        val elevation =
+            if (!MaterialTheme.colors.isLight) 0.dp else AppBarDefaults.TopAppBarElevation
+        TopAppBar(
+            backgroundColor = MaterialTheme.colors.background,
+            elevation = elevation) {
+            TabRow(
+                selectedTabIndex = tabIndex,
+                backgroundColor = MaterialTheme.colors.surface,
+                divider = {},
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        text = { Text(title) },
+                        selected = index == tabIndex,
+                        onClick = { model.setRangeIndex(index) }
                     )
                 }
-                Divider()
             }
         }
-        AnimatedVisibility(visible = tabIndex == 1) {
-            Column() {
-                Calendar(Modifier.fillMaxWidth(), model)
-                Divider()
-            }
-        }
-        val notNullStats = stats.orEmpty()
-        if (notNullStats.isNotEmpty()) {
-            Column {
-                TabRow(selectedTabIndex = languageTab,
-                    backgroundColor = MaterialTheme.colors.surface,
-                    modifier = Modifier.fillMaxWidth()) {
-                    notNullStats.forEachIndexed { index, stats ->
-                        Tab(
-                            text = { Text(getLanguageDisplayName(stats.language)) },
-                            selected = index == languageTab,
-                            onClick = { languageTab = index }
+    }) {
+        Column(modifier = modifier.verticalScroll(rememberScrollState())) {
+            AnimatedVisibility(visible = tabIndex == 0) {
+                Column {
+                    Selector(Modifier.fillMaxWidth(),
+                        onNext = { model.setDay(day?.plusDays(1)!!) },
+                        onPrev = { model.setDay(day?.minusDays(1)!!) },
+                        hasNext = true,
+                        hasPrev = true) {
+                        Text(modifier = Modifier.padding(16.dp),
+                            text = toDayString(day),
+                            style = MaterialTheme.typography.body1
                         )
                     }
                 }
-                Spacer(modifier = Modifier.size(8.dp))
-                AnimatedVisibility(visible = tabIndex == 0 && dayStreak.orEmpty().isNotEmpty()) {
-                    Column() {
-                        ApplyTextStyle(textStyle = MaterialTheme.typography.caption, contentAlpha = ContentAlpha.medium) {
-                            Text(text = "Streak", modifier = Modifier.padding(start = 16.dp, top = 8.dp))
+            }
+            AnimatedVisibility(visible = tabIndex == 1) {
+                Column {
+                    Calendar(Modifier.fillMaxWidth(), model)
+                }
+            }
+            val notNullStats = stats.orEmpty()
+            if (notNullStats.isNotEmpty()) {
+                Column {
+                    Spacer(modifier = Modifier.size(8.dp))
+                    ScrollableTabRow(
+                        selectedTabIndex = languageTab,
+                        backgroundColor = MaterialTheme.colors.surface,
+                        modifier = Modifier.fillMaxWidth(),
+                        edgePadding = 8.dp,
+                        divider = {},
+                        indicator = {}) {
+                        notNullStats.forEachIndexed { index, stats ->
+                            if(index == languageTab) {
+                                Button(onClick = { languageTab = index }, modifier = Modifier.padding(8.dp), shape = RoundedCornerShape(16.dp)) {
+                                    Text(getLanguageDisplayName(stats.language))
+                                }
+                            } else {
+                                OutlinedButton(onClick = { languageTab = index }, modifier = Modifier.padding(8.dp), shape = RoundedCornerShape(16.dp)) {
+                                    Text(getLanguageDisplayName(stats.language))
+                                }
+                            }
                         }
-                        DayStreakContent(dayStreak.orEmpty()[languageTab])
                     }
+                    AnimatedVisibility(visible = tabIndex == 0 && dayStreak.orEmpty()
+                        .isNotEmpty()) {
+                        Column {
+                            ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
+                                contentAlpha = ContentAlpha.medium) {
+                                Text(text = "Streak",
+                                    modifier = Modifier.padding(start = 16.dp, top = 8.dp))
+                            }
+                            DayStreakContent(dayStreak.orEmpty()[languageTab])
+                        }
+                    }
+                    ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
+                        contentAlpha = ContentAlpha.medium) {
+                        Text(text = "Splits",
+                            modifier = Modifier.padding(start = 16.dp, top = 8.dp))
+                    }
+                    LanguageStatContent(notNullStats[languageTab])
                 }
-                ApplyTextStyle(textStyle = MaterialTheme.typography.caption, contentAlpha = ContentAlpha.medium) {
-                    Text(text = "Splits", modifier = Modifier.padding(start = 16.dp, top = 8.dp))
+                if (tabIndex == 0) {
+                    ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
+                        contentAlpha = ContentAlpha.medium) {
+                        Text(text = "Activities",
+                            modifier = Modifier.padding(start = 16.dp, top = 8.dp))
+                    }
+                    ActivitiesForTheDay(model = model,
+                        onItemClick = onItemClick,
+                        language = notNullStats[languageTab].language)
                 }
-                LanguageStatContent(notNullStats[languageTab])
+            } else {
+                Column {
+                    ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
+                        contentAlpha = ContentAlpha.medium) {
+                        Text(text = "No activities for this period",
+                            modifier = Modifier.padding(16.dp))
+                    }
+                    LanguageStatContent(it = LanguageStatData.empty())
+                }
             }
-            if (tabIndex == 0) {
-                ApplyTextStyle(textStyle = MaterialTheme.typography.caption, contentAlpha = ContentAlpha.medium) {
-                    Text(text = "Activities", modifier = Modifier.padding(start = 16.dp, top = 8.dp))
-                }
-                ActivitiesForTheDay(model = model,
-                    onItemClick = onItemClick,
-                    language = notNullStats[languageTab].language)
-            }
-        } else {
-            Column {
-                TabRow(selectedTabIndex = 0,
-                    backgroundColor = MaterialTheme.colors.surface,
-                    modifier = Modifier.fillMaxWidth()) {
-                    Tab(
-                        text = { Text("No activities") },
-                        selected = true,
-                        onClick = { }
-                    )
-                }
-                Spacer(modifier = Modifier.size(8.dp))
-                LanguageStatContent(it = LanguageStatData.empty())
-            }
+            Spacer(modifier = Modifier.size(80.dp))
         }
-        Spacer(modifier = Modifier.size(80.dp))
     }
 }
 

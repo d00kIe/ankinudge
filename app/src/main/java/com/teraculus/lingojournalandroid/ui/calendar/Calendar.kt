@@ -128,7 +128,7 @@ fun Calendar(modifier: Modifier, model: StatisticsViewModel) {
     BoxWithConstraints {
         val width = maxWidth
         val widthPx = width.value * dpToPx
-        Surface(elevation = 0.dp, modifier = modifier) {
+        Surface(modifier = modifier) {
             Column {
                 val currentYearMonthIdx =
                     if (listState.firstVisibleItemScrollOffset == 0) listState.firstVisibleItemIndex else listState.firstVisibleItemIndex + 1
