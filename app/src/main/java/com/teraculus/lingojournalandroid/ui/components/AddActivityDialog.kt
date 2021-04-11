@@ -7,6 +7,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -60,15 +61,16 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
             },
             onDismissRequest = { showActivityTypeDialog = false })
     }
-
     Scaffold(
         topBar = {
+            val elevation = if(!MaterialTheme.colors.isLight) 0.dp else AppBarDefaults.TopAppBarElevation
             TopAppBar(
                 title = { Text("Activity") },
-                backgroundColor = Color.Transparent,
+                backgroundColor = MaterialTheme.colors.background,
+                elevation = elevation,
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.Filled.Close, contentDescription = null)
                     }
                 },
                 actions = {

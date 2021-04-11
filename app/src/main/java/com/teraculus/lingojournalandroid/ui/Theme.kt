@@ -23,7 +23,7 @@ private val Secondary = Color(0xff00796b)
 private val SecondaryVariant = Color(0xff004c40)
 private val OnSecondary = Color(0xffffffff)
 
-private val DarkColors = darkColors(
+val DarkColors = darkColors(
     primary = Primary,
     primaryVariant = PrimaryVariant,
     secondary = Secondary,
@@ -31,7 +31,7 @@ private val DarkColors = darkColors(
     onPrimary = OnPrimary,
     onSecondary = OnSecondary
 )
-private val LightColors = lightColors(
+val LightColors = lightColors(
     primary = Primary,
     primaryVariant = PrimaryVariant,
     secondary = Secondary,

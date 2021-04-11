@@ -1,5 +1,7 @@
 package com.teraculus.lingojournalandroid.utils
 
+import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.runtime.*
@@ -10,6 +12,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.LiveData
 import com.teraculus.lingojournalandroid.model.Activity
+import com.teraculus.lingojournalandroid.model.ThemePreference
+import com.teraculus.lingojournalandroid.model.UserPreferences
+import com.teraculus.lingojournalandroid.ui.DarkColors
+import com.teraculus.lingojournalandroid.ui.LightColors
 import java.text.DateFormat
 import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
@@ -161,4 +167,27 @@ fun ApplyTextStyle(
             ProvideTextStyle(textStyle, icon)
         }
     }
+}
+
+fun isDarkMode(context: Context): Boolean {
+    return when (context.resources.configuration.uiMode and
+            Configuration.UI_MODE_NIGHT_MASK) {
+        Configuration.UI_MODE_NIGHT_YES -> true
+        Configuration.UI_MODE_NIGHT_NO -> false
+        Configuration.UI_MODE_NIGHT_UNDEFINED -> false
+        else -> false
+    }
+}
+
+fun initStatusBarColor(activity: android.app.Activity, preferences: UserPreferences) {
+    val colors = when (preferences.theme) {
+        ThemePreference.LIGHT -> LightColors
+        ThemePreference.DARK -> DarkColors
+        else ->
+            if (isDarkMode(context = activity)) DarkColors else LightColors
+    }
+
+    SystemUiController(activity.window).setSystemBarsColor(
+        color = colors.surface
+    )
 }

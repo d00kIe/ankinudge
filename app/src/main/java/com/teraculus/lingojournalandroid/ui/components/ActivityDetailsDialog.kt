@@ -51,10 +51,11 @@ fun ActivityDetailsDialogContent(onDismiss: () -> Unit,
     var expandedMenu by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
+            val elevation = if(!MaterialTheme.colors.isLight) 0.dp else AppBarDefaults.TopAppBarElevation
             TopAppBar(
                 title = { },
-                elevation = 0.dp,
-                backgroundColor = Color.Transparent,
+                backgroundColor = MaterialTheme.colors.background,
+                elevation = elevation,
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = null)
@@ -82,7 +83,7 @@ fun ActivityDetailsDialogContent(onDismiss: () -> Unit,
     {
         Column(Modifier
             .fillMaxSize()
-            .padding(horizontal= 16.dp)
+            .padding(16.dp)
             .verticalScroll(rememberScrollState())) {
             Text(title.orEmpty(), style = MaterialTheme.typography.h5)
             Spacer(Modifier.size(8.dp))

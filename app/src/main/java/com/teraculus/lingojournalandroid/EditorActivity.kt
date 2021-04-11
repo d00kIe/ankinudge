@@ -8,9 +8,15 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.ui.LingoTheme
 import com.teraculus.lingojournalandroid.ui.components.AddActivityDialogContent
+import com.teraculus.lingojournalandroid.utils.LocalSysUiController
+import com.teraculus.lingojournalandroid.utils.SystemUiController
+import com.teraculus.lingojournalandroid.utils.initStatusBarColor
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModelFactory
 
@@ -43,10 +49,17 @@ class EditorActivity : AppCompatActivity() {
         PickerProvider.getPickerProvider().fragmentManager = supportFragmentManager
         modelFactory = EditActivityViewModelFactory(args.id, PickerProvider.getPickerProvider())
 
+        Repository.getRepository().getUserPreferences().value?.let {
+            initStatusBarColor(this, it)
+        }
+
         setContent {
-            LingoTheme() {
-                val model : EditActivityViewModel = viewModel("editActivityViewModel", modelFactory)
-                AddActivityDialogContent(onDismiss = { finish() }, model)
+            val systemUiController = remember { SystemUiController(window) }
+            CompositionLocalProvider(LocalSysUiController provides systemUiController) {
+                LingoTheme() {
+                    val model : EditActivityViewModel = viewModel("editActivityViewModel", modelFactory)
+                    AddActivityDialogContent(onDismiss = { finish() }, model)
+                }
             }
         }
     }
