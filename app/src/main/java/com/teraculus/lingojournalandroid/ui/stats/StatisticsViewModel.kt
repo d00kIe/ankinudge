@@ -1,16 +1,15 @@
 package com.teraculus.lingojournalandroid.ui.stats
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.LiveRealmResults
 import com.teraculus.lingojournalandroid.utils.getMinutes
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
+import kotlin.math.ceil
 
 
 // Ideas:
@@ -65,6 +64,80 @@ class DayLanguageStreakData (
     streakMap:  Map<LocalDate, List<Activity>>
 ) : LanguageStatData(language, categoryStats) {
     val streak: Int = streakMap.size
+}
+
+data class DayData(
+    val day: Int,
+    val month: Int,
+    val year: Int,
+    val thisMonth: Boolean,
+    val today: Boolean,
+    val hasActivities: Boolean,
+    val minutes: Long,
+    val count: Int,
+)
+
+fun List<Activity>.filterForDay(day: Int, month: Int, year: Int): List<Activity> {
+    return this.filter { a -> a.date.year == year && a.date.monthValue == month && a.date.dayOfMonth == day }
+}
+
+fun getMonthDayData(month: Int, year: Int, activities: List<Activity>?): List<DayData> {
+    val dataItems = ArrayList<DayData>()
+    val today = LocalDate.now()
+    val firstDayOfMonth: LocalDate = LocalDate.of(year, month, 1)
+    val lastDatOfPrevMonth = firstDayOfMonth.minusDays(1)
+    val firstDayOfNextMonth: LocalDate = firstDayOfMonth.plusMonths(1)
+    val dayOfWeek = DayOfWeek.from(firstDayOfMonth)
+    for (i in 1 until dayOfWeek.value) {
+        dataItems.add(DayData(
+            0,
+            lastDatOfPrevMonth.monthValue,
+            lastDatOfPrevMonth.year,
+            thisMonth = false,
+            today = false,
+            hasActivities = false,
+            minutes = 0,
+            count = 0))
+    }
+
+    val thisMonth = today.monthValue == month && today.year == year
+    for (i in 1..firstDayOfMonth.lengthOfMonth()) {
+        val thisActivities = activities?.filterForDay(i, month, year)
+        dataItems.add(DayData(i,
+            month,
+            year,
+            thisMonth = true,
+            today = thisMonth && today.dayOfMonth == i,
+            hasActivities = !thisActivities.isNullOrEmpty(),
+            minutes = thisActivities.orEmpty().sumOf { getMinutes(it) },
+            count = thisActivities.orEmpty().size))
+    }
+
+
+    val trailingDayCount = ceil(dataItems.size / 7.0).toInt() * 7 - dataItems.size
+
+    for (i in 1..trailingDayCount) {
+        dataItems.add(DayData(0,
+            firstDayOfNextMonth.monthValue,
+            firstDayOfNextMonth.year,
+            thisMonth = false,
+            today = false,
+            hasActivities = false,
+            minutes = 0,
+            count = 0))
+    }
+
+    return dataItems
+}
+
+class MonthItemViewModel(val repository: Repository = Repository.getRepository(), yearMonth: YearMonth) : ViewModel() {
+    private val activities = LiveRealmResults<Activity>(null)
+    val daydata : LiveData< List<DayData>?> = Transformations.map(activities) { getMonthDayData(yearMonth.monthValue, yearMonth.year, it) }
+    init {
+        val from = LocalDate.of(yearMonth.year, yearMonth.month, 1)
+        val to = from.withDayOfMonth(yearMonth.lengthOfMonth())
+        activities.reset(repository.getActivities(from, to))
+    }
 }
 
 class StatisticsViewModel(val repository: Repository) : ViewModel() {

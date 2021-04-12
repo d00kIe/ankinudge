@@ -14,13 +14,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
-import com.teraculus.lingojournalandroid.ui.calendar.Calendar
+import com.teraculus.lingojournalandroid.ui.calendar.CalendarSwipeable
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.observeWithDelegate
 import com.teraculus.lingojournalandroid.utils.toDayString
 
+@OptIn(ExperimentalPagerApi::class)
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
@@ -83,7 +85,7 @@ fun StatsContent(
             }
             AnimatedVisibility(visible = tabIndex == 1) {
                 Column {
-                    Calendar(Modifier.fillMaxWidth(), model)
+                    CalendarSwipeable(Modifier.fillMaxWidth(), model)
                 }
             }
             val notNullStats = stats.orEmpty()
