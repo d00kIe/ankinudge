@@ -6,6 +6,9 @@ import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.LiveRealmResults
 import com.teraculus.lingojournalandroid.utils.getMinutes
+import io.realm.kotlin.freeze
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -75,10 +78,12 @@ data class DayData(
     val hasActivities: Boolean,
     val minutes: Long,
     val count: Int,
-)
-
-fun List<Activity>.filterForDay(day: Int, month: Int, year: Int): List<Activity> {
-    return this.filter { a -> a.date.year == year && a.date.monthValue == month && a.date.dayOfMonth == day }
+    val maxMinutes: Long?,
+    val maxCount: Int?,
+) {
+    override fun toString() : String {
+        return "${day}: ${month}: ${year}"
+    }
 }
 
 fun getMonthDayData(month: Int, year: Int, activities: List<Activity>?): List<DayData> {
@@ -97,20 +102,45 @@ fun getMonthDayData(month: Int, year: Int, activities: List<Activity>?): List<Da
             today = false,
             hasActivities = false,
             minutes = 0,
-            count = 0))
+            count = 0,
+            maxMinutes = null,
+            maxCount = null))
     }
 
     val thisMonth = today.monthValue == month && today.year == year
+    val groupedByDate = activities.orEmpty().groupBy { it.date }
+    val groupedByDateMinutes = groupedByDate.mapValues { it.value.sumOf { it1 -> getMinutes(it1) } }
+    val maxMinutes =
+        groupedByDateMinutes.values.maxOrNull()
+    val maxCount =
+        groupedByDate.mapValues { it.value.size }.values.maxOrNull()
+
     for (i in 1..firstDayOfMonth.lengthOfMonth()) {
-        val thisActivities = activities?.filterForDay(i, month, year)
-        dataItems.add(DayData(i,
-            month,
-            year,
-            thisMonth = true,
-            today = thisMonth && today.dayOfMonth == i,
-            hasActivities = !thisActivities.isNullOrEmpty(),
-            minutes = thisActivities.orEmpty().sumOf { getMinutes(it) },
-            count = thisActivities.orEmpty().size))
+        val date = LocalDate.of(year, month, i)
+        if(groupedByDate.containsKey(date)) {
+            val dayActivities = groupedByDate[date]
+            dataItems.add(DayData(i,
+                month,
+                year,
+                thisMonth = true,
+                today = thisMonth && today.dayOfMonth == i,
+                hasActivities = !dayActivities.isNullOrEmpty(),
+                minutes = groupedByDateMinutes[date] ?: 0L,
+                count = dayActivities.orEmpty().size,
+                maxMinutes = maxMinutes,
+                maxCount = maxCount))
+        } else {
+            dataItems.add(DayData(i,
+                month,
+                year,
+                thisMonth = true,
+                today = thisMonth && today.dayOfMonth == i,
+                hasActivities = false,
+                minutes = 0,
+                count = 0,
+                maxMinutes = maxMinutes,
+                maxCount = maxCount))
+        }
     }
 
 
@@ -124,7 +154,9 @@ fun getMonthDayData(month: Int, year: Int, activities: List<Activity>?): List<Da
             today = false,
             hasActivities = false,
             minutes = 0,
-            count = 0))
+            count = 0,
+            maxMinutes = null,
+            maxCount = null))
     }
 
     return dataItems
@@ -132,16 +164,35 @@ fun getMonthDayData(month: Int, year: Int, activities: List<Activity>?): List<Da
 
 class MonthItemViewModel(val repository: Repository = Repository.getRepository(), yearMonth: YearMonth) : ViewModel() {
     private val activities = LiveRealmResults<Activity>(null)
-    val daydata : LiveData< List<DayData>?> = Transformations.map(activities) { getMonthDayData(yearMonth.monthValue, yearMonth.year, it) }
+    val daydata = MutableLiveData< List<DayData>?>(getMonthDayData(yearMonth.monthValue, yearMonth.year, emptyList()))
     init {
         val from = LocalDate.of(yearMonth.year, yearMonth.month, 1)
         val to = from.withDayOfMonth(yearMonth.lengthOfMonth())
         activities.reset(repository.getActivities(from, to))
+        val frozenActivities = activities.value.orEmpty().map { it1 -> it1.freeze<Activity>() }
+        daydata.value =getMonthDayData(yearMonth.monthValue, yearMonth.year, frozenActivities)
+        activities.observeForever {
+            val frozenActivities = it.orEmpty().map { it1 -> it1.freeze<Activity>() }
+            viewModelScope.launch {
+                daydata.postValue(getMonthDayData(yearMonth.monthValue, yearMonth.year, frozenActivities))
+            }
+        }
+    }
+}
+
+class MonthItemViewModelFactory(private val yearMonth: YearMonth) : ViewModelProvider.Factory {
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(MonthItemViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return MonthItemViewModel(Repository.getRepository(), yearMonth) as T
+        }
+
+        throw IllegalArgumentException("Unknown view model class")
     }
 }
 
 class StatisticsViewModel(val repository: Repository) : ViewModel() {
-    val activitiesFromBeginning = LiveRealmResults<Activity>(null)
+    private val activitiesFromBeginning = LiveRealmResults<Activity>(null)
     val activities = LiveRealmResults<Activity>(null)
 
     val range = MutableLiveData(StatisticRange.MONTH)
@@ -149,12 +200,23 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
     val day = MutableLiveData(LocalDate.now())
     val month = MutableLiveData(YearMonth.now())
 
-    val stats = Transformations.map(activities) { it?.let { it1 -> mapToStats(it1) } }
-    var maxMinutes = Transformations.map(stats) { if(!it.isNullOrEmpty()) it.maxOf { it1 -> it1.maxMinutes } else 0L }
-    var maxCount = Transformations.map(stats) { if(!it.isNullOrEmpty()) it.maxOf { it1 -> it1.maxCount } else 0 }
-    val dayStreakData = Transformations.map(activitiesFromBeginning) { it?.let { it1 -> mapToStreakData(it1, day.value) } }
+    val stats = MutableLiveData<List<LanguageStatData>?>(emptyList()) //Transformations.map(activities) { it?.let { it1 -> mapToStats(it1) } }
+    val dayStreakData = MutableLiveData<List<DayLanguageStreakData>?>(emptyList())// Transformations.map(activitiesFromBeginning) { it?.let { it1 -> mapToStreakData(it1, day.value) } }
 
     init {
+        activities.observeForever {
+            val frozenActivities = it.orEmpty().map { it1 -> it1.freeze<Activity>() }
+            viewModelScope.launch {
+                stats.postValue(mapToStats(frozenActivities))
+            }
+        }
+
+        activitiesFromBeginning.observeForever {
+            val frozenActivities = it.orEmpty().map { it1 -> it1.freeze<Activity>() }
+            viewModelScope.launch {
+                dayStreakData.postValue(mapToStreakData(frozenActivities, day.value))
+            }
+        }
         setMonth(YearMonth.now())
     }
 
@@ -236,13 +298,12 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
             return emptyList()
         val availableLanguages = groupByLanguage(items.filter { it.date == date }).orEmpty().keys
         return groupByLanguage(items)
-            .orEmpty()
             .filter { availableLanguages.contains(it.key) }
             .map { languageGroup ->
                 val streak = streakFromDate(languageGroup.value, date)
                 val streakActivities = streak.values.flatten()
                 val byCategory = groupByCategory(streakActivities)
-                val categoryStats = byCategory.orEmpty().map {
+                val categoryStats = byCategory.map {
                     ActivityCategoryStat(it.key, it.value)
                 }
                 DayLanguageStreakData(languageGroup.key, categoryStats, streak)

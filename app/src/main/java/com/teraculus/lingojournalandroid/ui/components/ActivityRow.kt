@@ -27,24 +27,16 @@ import java.time.LocalTime
 
 @ExperimentalMaterialApi
 @Composable
-fun ActivityRow(activity: Activity, onClick: (id: String) -> Unit, model: ActivityItemViewModel = viewModel("activityRow${activity.id}", ActivityItemViewModelFactory(activity))) {
-    val title by model.title.observeAsState()
-//    val text by model.text.observeAsState()
-    val type by model.type.observeAsState()
-    val category by model.category.observeAsState()
-    val startTime by model.startTime.observeAsState()
-    val endTime by model.endTime.observeAsState()
-    val language by model.language.observeAsState()
-    val confidence by model.confidence.observeAsState()
-    val motivation by model.motivation.observeAsState()
+fun ActivityRow(activity: Activity, onClick: (id: String) -> Unit) {
+
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal=16.dp, vertical = 8.dp).clickable(onClick = { onClick(activity.id.toString()) }),
         elevation = 2.dp)
     {
         ListItem(
-            icon = { ActivityRowIcon(category?.icon, confidence, motivation, category?.color) },
-            text = { Text(title.orEmpty(), maxLines = 2, overflow = TextOverflow.Ellipsis) },
-            secondaryText = { OverlineText(startTime, endTime, language, type?.name) })
+            icon = { ActivityRowIcon(activity.type?.category?.icon, activity.confidence, activity.motivation, activity.type?.category?.color) },
+            text = { Text(activity.title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+            secondaryText = { OverlineText(activity.startTime, activity.endTime, activity.language, activity.type?.name) })
     }
 
 }

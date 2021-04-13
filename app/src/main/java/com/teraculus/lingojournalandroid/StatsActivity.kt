@@ -1,31 +1,42 @@
 package com.teraculus.lingojournalandroid
 
+import android.content.Context
+import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
-import com.teraculus.lingojournalandroid.ui.Main
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import com.teraculus.lingojournalandroid.data.Repository
+import com.teraculus.lingojournalandroid.ui.LingoTheme
+import com.teraculus.lingojournalandroid.ui.settings.SettingsContent
 import com.teraculus.lingojournalandroid.ui.stats.StatisticsViewModel
 import com.teraculus.lingojournalandroid.ui.stats.StatisticsViewModelFactory
+import com.teraculus.lingojournalandroid.ui.stats.StatsContent
 import com.teraculus.lingojournalandroid.utils.LocalSysUiController
 import com.teraculus.lingojournalandroid.utils.SystemUiController
 import com.teraculus.lingojournalandroid.utils.initStatusBarColor
 
+fun launchStatsActivity(context: Context) {
+    context.startActivity(createStatsActivityIntent(context))
+}
 
-class MainActivity : AppCompatActivity() {
-    @ExperimentalAnimationApi
-    @ExperimentalFoundationApi
+fun createStatsActivityIntent(context: Context): Intent {
+    return Intent(context, StatsActivity::class.java)
+}
+
+class StatsActivity : AppCompatActivity() {
+    private val statsViewModel: StatisticsViewModel by viewModels { StatisticsViewModelFactory() }
+
     @ExperimentalMaterialApi
+    @ExperimentalFoundationApi
+    @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // This app draws behind the system bars, so we want to handle fitting system windows
-        //WindowCompat.setDecorFitsSystemWindows(window, false)
 
         Repository.getRepository().getUserPreferences().value?.let {
             initStatusBarColor(this, it)
@@ -34,12 +45,12 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val systemUiController = remember { SystemUiController(window) }
             CompositionLocalProvider(LocalSysUiController provides systemUiController) {
-                Main(
-                    onActivityClick = { launchDetailsActivity(this, it) },
-                    onOpenEditor = { launchEditorActivity(this, it) },
-                    onOpenSettings = { launchSettingsActivity(this) },
-                    onOpenStats = { launchStatsActivity(this) }
-                )
+                LingoTheme {
+                    StatsContent(
+                        onItemClick = { launchDetailsActivity(this, it) },
+                        onDismiss = { finish() },
+                        model = statsViewModel)
+                }
             }
         }
     }

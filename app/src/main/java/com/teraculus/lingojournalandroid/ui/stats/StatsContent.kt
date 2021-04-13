@@ -8,12 +8,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.ui.calendar.CalendarSwipeable
@@ -29,8 +30,39 @@ import com.teraculus.lingojournalandroid.utils.toDayString
 @Composable
 fun StatsContent(
     modifier: Modifier = Modifier,
-    model: StatisticsViewModel = viewModel("statisticsViewModel",
-        StatisticsViewModelFactory()),
+    model: StatisticsViewModel,
+    onItemClick: (id: String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("Stats",
+                        modifier = Modifier.padding(start = 24.dp),
+                        style = MaterialTheme.typography.h6)
+                },
+                navigationIcon = {
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
+                backgroundColor = MaterialTheme.colors.background,
+                elevation = 0.dp,
+            )
+        }) {
+        InnerContent(model = model, onItemClick = onItemClick, modifier = modifier)
+    }
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@ExperimentalMaterialApi
+@ExperimentalAnimationApi
+@ExperimentalFoundationApi
+@Composable
+private fun InnerContent(
+    modifier: Modifier = Modifier,
+    model: StatisticsViewModel,
     onItemClick: (id: String) -> Unit,
 ) {
     val tabIndex by model.rangeIndex.observeAsState(1)
@@ -46,7 +78,6 @@ fun StatsContent(
     model.stats.observeWithDelegate {
         languageTab = 0
     }
-
     Scaffold(topBar = {
         val elevation =
             if (!MaterialTheme.colors.isLight) 0.dp else AppBarDefaults.TopAppBarElevation
@@ -88,10 +119,11 @@ fun StatsContent(
                     CalendarSwipeable(Modifier.fillMaxWidth(), model)
                 }
             }
+
+            Divider()
             val notNullStats = stats.orEmpty()
             if (notNullStats.isNotEmpty()) {
                 Column {
-                    Divider()
                     Spacer(modifier = Modifier.size(8.dp))
                     ScrollableTabRow(
                         selectedTabIndex = languageTab,
@@ -101,12 +133,16 @@ fun StatsContent(
                         divider = {},
                         indicator = {}) {
                         notNullStats.forEachIndexed { index, stats ->
-                            if(index == languageTab) {
-                                Button(onClick = { languageTab = index }, modifier = Modifier.padding(8.dp), shape = RoundedCornerShape(16.dp)) {
+                            if (index == languageTab) {
+                                Button(onClick = { languageTab = index },
+                                    modifier = Modifier.padding(8.dp),
+                                    shape = RoundedCornerShape(16.dp)) {
                                     Text(getLanguageDisplayName(stats.language))
                                 }
                             } else {
-                                OutlinedButton(onClick = { languageTab = index }, modifier = Modifier.padding(8.dp), shape = RoundedCornerShape(16.dp)) {
+                                OutlinedButton(onClick = { languageTab = index },
+                                    modifier = Modifier.padding(8.dp),
+                                    shape = RoundedCornerShape(16.dp)) {
                                     Text(getLanguageDisplayName(stats.language))
                                 }
                             }

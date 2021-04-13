@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @Composable
-fun StatsScreen(onItemClick: (id: String) -> Unit) {
-    StatsContent(onItemClick = onItemClick)
+fun StatsScreen(onItemClick: (id: String) -> Unit,
+                model: StatisticsViewModel
+) {
+//    StatsContent(onItemClick = onItemClick, model = model)
 }
