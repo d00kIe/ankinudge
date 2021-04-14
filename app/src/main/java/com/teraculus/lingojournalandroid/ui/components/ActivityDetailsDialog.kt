@@ -83,15 +83,19 @@ fun ActivityDetailsDialogContent(onDismiss: () -> Unit,
     {
         Column(Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(vertical = 16.dp, horizontal = 24.dp)
             .verticalScroll(rememberScrollState())) {
             Text(title.orEmpty(), style = MaterialTheme.typography.h5)
             Spacer(Modifier.size(8.dp))
-            Text("${getLanguageDisplayName(language.orEmpty())} · $typeName",
-                style = MaterialTheme.typography.caption)
-            Spacer(Modifier.size(16.dp))
             ApplyTextStyle(MaterialTheme.typography.body1, ContentAlpha.medium) {
-                Text(text.orEmpty())
+                Text("${getLanguageDisplayName(language.orEmpty())} · $typeName",
+                    style = MaterialTheme.typography.body1)
+            }
+            if(!text.isNullOrEmpty()) {
+                Spacer(Modifier.size(16.dp))
+                ApplyTextStyle(MaterialTheme.typography.body1, ContentAlpha.medium) {
+                    Text(text.orEmpty())
+                }
             }
             Spacer(Modifier.size(16.dp))
             Divider()
