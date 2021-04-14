@@ -10,6 +10,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.ui.LingoTheme
@@ -48,10 +49,6 @@ class EditorActivity : AppCompatActivity() {
 
         PickerProvider.getPickerProvider().fragmentManager = supportFragmentManager
         modelFactory = EditActivityViewModelFactory(args.id, PickerProvider.getPickerProvider())
-
-        Repository.getRepository().getUserPreferences().value?.let {
-            initStatusBarColor(this, it)
-        }
 
         setContent {
             val systemUiController = remember { SystemUiController(window) }

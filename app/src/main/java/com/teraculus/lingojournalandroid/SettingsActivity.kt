@@ -10,6 +10,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.core.view.WindowCompat
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.ui.LingoTheme
 import com.teraculus.lingojournalandroid.ui.settings.SettingsContent
@@ -32,10 +33,6 @@ class SettingsActivity : AppCompatActivity() {
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        Repository.getRepository().getUserPreferences().value?.let {
-            initStatusBarColor(this, it)
-        }
 
         setContent {
             val systemUiController = remember { SystemUiController(window) }

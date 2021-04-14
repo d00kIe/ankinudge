@@ -11,6 +11,10 @@
         <item name="colorSecondary">#00796b</item>
         <item name="colorSecondaryVariant">#004c40</item>
         <item name="colorOnSecondary">#ffffff</item>
+
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+<!--        <item name="android:navigationBarColor">@android:color/transparent</item>-->
     </style>
 
     <style name="Theme.DialogFullScreen" parent="@style/ThemeOverlay.MaterialComponents.Dialog.Alert">

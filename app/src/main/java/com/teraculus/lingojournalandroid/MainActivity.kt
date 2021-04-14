@@ -10,6 +10,7 @@ import com.teraculus.lingojournalandroid.ui.Main
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.core.view.WindowCompat
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.ui.stats.StatisticsViewModel
 import com.teraculus.lingojournalandroid.ui.stats.StatisticsViewModelFactory
@@ -24,12 +25,6 @@ class MainActivity : AppCompatActivity() {
     @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // This app draws behind the system bars, so we want to handle fitting system windows
-        //WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        Repository.getRepository().getUserPreferences().value?.let {
-            initStatusBarColor(this, it)
-        }
 
         setContent {
             val systemUiController = remember { SystemUiController(window) }

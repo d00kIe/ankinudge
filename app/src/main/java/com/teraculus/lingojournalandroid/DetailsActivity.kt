@@ -12,6 +12,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.ThemePreference
@@ -52,10 +53,6 @@ class DetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val args = getDetailsArgs(intent)
         modelFactory = ActivityDetailsViewModelFactory(args.id)
-
-        Repository.getRepository().getUserPreferences().value?.let {
-            initStatusBarColor(this, it)
-        }
 
         setContent {
             val systemUiController = remember { SystemUiController(window) }

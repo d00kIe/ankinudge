@@ -9,8 +9,11 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.ThemePreference
 import com.teraculus.lingojournalandroid.utils.LocalSysUiController
@@ -42,13 +45,18 @@ val LightColors = lightColors(
 
 class LingoThemeViewModel(val repository: Repository = Repository.getRepository()) : ViewModel() {
     private val preferences = repository.getUserPreferences()
-    val theme = Transformations.map(preferences) { it.theme }
+    val theme: MutableLiveData<String> = MutableLiveData(preferences.value?.theme)
+    init {
+        preferences.observeForever() {
+            theme.value = preferences.value?.theme
+        }
+    }
 }
 
 @Composable
 fun LingoTheme(
     systemDarkTheme: Boolean = isSystemInDarkTheme(),
-    viewModel: LingoThemeViewModel = LingoThemeViewModel(),
+    viewModel: LingoThemeViewModel = viewModel(),
     content: @Composable () -> Unit
 ) {
     val theme by viewModel.theme.observeAsState()

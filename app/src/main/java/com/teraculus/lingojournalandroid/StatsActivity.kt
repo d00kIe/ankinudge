@@ -38,10 +38,6 @@ class StatsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Repository.getRepository().getUserPreferences().value?.let {
-            initStatusBarColor(this, it)
-        }
-
         setContent {
             val systemUiController = remember { SystemUiController(window) }
             CompositionLocalProvider(LocalSysUiController provides systemUiController) {
