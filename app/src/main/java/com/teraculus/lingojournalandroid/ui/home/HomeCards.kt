@@ -94,5 +94,5 @@ fun WeekDayItem(day: DayData) {
 }
 
 fun getWeekDayString(day: Int, month: Int, year: Int): String {
-    return toWeekDayString(LocalDate.of(year, month, day)).substring(1)
+    return toWeekDayString(LocalDate.of(year, month, day)).substring(0,1)
 }
