@@ -47,7 +47,7 @@ fun ActivityList(
                         Text(text = toDayString(date), modifier = Modifier.padding(top=24.dp, start = 16.dp))
                     }
                 }
-                items(items.filter { it.isValid }) { activity ->
+                items(items) { activity ->
                     ActivityRow(activity, onClick = onItemClick)
                 }
             }

@@ -12,7 +12,7 @@ class LanguageDayData(val language: String, val data: List<DayData>)
 
 class ActivityListViewModel(repository: Repository) : ViewModel() {
     private val activities = repository.getActivities()
-    var grouped = Transformations.map(activities) { it?.groupBy { it1 -> it1.date } }
+    var grouped = Transformations.map(activities) { it?.groupBy { it1 -> it1.date }.orEmpty().mapValues { it2 -> it2.value.sortedByDescending { a -> a.startTime } } }
     var lastSevenDayData = Transformations.map(activities) { getGroupedLanguageDayData(it) }
     var streaks = Transformations.map(activities) { act -> act.orEmpty().groupBy { it.language }.mapValues { langact -> streakFromDate(langact.value, LocalDate.now(), true).size }  }
 
