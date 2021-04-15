@@ -85,7 +85,7 @@ fun WeekDayItem(day: DayData) {
         if(day.hasActivities) {
             Icon(Icons.Rounded.CheckCircle, contentDescription = null, tint = MaterialTheme.colors.secondary)
         } else {
-            Icon(Icons.Rounded.Circle, contentDescription = null, tint = Constants.ItemBackground)
+            Icon(if(day.today) Icons.Rounded.RadioButtonUnchecked else Icons.Rounded.Circle, contentDescription = null, tint = Constants.ItemBackground)
         }
         ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {
             Text(weekDayString)
@@ -94,5 +94,5 @@ fun WeekDayItem(day: DayData) {
 }
 
 fun getWeekDayString(day: Int, month: Int, year: Int): String {
-    return toWeekDayString(LocalDate.of(year, month, day))
+    return toWeekDayString(LocalDate.of(year, month, day)).substring(1)
 }
