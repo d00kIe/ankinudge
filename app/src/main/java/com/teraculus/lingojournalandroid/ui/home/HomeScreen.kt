@@ -23,23 +23,27 @@ fun HomeScreen(
     onItemClick: (id: String) -> Unit,
     onOpenStats: () -> Unit,
 ) {
-    ActivityList(model = model, onItemClick)
+    ActivityList(model = model, onItemClick, onOpenStats)
 }
 
 @ExperimentalMaterialApi
 @Composable
 fun ActivityList(
     model: ActivityListViewModel,
-    onItemClick: (id: String) -> Unit
+    onItemClick: (id: String) -> Unit,
+    onOpenStats: () -> Unit
 ) {
     val groups by model.grouped.observeAsState()
 
     LazyColumn(
     ) {
+        item {
+            HomeStatsCard(onOpenStats)
+        }
         if (groups != null && groups.orEmpty().isNotEmpty()) {
             groups.orEmpty().forEach { (date, items) ->
                 item {
-                    ApplyTextStyle(textStyle = MaterialTheme.typography.body1, contentAlpha = ContentAlpha.medium) {
+                    ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {
                         Text(text = toDayString(date), modifier = Modifier.padding(top=24.dp, start = 16.dp))
                     }
                 }

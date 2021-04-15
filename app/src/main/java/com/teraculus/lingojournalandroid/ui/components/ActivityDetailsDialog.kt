@@ -87,9 +87,8 @@ fun ActivityDetailsDialogContent(onDismiss: () -> Unit,
             .verticalScroll(rememberScrollState())) {
             Text(title.orEmpty(), style = MaterialTheme.typography.h5)
             Spacer(Modifier.size(8.dp))
-            ApplyTextStyle(MaterialTheme.typography.body1, ContentAlpha.medium) {
-                Text("${getLanguageDisplayName(language.orEmpty())} · $typeName",
-                    style = MaterialTheme.typography.body1)
+            ApplyTextStyle(MaterialTheme.typography.body2, ContentAlpha.medium) {
+                Text("${getLanguageDisplayName(language.orEmpty())} · $typeName")
             }
             if(!text.isNullOrEmpty()) {
                 Spacer(Modifier.size(16.dp))

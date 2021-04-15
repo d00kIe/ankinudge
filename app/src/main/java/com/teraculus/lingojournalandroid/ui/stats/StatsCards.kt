@@ -15,6 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.TextStyle
@@ -65,26 +66,8 @@ fun TextStatsItem(label: String, value: String, style: TextStyle = MaterialTheme
 }
 
 @Composable
-fun ProgressStatsItem(label: String, value: Float, color: Color, modifier: Modifier = Modifier, strokeWidth : Dp = 4.dp) {
-    val animatedValue by animateFloatAsState(targetValue = max(value / 100f, 0.01f))
-    StatsItem(label = label) {
-        Box() {
-            CircularProgressIndicator(progress = 1f,
-                color = Constants.ItemBackground,
-                strokeWidth = strokeWidth,
-                modifier = modifier.size(60.dp))
-            CircularProgressIndicator(progress = animatedValue,
-                color = color,
-                strokeWidth = strokeWidth,
-                modifier = modifier.size(60.dp))
-        }
-    }
-}
-
-@Composable
-fun StatsCard(modifier: Modifier = Modifier, content: @Composable() () -> Unit) {
-    Card(modifier = Modifier
-        .padding(horizontal = 16.dp, vertical = 8.dp), elevation = 2.dp, content = content)
+fun StatsCard(modifier: Modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), content: @Composable() () -> Unit) {
+    Card(modifier = modifier, elevation = 2.dp, content = content)
 }
 
 @Composable
@@ -207,7 +190,7 @@ fun Selector(modifier: Modifier = Modifier, onNext: () -> Unit, onPrev: () -> Un
 
 @Composable
 fun DayStreak(stats: DayLanguageStreakData) {
-    StatsCard(modifier = Modifier.fillMaxWidth()) {
+    StatsCard() {
         Column(modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)) {

@@ -19,6 +19,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.ui.calendar.CalendarSwipeable
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
+import com.teraculus.lingojournalandroid.ui.stats.Constants.Companion.ItemBackground
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.observeWithDelegate
 import com.teraculus.lingojournalandroid.utils.toDayString
@@ -136,13 +137,15 @@ private fun InnerContent(
                             if (index == languageTab) {
                                 Button(onClick = { languageTab = index },
                                     modifier = Modifier.padding(8.dp),
-                                    shape = RoundedCornerShape(16.dp)) {
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = ButtonDefaults.buttonColors(backgroundColor=MaterialTheme.colors.surface, contentColor = MaterialTheme.colors.primary)) {
                                     Text(getLanguageDisplayName(stats.language))
                                 }
                             } else {
                                 OutlinedButton(onClick = { languageTab = index },
                                     modifier = Modifier.padding(8.dp),
-                                    shape = RoundedCornerShape(16.dp)) {
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = ButtonDefaults.buttonColors(backgroundColor=MaterialTheme.colors.surface, contentColor = MaterialTheme.colors.onSurface)) {
                                     Text(getLanguageDisplayName(stats.language))
                                 }
                             }

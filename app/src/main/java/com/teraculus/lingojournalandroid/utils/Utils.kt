@@ -54,6 +54,13 @@ fun toDayString(date: LocalDate?) : String {
     return date.format(dateFormatter)
 }
 
+fun toWeekDayString(date: LocalDate?) : String {
+    if(date == null)
+        return ""
+    val dateFormatter = DateTimeFormatter.ofPattern("EE", Locale.getDefault())
+    return date.format(dateFormatter)
+}
+
 fun toRealmDateString(date: LocalDate) : String {
     val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
     return dateFormatter.format(date)
