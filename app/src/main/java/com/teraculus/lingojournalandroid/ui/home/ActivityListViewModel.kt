@@ -26,9 +26,12 @@ class ActivityItemViewModel(rawActivity: Activity, owner: LifecycleOwner) : View
     val activity : LiveRealmObject<Activity> = LiveRealmObject(rawActivity)
     val snapshot = MutableLiveData<Activity>(if(activity.value?.isValid == true) activity.value!!.freeze<Activity>() else null)
     init {
-        activity.observe(owner) {
-            snapshot.value = if(it.isValid) it.freeze() else null
-        }
+        activity.observe(
+            owner,
+            Observer {
+                snapshot.value = if (it.isValid) it.freeze() else null
+            }
+        )
     }
 }
 
