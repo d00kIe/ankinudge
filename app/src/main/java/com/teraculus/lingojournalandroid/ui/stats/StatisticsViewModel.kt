@@ -6,8 +6,6 @@ import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.LiveRealmResults
 import com.teraculus.lingojournalandroid.utils.getMinutes
-import io.realm.kotlin.freeze
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -38,8 +36,6 @@ class ActivityCategoryStat(val category: ActivityCategory?, activities: List<Act
 open class LanguageStatData(
     val language: String,
     val categoryStats: List<ActivityCategoryStat>,
-    val maxMinutes: Long = 0L,
-    val maxCount: Int = 0,
 ) {
     val allMinutes: Long =
         if (categoryStats.isNotEmpty()) categoryStats.map { it.minutes }.sum() else 0
@@ -59,8 +55,6 @@ open class LanguageStatData(
     }
 }
 
-class DayCategoryStreakData(val category: ActivityCategory?, val streak: Int)
-
 class DayLanguageStreakData (
     language: String,
     categoryStats: List<ActivityCategoryStat>,
@@ -75,14 +69,14 @@ data class DayData(
     val year: Int,
     val thisMonth: Boolean,
     val today: Boolean,
-    val hasActivities: Boolean,
+    var hasActivities: Boolean,
     val minutes: Long,
     val count: Int,
     val maxMinutes: Long?,
     val maxCount: Int?,
 ) {
     override fun toString() : String {
-        return "${day}: ${month}: ${year}"
+        return "${day}: ${month}: $year"
     }
 }
 
@@ -164,7 +158,7 @@ fun getMonthDayData(month: Int, year: Int, activities: List<Activity>?): List<Da
 
 class MonthItemViewModel(val repository: Repository = Repository.getRepository(), yearMonth: YearMonth) : ViewModel() {
     private val activities = LiveRealmResults<Activity>(null)
-    val daydata = MutableLiveData< List<DayData>?>(getMonthDayData(yearMonth.monthValue, yearMonth.year, emptyList()))
+    val daydata = MutableLiveData(getMonthDayData(yearMonth.monthValue, yearMonth.year, emptyList()))
     init {
         val from = LocalDate.of(yearMonth.year, yearMonth.month, 1)
         val to = from.withDayOfMonth(yearMonth.lengthOfMonth())
@@ -172,9 +166,9 @@ class MonthItemViewModel(val repository: Repository = Repository.getRepository()
         val frozenActivities = activities.value.orEmpty().map { it1 -> it1.freeze<Activity>() }
         daydata.value =getMonthDayData(yearMonth.monthValue, yearMonth.year, frozenActivities)
         activities.observeForever {
-            val frozenActivities = it.orEmpty().map { it1 -> it1.freeze<Activity>() }
+            val observedFrozenActivities = it.orEmpty().map { it1 -> it1.freeze<Activity>() }
             viewModelScope.launch {
-                daydata.postValue(getMonthDayData(yearMonth.monthValue, yearMonth.year, frozenActivities))
+                daydata.postValue(getMonthDayData(yearMonth.monthValue, yearMonth.year, observedFrozenActivities))
             }
         }
     }
@@ -200,7 +194,7 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
     val day = MutableLiveData(LocalDate.now())
     val month = MutableLiveData(YearMonth.now())
 
-    val stats = MutableLiveData<List<LanguageStatData>?>(emptyList()) //Transformations.map(activities) { it?.let { it1 -> mapToStats(it1) } }
+    val stats = MutableLiveData<List<LanguageStatData>?>(emptyList())
     val dayStreakData = MutableLiveData<List<DayLanguageStreakData>?>(emptyList())// Transformations.map(activitiesFromBeginning) { it?.let { it1 -> mapToStreakData(it1, day.value) } }
 
     init {
@@ -247,69 +241,65 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
         range.value = StatisticRange.ALL
         activities.reset(repository.getAllActivities())
     }
+}
 
-    private fun groupByLanguage(items: List<Activity>?): Map<String, List<Activity>> {
-        return items?.groupBy { it -> it.language }.orEmpty()
-    }
+private fun groupByLanguage(items: List<Activity>?): Map<String, List<Activity>> {
+    return items?.groupBy { it -> it.language }.orEmpty()
+}
 
-    private fun groupByCategory(items: List<Activity>?): Map<ActivityCategory?, List<Activity>> {
-        return items?.groupBy { it -> it.type?.category }.orEmpty()
-    }
+private fun groupByCategory(items: List<Activity>?): Map<ActivityCategory?, List<Activity>> {
+    return items?.groupBy { it -> it.type?.category }.orEmpty()
+}
 
-    private fun mapToStats(items: List<Activity>): List<LanguageStatData>? {
-        return groupByLanguage(items).map { languageGroup ->
-            val byCategory = groupByCategory(languageGroup.value)
-            val typeStats = ActivityCategory.values().map {
-                if(byCategory.containsKey(it)) {
-                    ActivityCategoryStat(it, byCategory[it].orEmpty())
-                } else {
-                    ActivityCategoryStat(it, emptyList())
-                }
-            }
-            val groupByDay = items.groupBy { it.date }
-            LanguageStatData(languageGroup.key,
-                typeStats,
-                groupByDay.values.maxOf { it.sumOf { it1 -> getMinutes(it1) } },
-                groupByDay.maxOf { it.value.size })
-        }.sortedBy { it.language }
-    }
-
-    private fun streakFromDate(items: List<Activity>, date: LocalDate): Map<LocalDate,List<Activity>> {
-        var lastDate = date
-        var streakDays = mutableListOf<LocalDate>()
-        val groupedByDay = items.groupBy { it.date }
-        val days = groupedByDay.keys.sortedDescending()
-        if(days.firstOrNull() != date)
-            return emptyMap()
-
-        for(day in days) {
-            if(day == date || lastDate == day.plusDays(1)) {
-                lastDate = day
-                streakDays.add(day)
+private fun mapToStats(items: List<Activity>): List<LanguageStatData> {
+    return groupByLanguage(items).map { languageGroup ->
+        val byCategory = groupByCategory(languageGroup.value)
+        val typeStats = ActivityCategory.values().map {
+            if(byCategory.containsKey(it)) {
+                ActivityCategoryStat(it, byCategory[it].orEmpty())
             } else {
-                break
+                ActivityCategoryStat(it, emptyList())
             }
         }
-        return groupedByDay.filterKeys { streakDays.contains(it) }
+        LanguageStatData(languageGroup.key, typeStats)
+    }.sortedBy { it.language }
+}
+
+fun streakFromDate(items: List<Activity>, date: LocalDate, relaxed: Boolean = false): Map<LocalDate,List<Activity>> {
+    var lastDate = date
+    val inStreak = mutableListOf<Activity>()
+    for (a in items.sortedByDescending { it.date }) {
+        if((relaxed && a.date == date.minusDays(1))
+            || date == a.date
+            || lastDate == a.date
+            || lastDate == a.date.plusDays(1))
+        {
+            lastDate = a.date
+            inStreak.add(a)
+        } else {
+            break
+        }
     }
 
-    private fun mapToStreakData(items: List<Activity>, date: LocalDate?): List<DayLanguageStreakData>? {
-        if (date == null)
-            return emptyList()
-        val availableLanguages = groupByLanguage(items.filter { it.date == date }).orEmpty().keys
-        return groupByLanguage(items)
-            .filter { availableLanguages.contains(it.key) }
-            .map { languageGroup ->
-                val streak = streakFromDate(languageGroup.value, date)
-                val streakActivities = streak.values.flatten()
-                val byCategory = groupByCategory(streakActivities)
-                val categoryStats = byCategory.map {
-                    ActivityCategoryStat(it.key, it.value)
-                }
-                DayLanguageStreakData(languageGroup.key, categoryStats, streak)
+    return inStreak.groupBy { it.date }
+}
+
+fun mapToStreakData(items: List<Activity>, date: LocalDate?): List<DayLanguageStreakData> {
+    if (date == null)
+        return emptyList()
+    val availableLanguages = groupByLanguage(items.filter { it.date == date }).keys
+    return groupByLanguage(items)
+        .filter { availableLanguages.contains(it.key) }
+        .map { languageGroup ->
+            val streak = streakFromDate(languageGroup.value, date)
+            val streakActivities = streak.values.flatten()
+            val byCategory = groupByCategory(streakActivities)
+            val categoryStats = byCategory.map {
+                ActivityCategoryStat(it.key, it.value)
             }
-            .sortedBy { it.language }
-    }
+            DayLanguageStreakData(languageGroup.key, categoryStats, streak)
+        }
+        .sortedBy { it.language }
 }
 
 class StatisticsViewModelFactory : ViewModelProvider.Factory {

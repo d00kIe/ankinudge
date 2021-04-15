@@ -6,12 +6,14 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.ui.stats.Constants
 import com.teraculus.lingojournalandroid.ui.stats.DayData
 import com.teraculus.lingojournalandroid.ui.stats.StatsCard
@@ -21,7 +23,9 @@ import java.time.LocalDate
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun HomeStatsCard(openStatsActivity:() -> Unit) {
+fun HomeStatsCard(openStatsActivity: () -> Unit, model: ActivityListViewModel) {
+    val streaks by model.streaks.observeAsState()
+    val lastSevenDays by model.lastSevenDayData.observeAsState()
     StatsCard(modifier = Modifier
         .padding(16.dp)
         .clickable { openStatsActivity() }) {
@@ -31,34 +35,35 @@ fun HomeStatsCard(openStatsActivity:() -> Unit) {
                 secondaryText={Text("Streak and last 7 days", style=MaterialTheme.typography.body2)},
                 trailing= { Icon(Icons.Rounded.KeyboardArrowRight, contentDescription = null) }
             )
-            Spacer(modifier = Modifier.size(16.dp))
-            Row(modifier = Modifier.padding(16.dp)) {
-                StreakText(streak = 3)
+            Column(modifier = Modifier.padding(16.dp)) {
+                lastSevenDays.orEmpty().forEachIndexed() { idx: Int, it: LanguageDayData ->
+                    if(idx != 0)
+                        Divider(modifier = Modifier.padding(vertical = 16.dp))
+                    ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {
+                        Text(getLanguageDisplayName(it.language))
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    StreakText(streak = streaks.orEmpty()[it.language] ?: 0, data = it.data)
+                }
             }
+
         }
     }
 }
 
 @Composable
-fun StreakText(streak: Int) {
+fun StreakText(streak: Int, data: List<DayData>) {
     Row(modifier= Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
 //        Icon(Icons.Rounded.LocalFireDepartment, contentDescription = null, modifier = Modifier.size(32.dp), tint = Color.Red)
 //        Spacer(modifier = Modifier.size(8.dp))
         Column() {
-            Text(text = "$streak days", fontWeight = FontWeight.Black, style = MaterialTheme.typography.h6, color = MaterialTheme.colors.primary)
+            Text(text = "$streak ${if(streak == 1) "day" else "days"}", fontWeight = FontWeight.Black, style = MaterialTheme.typography.h6, color = MaterialTheme.colors.primary)
             ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {
                 Text(text = "Streak")
             }
         }
 
-        LastSevenDays(listOf(
-            DayData(1,4,2021, true, false, true, 0, 1, 0L, 0),
-            DayData(2,4,2021, true, false, false, 0, 1, 0L, 0),
-            DayData(3,4,2021, true, false, true, 0, 1, 0L, 0),
-            DayData(4,4,2021, true, false, false, 0, 1, 0L, 0),
-            DayData(5,4,2021, true, false, true, 0, 1, 0L, 0),
-            DayData(6,4,2021, true, false, false, 0, 1, 0L, 0),
-            DayData(7,4,2021, true, false, true, 0, 1, 0L, 0)))
+        LastSevenDays(lastSevenDays = data)
     }
 }
 

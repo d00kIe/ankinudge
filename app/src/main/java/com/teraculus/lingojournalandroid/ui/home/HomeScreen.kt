@@ -38,7 +38,7 @@ fun ActivityList(
     LazyColumn(
     ) {
         item {
-            HomeStatsCard(onOpenStats)
+            HomeStatsCard(onOpenStats, model = model)
         }
         if (groups != null && groups.orEmpty().isNotEmpty()) {
             groups.orEmpty().forEach { (date, items) ->
