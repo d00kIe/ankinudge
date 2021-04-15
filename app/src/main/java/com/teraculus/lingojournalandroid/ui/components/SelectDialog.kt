@@ -5,16 +5,23 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -24,12 +31,7 @@ import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.data.getAllLanguages
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.ActivityType
-import com.teraculus.lingojournalandroid.model.ThemePreference
 import com.teraculus.lingojournalandroid.model.UserPreferences
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.semantics.Role
 
 @Composable
 fun SelectDialog(
@@ -130,12 +132,34 @@ fun ActivityTypeSelectDialog(
 @Composable
 fun ActivityTypeHeader(category: ActivityCategory?) {
     if (category != null)
-        Surface(elevation = 2.dp) {
-            ListItem(text = { Text(category.title, style = MaterialTheme.typography.subtitle1, fontWeight = FontWeight.Bold) },
-                trailing = {
-                    Icon(painter = painterResource(id = category.icon),
-                        contentDescription = null, Modifier.size(24.dp))
-                })
+        Surface() {
+            Column {
+                Divider()
+                ListItem(
+                    text = {
+                        Text(category.title,
+                            style = MaterialTheme.typography.subtitle1,
+                            fontWeight = FontWeight.Bold)
+                    },
+                    icon = {
+                        Surface(elevation = 0.dp,
+                            modifier = Modifier.size(32.dp),
+                            shape = CircleShape,
+                            color = Color(category.color)) {
+                            Icon(painter = painterResource(id = category.icon),
+                                modifier = Modifier
+                                    .padding(4.dp),
+                                tint = MaterialTheme.colors.onPrimary,
+                                contentDescription = null)
+                        }
+                    },
+                    trailing = {
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(Icons.Rounded.Add, contentDescription = null)
+                        }
+                    })
+                Divider()
+            }
         }
 }
 
