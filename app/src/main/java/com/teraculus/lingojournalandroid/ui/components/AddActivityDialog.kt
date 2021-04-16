@@ -3,6 +3,7 @@ package com.teraculus.lingojournalandroid.ui.components
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -18,6 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
+import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.utils.*
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
 import kotlinx.coroutines.launch
@@ -109,7 +111,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp, vertical = 8.dp),
-                    leadingIcon = { type?.category?.icon?.let { it1 -> painterResource(id = it1) }?.let { it2 -> Icon(painter = it2, modifier = Modifier.size(24.dp), contentDescription = null) } },
+                    leadingIcon = { ActivityTypeIcon(type) },
                     value = "${type?.category?.title} : ${type?.name}",
                     onClick = { showActivityTypeDialog = true })
             }
@@ -154,6 +156,23 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
                 onSentimentChange = { model.onMotivationChange(it) },
                 color = MaterialTheme.colors.secondary,
                 size = 36.dp)
+        }
+    }
+}
+
+@Composable
+private fun ActivityTypeIcon(type: ActivityType?) {
+    if(type?.category != null) {
+        val category = type.category
+        Surface(elevation = 0.dp,
+            modifier = Modifier.size(32.dp),
+            shape = CircleShape,
+            color = Color(category?.color!!)) {
+            Icon(painter = painterResource(id = category.icon),
+                modifier = Modifier.size(24.dp)
+                    .padding(4.dp),
+                tint = MaterialTheme.colors.onPrimary,
+                contentDescription = null)
         }
     }
 }

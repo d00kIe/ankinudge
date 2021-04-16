@@ -11,12 +11,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.History
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,18 +34,40 @@ import com.teraculus.lingojournalandroid.model.UserPreferences
 @Composable
 fun SelectDialog(
     onDismissRequest: () -> Unit,
-    properties: DialogProperties = DialogProperties(),
     title: String,
     content: @Composable () -> Unit,
 ) {
-    Dialog(onDismissRequest = onDismissRequest, properties = properties) {
-        Card(Modifier.padding(32.dp)) {
+    Dialog(onDismissRequest = onDismissRequest) {
+        Card(Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
             Column {
                 Text(text = title,
                     style = MaterialTheme.typography.h6,
                     modifier = Modifier.padding(16.dp))
-                Divider()
                 content()
+            }
+        }
+    }
+}
+
+@Composable
+fun InputDialog(
+    onConfirm: (value: String) -> Unit,
+    onDismissRequest: () -> Unit,
+    title: String,
+) {
+    var value by remember { mutableStateOf("") }
+    Dialog(onDismissRequest = onDismissRequest) {
+        Card(Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = title,
+                    style = MaterialTheme.typography.h6)
+                Spacer(modifier = Modifier.size(16.dp))
+                OutlinedTextField(value = value, onValueChange = { value = it }, label = { Text("New activity type") })
+                Spacer(modifier = Modifier.size(16.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = onDismissRequest) { Text(text = "Cancel") }
+                    TextButton(onClick = {onConfirm(value)}) { Text(text = "Add") }
+                }
             }
         }
     }
@@ -118,7 +138,7 @@ fun ActivityTypeSelectDialog(
         ) {
             groups?.forEach { (category, categoryTypes) ->
                 stickyHeader {
-                    ActivityTypeHeader(category = category)
+                    ActivityTypeHeader(category = category, onItemClick)
                 }
                 items(categoryTypes) { item ->
                     ActivityTypeItem(item, onClick = onItemClick)
@@ -128,13 +148,14 @@ fun ActivityTypeSelectDialog(
     }
 }
 
+
 @ExperimentalMaterialApi
 @Composable
-fun ActivityTypeHeader(category: ActivityCategory?) {
+fun ActivityTypeHeader(category: ActivityCategory?, onItemClick: (item: ActivityType) -> Unit) {
+    var showAddDialog by remember { mutableStateOf(false) }
     if (category != null)
         Surface() {
             Column {
-                Divider()
                 ListItem(
                     text = {
                         Text(category.title,
@@ -148,19 +169,26 @@ fun ActivityTypeHeader(category: ActivityCategory?) {
                             color = Color(category.color)) {
                             Icon(painter = painterResource(id = category.icon),
                                 modifier = Modifier
+                                    .size(18.dp)
                                     .padding(4.dp),
                                 tint = MaterialTheme.colors.onPrimary,
                                 contentDescription = null)
                         }
                     },
                     trailing = {
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(Icons.Rounded.Add, contentDescription = null)
+                        IconButton(onClick = { showAddDialog = true }) {
+                            Icon(Icons.Rounded.AddCircle, contentDescription = null)
                         }
-                    })
+                    }
+                )
                 Divider()
             }
         }
+    if(showAddDialog)
+        InputDialog(
+            onConfirm = { onItemClick(ActivityType(category, it)); showAddDialog = false },
+            onDismissRequest = { showAddDialog = false },
+            title = "New ${category?.title} activity")
 }
 
 @ExperimentalMaterialApi
