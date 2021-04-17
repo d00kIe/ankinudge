@@ -2,13 +2,14 @@ package com.teraculus.lingojournalandroid.ui
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.ui.home.HomeScreen
@@ -43,14 +44,14 @@ fun MainContent(
     onOpenSettings: () -> Unit,
     onOpenStats: () -> Unit,
 ) {
+    val scrollState = rememberLazyListState()
     Scaffold(
         topBar = {
-            val elevation = if (! MaterialTheme.colors.isLight ) 0.dp else AppBarDefaults.TopAppBarElevation
+            val elevation =
+                if (MaterialTheme.colors.isLight && (scrollState.firstVisibleItemScrollOffset > 0 || scrollState.firstVisibleItemIndex > 0)) AppBarDefaults.TopAppBarElevation else 0.dp
             TopAppBar(
                 title = {
-                    Text("Journal",
-                        modifier = Modifier.padding(start = 24.dp),
-                        style = MaterialTheme.typography.h6)
+                    Text("Journal", style = MaterialTheme.typography.h6)
                 },
                 backgroundColor = MaterialTheme.colors.background,
                 elevation = elevation,
@@ -73,6 +74,8 @@ fun MainContent(
             }
         }
     ) {
-        HomeScreen(onItemClick = onActivityClick, onOpenStats = onOpenStats)
+        HomeScreen(onItemClick = onActivityClick,
+            onOpenStats = onOpenStats,
+            scrollState = scrollState)
     }
 }

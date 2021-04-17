@@ -14,12 +14,12 @@ import androidx.compose.runtime.remember
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.ui.LingoTheme
 import com.teraculus.lingojournalandroid.ui.settings.SettingsContent
-import com.teraculus.lingojournalandroid.ui.stats.StatisticsViewModel
-import com.teraculus.lingojournalandroid.ui.stats.StatisticsViewModelFactory
 import com.teraculus.lingojournalandroid.ui.stats.StatsContent
 import com.teraculus.lingojournalandroid.utils.LocalSysUiController
 import com.teraculus.lingojournalandroid.utils.SystemUiController
 import com.teraculus.lingojournalandroid.utils.initStatusBarColor
+import com.teraculus.lingojournalandroid.viewmodel.StatisticsViewModel
+import com.teraculus.lingojournalandroid.viewmodel.StatisticsViewModelFactory
 
 fun launchStatsActivity(context: Context) {
     context.startActivity(createStatsActivityIntent(context))

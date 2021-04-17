@@ -2,6 +2,7 @@ package com.teraculus.lingojournalandroid.ui.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -22,8 +23,9 @@ fun HomeScreen(
         ActivityListViewModelFactory()),
     onItemClick: (id: String) -> Unit,
     onOpenStats: () -> Unit,
+    scrollState: LazyListState
 ) {
-    ActivityList(model = model, onItemClick, onOpenStats)
+    ActivityList(model = model, onItemClick, onOpenStats, scrollState)
 }
 
 @ExperimentalMaterialApi
@@ -31,12 +33,12 @@ fun HomeScreen(
 fun ActivityList(
     model: ActivityListViewModel,
     onItemClick: (id: String) -> Unit,
-    onOpenStats: () -> Unit
+    onOpenStats: () -> Unit,
+    scrollState: LazyListState,
 ) {
     val groups by model.grouped.observeAsState()
 
-    LazyColumn(
-    ) {
+    LazyColumn(state = scrollState) {
         item {
             HomeStatsCard(onOpenStats, model = model)
         }

@@ -49,9 +49,11 @@ fun ActivityDetailsDialogContent(onDismiss: () -> Unit,
     val language by model.language.observeAsState()
 
     var expandedMenu by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
     Scaffold(
         topBar = {
-            val elevation = if(!MaterialTheme.colors.isLight) 0.dp else AppBarDefaults.TopAppBarElevation
+            val elevation =
+                if (MaterialTheme.colors.isLight && (scrollState.value > 0)) AppBarDefaults.TopAppBarElevation else 0.dp
             TopAppBar(
                 title = { },
                 backgroundColor = MaterialTheme.colors.background,
@@ -84,7 +86,7 @@ fun ActivityDetailsDialogContent(onDismiss: () -> Unit,
         Column(Modifier
             .fillMaxSize()
             .padding(vertical = 16.dp, horizontal = 24.dp)
-            .verticalScroll(rememberScrollState())) {
+            .verticalScroll(scrollState)) {
             Text(title.orEmpty(), style = MaterialTheme.typography.h5)
             Spacer(Modifier.size(8.dp))
             ApplyTextStyle(MaterialTheme.typography.body2, ContentAlpha.medium) {

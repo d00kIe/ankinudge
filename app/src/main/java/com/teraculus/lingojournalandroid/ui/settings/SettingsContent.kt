@@ -33,11 +33,15 @@ class SettingsViewModel(val repository: Repository = Repository.getRepository())
 
 @ExperimentalMaterialApi
 @Composable
-fun SettingsContent(viewModel: SettingsViewModel = SettingsViewModel(), onDismiss: () -> Unit) {
+fun SettingsContent(
+    viewModel: SettingsViewModel = SettingsViewModel(),
+    onDismiss: () -> Unit,
+    openPrivacyPolicy: () -> Unit
+) {
     val theme by viewModel.theme.observeAsState()
     val options = viewModel.themeOptions
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
-
+    val scrollState = rememberScrollState()
     if(showThemeDialog) {
         RadioSelectDialog(
             title="Theme",
@@ -48,7 +52,8 @@ fun SettingsContent(viewModel: SettingsViewModel = SettingsViewModel(), onDismis
     }
     Scaffold(
         topBar = {
-            val elevation = if(!MaterialTheme.colors.isLight) 0.dp else AppBarDefaults.TopAppBarElevation
+            val elevation =
+                if (MaterialTheme.colors.isLight && (scrollState.value > 0)) AppBarDefaults.TopAppBarElevation else 0.dp
             TopAppBar(
                 title = { Text(text = "Settings") },
                 backgroundColor = MaterialTheme.colors.background,
@@ -62,10 +67,10 @@ fun SettingsContent(viewModel: SettingsViewModel = SettingsViewModel(), onDismis
         }
     )
     {
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        Column(modifier = Modifier.verticalScroll(scrollState)) {
             ListItem(text = { Text("Theme") },
                 modifier = Modifier.clickable { showThemeDialog = true })
-            ListItem(text = { Text("Privacy policy") })
+            ListItem(text = { Text("Privacy policy") }, modifier = Modifier.clickable { openPrivacyPolicy() })
         }
     }
 }

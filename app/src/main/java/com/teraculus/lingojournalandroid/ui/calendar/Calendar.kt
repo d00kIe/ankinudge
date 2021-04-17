@@ -27,6 +27,10 @@ import kotlin.math.ceil
 import android.util.Log
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.ui.stats.*
+import com.teraculus.lingojournalandroid.viewmodel.DayData
+import com.teraculus.lingojournalandroid.viewmodel.MonthItemViewModel
+import com.teraculus.lingojournalandroid.viewmodel.MonthItemViewModelFactory
+import com.teraculus.lingojournalandroid.viewmodel.StatisticsViewModel
 import kotlin.math.abs
 
 private const val TAG: String = "Calendar"

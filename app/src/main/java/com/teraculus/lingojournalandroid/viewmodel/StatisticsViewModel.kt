@@ -1,4 +1,4 @@
-package com.teraculus.lingojournalandroid.ui.stats
+package com.teraculus.lingojournalandroid.viewmodel
 
 import androidx.lifecycle.*
 import com.teraculus.lingojournalandroid.data.Repository
@@ -194,23 +194,25 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
     val day = MutableLiveData(LocalDate.now())
     val month = MutableLiveData(YearMonth.now())
 
-    val stats = MutableLiveData<List<LanguageStatData>?>(emptyList())
-    val dayStreakData = MutableLiveData<List<DayLanguageStreakData>?>(emptyList())// Transformations.map(activitiesFromBeginning) { it?.let { it1 -> mapToStreakData(it1, day.value) } }
-
+    val stats = Transformations.map(activities) { it?.let { it1 -> mapToStats(it1) } } //
+    val dayStreakData = Transformations.map(activitiesFromBeginning) { it?.let { it1 -> mapToStreakData(it1, day.value) } }
+//    val stats = MutableLiveData<List<LanguageStatData>?>(emptyList()) //Transformations.map(activities) { it?.let { it1 -> mapToStats(it1) } } //
+//    val dayStreakData = MutableLiveData<List<DayLanguageStreakData>?>(emptyList())//Transformations.map(activitiesFromBeginning) { it?.let { it1 -> mapToStreakData(it1, day.value) } }
     init {
-        activities.observeForever {
-            val frozenActivities = it.orEmpty().map { it1 -> it1.freeze<Activity>() }
-            viewModelScope.launch {
-                stats.postValue(mapToStats(frozenActivities))
-            }
-        }
-
-        activitiesFromBeginning.observeForever {
-            val frozenActivities = it.orEmpty().map { it1 -> it1.freeze<Activity>() }
-            viewModelScope.launch {
-                dayStreakData.postValue(mapToStreakData(frozenActivities, day.value))
-            }
-        }
+        //TODO: Try How to run LiveData transformations on a coroutine https://gist.github.com/luciofm/cc463f38f488c4c4fccf531b53c6ac10
+//        activities.observeForever {
+//            val frozenActivities = it.orEmpty().map { it1 -> it1.freeze<Activity>() }
+//            viewModelScope.launch {
+//                stats.postValue(mapToStats(frozenActivities))
+//            }
+//        }
+//
+//        activitiesFromBeginning.observeForever {
+//            val frozenActivities = it.orEmpty().map { it1 -> it1.freeze<Activity>() }
+//            viewModelScope.launch {
+//                dayStreakData.postValue(mapToStreakData(frozenActivities, day.value))
+//            }
+//        }
         setMonth(YearMonth.now())
     }
 

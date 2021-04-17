@@ -44,6 +44,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
     var showActivityTypeDialog by rememberSaveable { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
 
     if(showLanguageDialog) {
         LanguageSelectDialog(
@@ -65,7 +66,8 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
     }
     Scaffold(
         topBar = {
-            val elevation = if(!MaterialTheme.colors.isLight) 0.dp else AppBarDefaults.TopAppBarElevation
+            val elevation =
+                if (MaterialTheme.colors.isLight && (scrollState.value > 0)) AppBarDefaults.TopAppBarElevation else 0.dp
             TopAppBar(
                 title = { Text("Activity") },
                 backgroundColor = MaterialTheme.colors.background,
@@ -89,7 +91,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
         Column(Modifier
             .fillMaxSize()
             .padding(horizontal = 8.dp)
-            .verticalScroll(rememberScrollState())) {
+            .verticalScroll(scrollState)) {
             Row {
                 OutlinedTextField(label = { Text("Title") },
                     modifier = Modifier

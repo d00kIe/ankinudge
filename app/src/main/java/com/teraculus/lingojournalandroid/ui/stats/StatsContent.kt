@@ -23,6 +23,10 @@ import com.teraculus.lingojournalandroid.ui.stats.Constants.Companion.ItemBackgr
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.observeWithDelegate
 import com.teraculus.lingojournalandroid.utils.toDayString
+import com.teraculus.lingojournalandroid.viewmodel.DayLanguageStreakData
+import com.teraculus.lingojournalandroid.viewmodel.LanguageStatData
+import com.teraculus.lingojournalandroid.viewmodel.StatisticRange
+import com.teraculus.lingojournalandroid.viewmodel.StatisticsViewModel
 
 @OptIn(ExperimentalPagerApi::class)
 @ExperimentalMaterialApi
@@ -39,9 +43,7 @@ fun StatsContent(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Stats",
-                        modifier = Modifier.padding(start = 24.dp),
-                        style = MaterialTheme.typography.h6)
+                    Text("Stats", style = MaterialTheme.typography.h6)
                 },
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
@@ -76,12 +78,15 @@ private fun InnerContent(
     val dayStreak by model.dayStreakData.observeAsState()
     val day by model.day.observeAsState()
     var languageTab by remember { mutableStateOf(0) }
+    var initialCalendarLoadingDone by remember { mutableStateOf(false) }
     model.stats.observeWithDelegate {
         languageTab = 0
     }
+    val scrollState = rememberScrollState()
     Scaffold(topBar = {
+
         val elevation =
-            if (!MaterialTheme.colors.isLight) 0.dp else AppBarDefaults.TopAppBarElevation
+            if (MaterialTheme.colors.isLight && (scrollState.value > 0)) AppBarDefaults.TopAppBarElevation else 0.dp
         TopAppBar(
             backgroundColor = MaterialTheme.colors.background,
             elevation = elevation) {
@@ -100,7 +105,7 @@ private fun InnerContent(
             }
         }
     }) {
-        Column(modifier = modifier.verticalScroll(rememberScrollState())) {
+        Column(modifier = modifier.verticalScroll(scrollState)) {
             AnimatedVisibility(visible = tabIndex == 0) {
                 Column {
                     Selector(Modifier.fillMaxWidth(),
@@ -115,13 +120,18 @@ private fun InnerContent(
                     }
                 }
             }
-            AnimatedVisibility(visible = tabIndex == 1) {
+            if(tabIndex == 1 && !initialCalendarLoadingDone) {
+                SideEffect {
+                    initialCalendarLoadingDone = true
+                }
+            }
+            AnimatedVisibility(visible = tabIndex == 1 && initialCalendarLoadingDone) {
                 Column {
                     CalendarSwipeable(Modifier.fillMaxWidth(), model)
                 }
             }
 
-            Divider()
+//            Divider()
             val notNullStats = stats.orEmpty()
             if (notNullStats.isNotEmpty()) {
                 Column {
@@ -151,18 +161,18 @@ private fun InnerContent(
                             }
                         }
                     }
+                    LanguageStatContent(notNullStats[languageTab])
                     AnimatedVisibility(visible = tabIndex == 0 && dayStreak.orEmpty()
                         .isNotEmpty()) {
                         Column {
                             ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
                                 contentAlpha = ContentAlpha.medium) {
-                                Text(text = "Streak",
+                                Text(text = "Streak this day",
                                     modifier = Modifier.padding(start = 16.dp, top = 8.dp))
                             }
                             DayStreakContent(dayStreak.orEmpty()[languageTab])
                         }
                     }
-                    LanguageStatContent(notNullStats[languageTab])
                 }
                 if (tabIndex == 0) {
                     ApplyTextStyle(textStyle = MaterialTheme.typography.caption,

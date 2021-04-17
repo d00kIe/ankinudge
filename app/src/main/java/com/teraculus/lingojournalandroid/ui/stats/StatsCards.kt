@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.ui.components.SentimentIcon
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.getDurationString
+import com.teraculus.lingojournalandroid.viewmodel.DayLanguageStreakData
+import com.teraculus.lingojournalandroid.viewmodel.LanguageStatData
 import kotlin.math.max
 class Constants {
     companion object {

@@ -9,16 +9,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.ui.stats.Constants
-import com.teraculus.lingojournalandroid.ui.stats.DayData
 import com.teraculus.lingojournalandroid.ui.stats.StatsCard
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.toWeekDayString
+import com.teraculus.lingojournalandroid.viewmodel.DayData
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -26,9 +29,10 @@ import java.time.LocalDate
 fun HomeStatsCard(openStatsActivity: () -> Unit, model: ActivityListViewModel) {
     val streaks by model.streaks.observeAsState()
     val lastSevenDays by model.lastSevenDayData.observeAsState()
+    val scope = rememberCoroutineScope()
     StatsCard(modifier = Modifier
         .padding(16.dp)
-        .clickable { openStatsActivity() }) {
+        .clickable { scope.launch { openStatsActivity() } }) {
         Column() {            
             ListItem(
                 text={ Text("Your activities")},
@@ -57,7 +61,7 @@ fun StreakText(streak: Int, data: List<DayData>) {
 //        Icon(Icons.Rounded.LocalFireDepartment, contentDescription = null, modifier = Modifier.size(32.dp), tint = Color.Red)
 //        Spacer(modifier = Modifier.size(8.dp))
         Column() {
-            Text(text = "$streak ${if(streak == 1) "day" else "days"}", fontWeight = FontWeight.Black, style = MaterialTheme.typography.h6, color = MaterialTheme.colors.primary)
+            Text(text = "$streak ${if(streak == 1) "day" else "days"}", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h6)
             ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {
                 Text(text = "Streak")
             }

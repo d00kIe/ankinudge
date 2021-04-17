@@ -4,8 +4,8 @@ import androidx.lifecycle.*
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.LiveRealmObject
-import com.teraculus.lingojournalandroid.ui.stats.DayData
-import com.teraculus.lingojournalandroid.ui.stats.streakFromDate
+import com.teraculus.lingojournalandroid.viewmodel.DayData
+import com.teraculus.lingojournalandroid.viewmodel.streakFromDate
 import java.time.LocalDate
 
 class LanguageDayData(val language: String, val data: List<DayData>)
