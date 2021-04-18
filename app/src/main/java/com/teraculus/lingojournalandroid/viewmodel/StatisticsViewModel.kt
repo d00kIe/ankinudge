@@ -5,6 +5,7 @@ import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.LiveRealmResults
+import com.teraculus.lingojournalandroid.model.transform
 import com.teraculus.lingojournalandroid.utils.getMinutes
 import io.realm.RealmResults
 import kotlinx.coroutines.launch
@@ -188,6 +189,7 @@ class MonthItemViewModelFactory(private val yearMonth: YearMonth) : ViewModelPro
 
 class StatisticsViewModel(val repository: Repository) : ViewModel() {
     private val activitiesFromBeginning = LiveRealmResults<Activity>(null)
+    val frozenActivitiesFromBeginning = Transformations.map(activitiesFromBeginning) { if(it != null) (it as RealmResults<Activity>).freeze() else null }
     val activities = LiveRealmResults<Activity>(null)
     val frozenActivities = Transformations.map(activities) { if(it != null) (it as RealmResults<Activity>).freeze() else null }
 
@@ -196,8 +198,8 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
     val day = MutableLiveData(LocalDate.now())
     val month = MutableLiveData(YearMonth.now())
 
-    val stats = Transformations.map(frozenActivities) { it?.let { it1 -> mapToStats(it1) } } //
-    val dayStreakData = Transformations.map(activitiesFromBeginning) { it?.let { it1 -> mapToStreakData(it1, day.value) } }
+    val stats = frozenActivities.transform(scope = viewModelScope) { it?.let { it1 -> mapToStats(it1) } } //
+    val dayStreakData = frozenActivitiesFromBeginning.transform(scope = viewModelScope) { it?.let { it1 -> mapToStreakData(it1, day.value) } }
 //    val stats = MutableLiveData<List<LanguageStatData>?>(emptyList()) //Transformations.map(activities) { it?.let { it1 -> mapToStats(it1) } } //
 //    val dayStreakData = MutableLiveData<List<DayLanguageStreakData>?>(emptyList())//Transformations.map(activitiesFromBeginning) { it?.let { it1 -> mapToStreakData(it1, day.value) } }
     init {
