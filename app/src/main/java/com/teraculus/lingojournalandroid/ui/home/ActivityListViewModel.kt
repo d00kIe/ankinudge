@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.LiveRealmObject
+import com.teraculus.lingojournalandroid.model.transform
 import com.teraculus.lingojournalandroid.viewmodel.DayData
 import com.teraculus.lingojournalandroid.viewmodel.streakFromDate
 import io.realm.RealmResults
@@ -15,8 +16,8 @@ class ActivityListViewModel(repository: Repository) : ViewModel() {
     private val activities = repository.getActivities()
     val frozen = Transformations.map(activities) { (it as RealmResults<Activity>).freeze() }
     var grouped = Transformations.map(frozen) { it?.groupBy { it1 -> it1.date }.orEmpty().mapValues { it2 -> it2.value.sortedByDescending { a -> a.startTime } } }
-    var lastSevenDayData = Transformations.map(frozen) { getGroupedLanguageDayData(it) }
-    var streaks = Transformations.map(frozen) { act -> act.orEmpty().groupBy { it.language }.mapValues { langact -> streakFromDate(langact.value, LocalDate.now(), true).size }  }
+    var lastSevenDayData = frozen.transform(scope = viewModelScope) { getGroupedLanguageDayData(it) }
+    var streaks = frozen.transform(scope = viewModelScope)  { act -> act.orEmpty().groupBy { it.language }.mapValues { langact -> streakFromDate(langact.value, LocalDate.now(), true).size }  }
 
     private fun getGroupedLanguageDayData(activities: List<Activity>?): List<LanguageDayData> {
         return activities.orEmpty().groupBy { it.language }.map { LanguageDayData(it.key, getLastSevenDays(it.value)) }

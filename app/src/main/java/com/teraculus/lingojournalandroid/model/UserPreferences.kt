@@ -17,9 +17,10 @@ open class UserPreferences : RealmObject() {
     companion object {
         fun createOrQuery(realm: Realm) : LiveRealmObject<UserPreferences> {
             val queryUserPreferences = realm.where<UserPreferences>()
-            val userPreferences = LiveRealmObject<UserPreferences>(queryUserPreferences.findFirst())
+            val userPreferencesRes = queryUserPreferences.findFirst()
+            val userPreferences = LiveRealmObject<UserPreferences>(userPreferencesRes)
 
-            if(userPreferences.value == null) {
+            if(userPreferencesRes == null) {
                 realm.executeTransaction { tr -> tr.insert(UserPreferences()) }
             }
 

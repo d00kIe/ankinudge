@@ -24,7 +24,7 @@ class Repository {
     init {
         initializeRealm()
 
-//        realm!!.executeTransaction { realm!!.deleteAll() }
+        //realm!!.executeTransaction { realm!!.deleteAll() }
 
         // user preferences
         userPreferences = UserPreferences.createOrQuery(realm!!)

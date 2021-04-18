@@ -81,9 +81,10 @@ open class Activity() :
 
         fun createOrQuery(realm: Realm, value: List<ActivityType>?) : LiveRealmResults<Activity> {
             val queryActivities = realm.where<Activity>().sort("_date", Sort.DESCENDING) //TODO
-            val activities = LiveRealmResults<Activity>(queryActivities.findAll())
+            val res = queryActivities.findAll()
+            val activities = LiveRealmResults<Activity>(res)
 
-            if (activities.value?.isEmpty() != false) {
+            if (res.isEmpty()) {
                 realm.executeTransaction { tr -> tr.insert(activityData(value!!)) }
             }
 

@@ -160,19 +160,12 @@ fun getMonthDayData(month: Int, year: Int, activities: List<Activity>?): List<Da
 
 class MonthItemViewModel(val repository: Repository = Repository.getRepository(), yearMonth: YearMonth) : ViewModel() {
     private val activities = LiveRealmResults<Activity>(null)
-    val daydata = MutableLiveData(getMonthDayData(yearMonth.monthValue, yearMonth.year, emptyList()))
+    val frozenActivities = Transformations.map(activities) { if(it != null) (it as RealmResults<Activity>).freeze() else null }
+    val daydata = frozenActivities.transform(scope = viewModelScope) { getMonthDayData(yearMonth.monthValue, yearMonth.year, it.orEmpty()) }
     init {
         val from = LocalDate.of(yearMonth.year, yearMonth.month, 1)
         val to = from.withDayOfMonth(yearMonth.lengthOfMonth())
         activities.reset(repository.getActivities(from, to))
-        val frozenActivities = activities.value.orEmpty().map { it1 -> it1.freeze<Activity>() }
-        daydata.value =getMonthDayData(yearMonth.monthValue, yearMonth.year, frozenActivities)
-        activities.observeForever {
-            val observedFrozenActivities = it.orEmpty().map { it1 -> it1.freeze<Activity>() }
-            viewModelScope.launch {
-                daydata.postValue(getMonthDayData(yearMonth.monthValue, yearMonth.year, observedFrozenActivities))
-            }
-        }
     }
 }
 
@@ -200,23 +193,7 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
 
     val stats = frozenActivities.transform(scope = viewModelScope) { it?.let { it1 -> mapToStats(it1) } } //
     val dayStreakData = frozenActivitiesFromBeginning.transform(scope = viewModelScope) { it?.let { it1 -> mapToStreakData(it1, day.value) } }
-//    val stats = MutableLiveData<List<LanguageStatData>?>(emptyList()) //Transformations.map(activities) { it?.let { it1 -> mapToStats(it1) } } //
-//    val dayStreakData = MutableLiveData<List<DayLanguageStreakData>?>(emptyList())//Transformations.map(activitiesFromBeginning) { it?.let { it1 -> mapToStreakData(it1, day.value) } }
     init {
-        //TODO: Try How to run LiveData transformations on a coroutine https://gist.github.com/luciofm/cc463f38f488c4c4fccf531b53c6ac10
-//        activities.observeForever {
-//            val frozenActivities = it.orEmpty().map { it1 -> it1.freeze<Activity>() }
-//            viewModelScope.launch {
-//                stats.postValue(mapToStats(frozenActivities))
-//            }
-//        }
-//
-//        activitiesFromBeginning.observeForever {
-//            val frozenActivities = it.orEmpty().map { it1 -> it1.freeze<Activity>() }
-//            viewModelScope.launch {
-//                dayStreakData.postValue(mapToStreakData(frozenActivities, day.value))
-//            }
-//        }
         setMonth(YearMonth.now())
     }
 

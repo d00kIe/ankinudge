@@ -30,9 +30,10 @@ open class ActivityType() : RealmObject() {
     companion object {
         fun createOrQuery(realm: Realm) : LiveRealmResults<ActivityType> {
             val queryTypes = realm.where<ActivityType>()
-            val types = LiveRealmResults<ActivityType>(queryTypes.findAll())
+            val allTypes = queryTypes.findAll()
+            val types = LiveRealmResults<ActivityType>(allTypes)
 
-            if (types.value?.isEmpty() != false) {
+            if (allTypes.isEmpty()) {
                 val initialData = activityTypeData()
                 realm.executeTransaction { tr -> tr.insert(initialData) }
             }
