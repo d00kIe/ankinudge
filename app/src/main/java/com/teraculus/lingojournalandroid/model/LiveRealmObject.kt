@@ -29,7 +29,7 @@ class LiveRealmObject<T : RealmModel?> @MainThread constructor(obj: T?) : Mutabl
     private val listener =
         RealmObjectChangeListener<T> { obj, objectChangeSet ->
             if (!objectChangeSet!!.isDeleted) {
-                setValue(obj)
+                updateValue(obj)
             } else { // Because invalidated objects are unsafe to set in LiveData, pass null instead.
                 setValue(null)
             }
@@ -43,7 +43,7 @@ class LiveRealmObject<T : RealmModel?> @MainThread constructor(obj: T?) : Mutabl
         val obj = value
         if (obj != null && RealmObject.isValid(obj)) {
             if(obj.toString().hashCode() != lastHashBeforeGettingInactive) {
-                value = obj // something changed, trigger an update
+                updateValue(obj) // something changed, trigger an update
             }
             RealmObject.addChangeListener(obj, listener)
         }
@@ -61,5 +61,13 @@ class LiveRealmObject<T : RealmModel?> @MainThread constructor(obj: T?) : Mutabl
         }
     }
 
+
+    fun updateValue(obj: T?) {
+        try {
+            value = obj
+        } catch (e: Exception) {
+            postValue(obj)
+        }
+    }
     //var value : T? = obj
 }

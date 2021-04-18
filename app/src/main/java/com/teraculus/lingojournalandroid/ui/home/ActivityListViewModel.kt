@@ -6,15 +6,17 @@ import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.LiveRealmObject
 import com.teraculus.lingojournalandroid.viewmodel.DayData
 import com.teraculus.lingojournalandroid.viewmodel.streakFromDate
+import io.realm.RealmResults
 import java.time.LocalDate
 
 class LanguageDayData(val language: String, val data: List<DayData>)
 
 class ActivityListViewModel(repository: Repository) : ViewModel() {
     private val activities = repository.getActivities()
-    var grouped = Transformations.map(activities) { it?.groupBy { it1 -> it1.date }.orEmpty().mapValues { it2 -> it2.value.sortedByDescending { a -> a.startTime } } }
-    var lastSevenDayData = Transformations.map(activities) { getGroupedLanguageDayData(it) }
-    var streaks = Transformations.map(activities) { act -> act.orEmpty().groupBy { it.language }.mapValues { langact -> streakFromDate(langact.value, LocalDate.now(), true).size }  }
+    val frozen = Transformations.map(activities) { (it as RealmResults<Activity>).freeze() }
+    var grouped = Transformations.map(frozen) { it?.groupBy { it1 -> it1.date }.orEmpty().mapValues { it2 -> it2.value.sortedByDescending { a -> a.startTime } } }
+    var lastSevenDayData = Transformations.map(frozen) { getGroupedLanguageDayData(it) }
+    var streaks = Transformations.map(frozen) { act -> act.orEmpty().groupBy { it.language }.mapValues { langact -> streakFromDate(langact.value, LocalDate.now(), true).size }  }
 
     private fun getGroupedLanguageDayData(activities: List<Activity>?): List<LanguageDayData> {
         return activities.orEmpty().groupBy { it.language }.map { LanguageDayData(it.key, getLastSevenDays(it.value)) }
@@ -62,14 +64,14 @@ class ActivityListViewModelFactory : ViewModelProvider.Factory {
 }
 
 
-class ActivityItemViewModel(rawActivity: Activity, owner: LifecycleOwner) : ViewModel() {
-    val activity : LiveRealmObject<Activity> = LiveRealmObject(rawActivity)
+class ActivityItemViewModel(frozenActivity: Activity, owner: LifecycleOwner) : ViewModel() {
+    val activity  = Repository.getRepository().getActivity(frozenActivity.id.toString())
     val snapshot = MutableLiveData<Activity>(if(activity.value?.isValid == true) activity.value!!.freeze<Activity>() else null)
     init {
         activity.observe(
             owner,
             Observer {
-                snapshot.value = if (it.isValid) it.freeze() else null
+                snapshot.value = if (it?.isValid == true) it.freeze() else null
             }
         )
     }

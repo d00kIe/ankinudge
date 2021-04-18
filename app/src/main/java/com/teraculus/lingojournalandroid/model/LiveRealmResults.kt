@@ -42,7 +42,7 @@ class LiveRealmResults<T : RealmModel?> @MainThread constructor(results: RealmRe
             if (this.results?.isLoaded == true) {
                 // we should not notify observers when results aren't ready yet (async query).
                 // however, synchronous query should be set explicitly.
-                value = results
+                updateValue()
             }
             this.results?.addChangeListener(listener)
         }
@@ -85,7 +85,7 @@ class LiveRealmResults<T : RealmModel?> @MainThread constructor(results: RealmRe
             if (results.isLoaded) {
                 // we should not notify observers when results aren't ready yet (async query).
                 // however, synchronous query should be set explicitly.
-                value = results
+                updateValue()
             }
 
             if(hasActiveObservers) {
@@ -94,5 +94,17 @@ class LiveRealmResults<T : RealmModel?> @MainThread constructor(results: RealmRe
                 }
             }
         }
+    }
+
+    fun updateValue() {
+        try {
+            value = this.results
+        } catch (e: Exception) {
+            postValue(this.results)
+        }
+    }
+
+    fun freeze(): List<T>? {
+        return this.results?.freeze()
     }
 }

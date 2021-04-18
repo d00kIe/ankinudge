@@ -17,7 +17,7 @@ fun <T : RealmModel?> MutableLiveData<List<T>?>.trigger() {
 
 class Repository {
     private var realm: Realm? = null
-    private val activities: LiveData<List<Activity>?>
+    private val activities: LiveRealmResults<Activity>
     private val types: LiveData<List<ActivityType>?>
     private val userPreferences: LiveData<UserPreferences>
 
@@ -62,7 +62,7 @@ class Repository {
         return LiveRealmObject(realm!!.where<Activity>().equalTo("id", ObjectId(id)).findFirst())
     }
 
-    fun getActivities(): LiveData<List<Activity>?> {
+    fun getActivities(): LiveRealmResults<Activity> {
         return activities
     }
 

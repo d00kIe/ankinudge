@@ -217,7 +217,7 @@ private fun ActivitiesForTheDay(
     onItemClick: (id: String) -> Unit,
     language: String,
 ) {
-    val activities by model.activities.observeAsState()
+    val activities by model.frozenActivities.observeAsState()
     Column {
         activities.orEmpty().filter { it.language == language }.forEach { activity ->
             ActivityRow(activity, onClick = onItemClick)
