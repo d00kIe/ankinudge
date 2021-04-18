@@ -185,14 +185,15 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
     val frozenActivitiesFromBeginning = Transformations.map(activitiesFromBeginning) { if(it != null) (it as RealmResults<Activity>).freeze() else null }
     val activities = LiveRealmResults<Activity>(null)
     val frozenActivities = Transformations.map(activities) { if(it != null) (it as RealmResults<Activity>).freeze() else null }
+    val loading = Transformations.map(activities) { it == null }
 
     val range = MutableLiveData(StatisticRange.MONTH)
     val rangeIndex = Transformations.map(range) { it.index }
     val day = MutableLiveData(LocalDate.now())
     val month = MutableLiveData(YearMonth.now())
 
-    val stats = frozenActivities.transform(scope = viewModelScope) { it?.let { it1 -> mapToStats(it1) } } //
-    val dayStreakData = frozenActivitiesFromBeginning.transform(scope = viewModelScope) { it?.let { it1 -> mapToStreakData(it1, day.value) } }
+    val stats = frozenActivities.transform(scope = viewModelScope) { if(it != null) mapToStats(it) else emptyList() } //
+    val dayStreakData = frozenActivitiesFromBeginning.transform(scope = viewModelScope) { if(it != null) mapToStreakData(it, day.value) else emptyList() }
     init {
         setMonth(YearMonth.now())
     }

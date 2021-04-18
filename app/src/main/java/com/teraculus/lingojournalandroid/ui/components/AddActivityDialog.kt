@@ -7,7 +7,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -58,9 +57,13 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
 
     if(showActivityTypeDialog) {
         ActivityTypeSelectDialog(
+            model = model,
             onItemClick = {
                 model.onTypeChange(it)
                 showActivityTypeDialog = false
+            },
+            onAddTypeClick =  {
+                model.addActivityType(it)
             },
             onDismissRequest = { showActivityTypeDialog = false })
     }

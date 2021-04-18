@@ -10,7 +10,6 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.runtime.*
@@ -23,13 +22,13 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.teraculus.lingojournalandroid.data.Language
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.data.getAllLanguages
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.model.UserPreferences
+import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
 
 @Composable
 fun SelectDialog(
@@ -126,19 +125,20 @@ fun LanguageItem(lang: Language, onClick: (item: Language) -> Unit, isRecent: Bo
 @Composable
 fun ActivityTypeSelectDialog(
     onItemClick: (item: ActivityType) -> Unit,
+    onAddTypeClick: (item: ActivityType) -> Unit,
     onDismissRequest: () -> Unit,
+    model: EditActivityViewModel,
 ) {
-    val types by Repository.getRepository().getTypes().observeAsState()
-    val groups = types?.groupBy { it.category }
     SelectDialog(
         onDismissRequest = onDismissRequest,
         title = "Activity type",
     ) {
+        val groups by model.groupedTypes.observeAsState()
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             groups?.forEach { (category, categoryTypes) ->
                 stickyHeader {
-                    ActivityTypeHeader(category = category, onItemClick)
+                    ActivityTypeHeader(category = category, onAddTypeClick)
                 }
                 items(categoryTypes) { item ->
                     ActivityTypeItem(item, onClick = onItemClick)
@@ -151,7 +151,7 @@ fun ActivityTypeSelectDialog(
 
 @ExperimentalMaterialApi
 @Composable
-fun ActivityTypeHeader(category: ActivityCategory?, onItemClick: (item: ActivityType) -> Unit) {
+fun ActivityTypeHeader(category: ActivityCategory?, onAddActivity: (item: ActivityType) -> Unit) {
     var showAddDialog by remember { mutableStateOf(false) }
     if (category != null)
         Surface() {
@@ -186,7 +186,7 @@ fun ActivityTypeHeader(category: ActivityCategory?, onItemClick: (item: Activity
         }
     if(showAddDialog)
         InputDialog(
-            onConfirm = { onItemClick(ActivityType(category, it)); showAddDialog = false },
+            onConfirm = { onAddActivity(ActivityType(category, it)); showAddDialog = false },
             onDismissRequest = { showAddDialog = false },
             title = "New ${category?.title} activity")
 }

@@ -1,5 +1,7 @@
 package com.teraculus.lingojournalandroid.ui.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -24,6 +26,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
+@ExperimentalAnimationApi
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeStatsCard(openStatsActivity: () -> Unit, model: ActivityListViewModel) {
@@ -39,18 +42,19 @@ fun HomeStatsCard(openStatsActivity: () -> Unit, model: ActivityListViewModel) {
                 secondaryText={Text("Streak and last 7 days", style=MaterialTheme.typography.body2)},
                 trailing= { Icon(Icons.Rounded.KeyboardArrowRight, contentDescription = null) }
             )
-            Column(modifier = Modifier.padding(16.dp)) {
-                lastSevenDays.orEmpty().forEachIndexed() { idx: Int, it: LanguageDayData ->
-                    if(idx != 0)
-                        Divider(modifier = Modifier.padding(vertical = 16.dp))
-                    ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {
-                        Text(getLanguageDisplayName(it.language))
-                        Spacer(modifier = Modifier.height(8.dp))
+            AnimatedVisibility(!lastSevenDays.isNullOrEmpty()) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    lastSevenDays.orEmpty().forEachIndexed() { idx: Int, it: LanguageDayData ->
+                        if(idx != 0)
+                            Divider(modifier = Modifier.padding(vertical = 16.dp))
+                        ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {
+                            Text(getLanguageDisplayName(it.language))
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                        StreakText(streak = streaks.orEmpty()[it.language] ?: 0, data = it.data)
                     }
-                    StreakText(streak = streaks.orEmpty()[it.language] ?: 0, data = it.data)
                 }
             }
-
         }
     }
 }
@@ -58,8 +62,6 @@ fun HomeStatsCard(openStatsActivity: () -> Unit, model: ActivityListViewModel) {
 @Composable
 fun StreakText(streak: Int, data: List<DayData>) {
     Row(modifier= Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-//        Icon(Icons.Rounded.LocalFireDepartment, contentDescription = null, modifier = Modifier.size(32.dp), tint = Color.Red)
-//        Spacer(modifier = Modifier.size(8.dp))
         Column() {
             Text(text = "$streak ${if(streak == 1) "day" else "days"}", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h6)
             ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {

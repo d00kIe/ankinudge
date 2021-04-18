@@ -169,17 +169,18 @@ fun DayItem(
 fun DayItemIndicator(show: Boolean, maxCount: Int?, count: Int, maxMinutes: Long?, minutes: Long)
 {
     if(show) {
+        val secondaryColor = MaterialTheme.colors.secondary
         val circleSize =
-            remember { if (maxCount != null) (20.dp) / maxCount.coerceAtLeast(1) * count else 0.dp }
-        val circleAlpha = remember {
+            remember { 24.dp + if (maxCount != null) (20.dp) / maxCount.coerceAtLeast(1) * count else 0.dp }
+        val circleColor = remember { secondaryColor.copy(alpha = 0.65f +
             if (maxMinutes != null) min((0.35f / maxMinutes.coerceAtLeast(1)) * minutes,
-                0.35f) else 0.35f
+                0.35f) else 0.35f)
         }
 
         Surface(shape = CircleShape,
-            modifier = Modifier.size(24.dp + circleSize),
+            modifier = Modifier.size(circleSize),
             elevation = 0.dp,
-            color = MaterialTheme.colors.secondary.copy(alpha = 0.65f + circleAlpha)) {}
+            color = circleColor) {}
     }
 }
 

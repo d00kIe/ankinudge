@@ -38,7 +38,7 @@ class Repository {
 
     private fun initializeRealm() {
         val config = RealmConfiguration.Builder()
-            .deleteRealmIfMigrationNeeded()
+            .deleteRealmIfMigrationNeeded() //TODO: Remove
             .allowQueriesOnUiThread(true)
             .allowWritesOnUiThread(true)
             .build()
@@ -50,6 +50,10 @@ class Repository {
     fun addActivity(activity: Activity) {
         realm!!.executeTransaction { tr -> tr.insert(activity) }
         updateLastLanguagePreference(activity.language)
+    }
+
+    fun addActivityType(type: ActivityType) {
+        realm!!.executeTransaction { tr -> tr.insert(type) }
     }
 
     fun removeActivity(activity: Activity) {

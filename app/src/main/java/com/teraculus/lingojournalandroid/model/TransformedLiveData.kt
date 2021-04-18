@@ -7,8 +7,9 @@ import kotlinx.coroutines.*
 class TransformedLiveData<Source, Output>(
     private val scope: CoroutineScope ,
     private val source: LiveData<Source>,
-    private val transformation: (Source?) -> Output?)
-    : LiveData<Output>() {
+    private val transformation: (Source?) -> Output?,
+    private val initialSource: Source? = null)
+    : LiveData<Output>(transformation(initialSource)) {
     private var job: Job? = null
 
     private val observer = Observer<Source> { source ->
@@ -38,4 +39,5 @@ class TransformedLiveData<Source, Output>(
 
 fun <Source, Output> LiveData<Source>.transform(
     scope: CoroutineScope = GlobalScope,
+    initialSource: Source? = null,
     transformation: (Source?) -> Output?) = TransformedLiveData(scope, this, transformation)

@@ -10,6 +10,7 @@ import com.teraculus.lingojournalandroid.data.getAllLanguages
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.utils.getMinutes
+import io.realm.RealmObject
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -19,6 +20,7 @@ class EditActivityViewModel(
     id: String?,
 ) : ViewModel() {
     val types = repository.getTypes()
+    val groupedTypes = Transformations.map(types) { it.orEmpty().groupBy { it1 -> it1.category } }
     private var preparedId: String? = null
     val languages = MutableLiveData(getAllLanguages())
     val date = MutableLiveData(LocalDate.now())
@@ -132,6 +134,7 @@ class EditActivityViewModel(
     }
 
     private fun updateNote(id: String) {
+
         repository.updateActivity(id,
             title.value!!,
             text.value!!,
@@ -147,7 +150,13 @@ class EditActivityViewModel(
     fun save() {
         if (preparedId == null) {
             addNote()
-        } else preparedId?.let { updateNote(it) }
+        } else preparedId?.let {
+            updateNote(it)
+        }
+    }
+
+    fun addActivityType(it: ActivityType) {
+        repository.addActivityType(it)
     }
 }
 
