@@ -18,14 +18,16 @@ import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.ThemePreference
 import com.teraculus.lingojournalandroid.utils.LocalSysUiController
 
-private val Primary = Color(0xff00796b)
-private val PrimaryVariant = Color(0xff004c40)
+private val Primary = Color(0xff068912)
+private val PrimaryVariant = Color(0xff005a00)
 private val OnPrimary = Color(0xffffffff)
 
-private val Secondary = Color(0xff00796b)
-private val SecondaryVariant = Color(0xff004c40)
+private val Secondary = Color(0xff068912)
+private val SecondaryVariant = Color(0xff005a00)
 private val OnSecondary = Color(0xffffffff)
 
+
+// To generate vector drawable for the icons, use: https://shapeshifter.design/
 val DarkColors = darkColors(
     primary = Primary,
     primaryVariant = PrimaryVariant,
