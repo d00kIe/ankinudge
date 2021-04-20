@@ -1,5 +1,6 @@
 package com.teraculus.lingojournalandroid.ui.home
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -28,6 +29,7 @@ fun HomeScreen(
     ActivityList(model = model, onItemClick, onOpenStats, scrollState)
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @ExperimentalMaterialApi
 @Composable
 fun ActivityList(

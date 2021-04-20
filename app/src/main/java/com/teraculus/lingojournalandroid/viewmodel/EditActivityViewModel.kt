@@ -54,7 +54,7 @@ class EditActivityViewModel(
         } else {
             title.value = ""
             text.value = ""
-            language.value = preferences.value?.languages?.first()
+            language.value = preferences.value?.languages?.firstOrNull() ?: "en"
             type.value = types.value!!.first()
             confidence.value = 50f
             motivation.value = 50f
