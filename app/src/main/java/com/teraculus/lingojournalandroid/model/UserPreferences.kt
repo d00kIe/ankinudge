@@ -5,7 +5,6 @@ import io.realm.RealmList
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 import io.realm.kotlin.where
-import org.bson.types.ObjectId
 
 open class UserPreferences : RealmObject() {
 
@@ -15,16 +14,15 @@ open class UserPreferences : RealmObject() {
     var theme = ThemePreference.SYSTEM
 
     companion object {
-        fun createOrQuery(realm: Realm) : LiveRealmObject<UserPreferences> {
+        fun createOrQuery(realm: Realm): LiveRealmObject<UserPreferences> {
             val queryUserPreferences = realm.where<UserPreferences>()
             val userPreferencesRes = queryUserPreferences.findFirst()
-            val userPreferences = LiveRealmObject<UserPreferences>(userPreferencesRes)
 
-            if(userPreferencesRes == null) {
+            if (userPreferencesRes == null) {
                 realm.executeTransaction { tr -> tr.insert(UserPreferences()) }
             }
 
-            return  userPreferences
+            return LiveRealmObject(queryUserPreferences.findFirst())
         }
     }
 }
