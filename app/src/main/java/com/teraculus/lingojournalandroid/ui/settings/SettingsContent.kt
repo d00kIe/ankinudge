@@ -21,7 +21,7 @@ import com.teraculus.lingojournalandroid.ui.components.RadioSelectDialog
 
 class SettingsViewModel(val repository: Repository = Repository.getRepository()) : ViewModel() {
     private val preferences = repository.getUserPreferences()
-    val theme = Transformations.map(preferences) { it.theme }
+    val theme = Transformations.map(preferences) { it?.theme ?: ThemePreference.SYSTEM }
     val themeOptions = listOf(ThemePreference.DARK, ThemePreference.LIGHT, ThemePreference.SYSTEM)
 
     fun setTheme(theme: String) {
