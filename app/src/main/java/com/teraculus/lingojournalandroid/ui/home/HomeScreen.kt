@@ -55,12 +55,6 @@ fun ActivityList(
                     ActivityRow(activity, onClick = onItemClick)
                 }
             }
-        } else {
-            item {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Add some activity, dude!", style = MaterialTheme.typography.h5)
-                }
-            }
         }
         item {
             Spacer(Modifier.size(200.dp))

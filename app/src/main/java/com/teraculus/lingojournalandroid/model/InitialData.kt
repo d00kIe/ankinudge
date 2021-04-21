@@ -1,6 +1,9 @@
 package com.teraculus.lingojournalandroid.model
 
+import com.teraculus.lingojournalandroid.BuildConfig
+import org.bson.types.ObjectId
 import java.time.LocalDate
+import kotlin.random.Random
 
 fun activityTypeData(): List<ActivityType> {
     return  listOf(
@@ -27,17 +30,45 @@ fun activityTypeData(): List<ActivityType> {
 }
 
 fun activityData(activityTypes: List<ActivityType>): List<Activity> {
-    val text = "This is a dummy note. This is a dummy note. This is a dummy note. This is a dummy note."
-    return listOf(
-        Activity("Dummy title", text, "de", activityTypes[0], 05f, 50f, LocalDate.now().minusDays(1)),
-        Activity("Dummy title", text, "en", activityTypes[1], 25f, 0f, LocalDate.now().minusDays(2)),
-        Activity("Dummy title", text, "de", activityTypes[2], 0f, 100f, LocalDate.now().minusDays(3)),
-        Activity("Dummy title", text, "en", activityTypes[3], 25f, 50f, LocalDate.now().minusDays(3)),
-        Activity("Dummy title", text, "de", activityTypes[4], 50f, 50f, LocalDate.now().minusDays(4)),
-        Activity("Dummy title", text, "en", activityTypes[5], 50f, 100f, LocalDate.now().minusDays(4)),
-        Activity("Dummy title", text, "en", activityTypes[6], 25f, 0f, LocalDate.now().minusDays(4)),
-        Activity("Dummy title", text, "de", activityTypes[7], 25f, 50f, LocalDate.now().minusDays(5)),
-        Activity("Dummy title", text, "de", activityTypes[8], 25f, 50f, LocalDate.now().minusDays(5)),
-        Activity("Dummy title", text, "de", activityTypes[9], 75f, 50f, LocalDate.now().minusDays(6)),
+
+    var aLotOfActivities = mutableListOf<Activity>()
+
+//    if(BuildConfig.DEBUG) {
+//        generateRandomData(activityTypes, aLotOfActivities)
+//    }
+
+    return aLotOfActivities
+}
+
+private fun generateRandomData(
+    activityTypes: List<ActivityType>,
+    aLotOfActivities: MutableList<Activity>,
+) {
+    val text =
+        "This is a dummy note. This is a dummy note. This is a dummy note. This is a dummy note."
+    val titles = listOf(
+        "My neighbor is annoying",
+        "Discovery channel documentary",
+        "Podcast",
+        "Sherlock Holmes",
+        "Chatting with Mia",
+        "Interesting article",
+        "Book review",
+        "Ghosting a movie"
     )
+
+    val langs = listOf("en", "de", "en", "de", "en", "de", "en", "de", "en", "de", "en", "de")
+    val moods = listOf(0f, 25f, 50f, 75f, 100f)
+
+    var day = LocalDate.now()
+    for (a in 0 until 2000) {
+        val title = titles[Random.nextInt(titles.size - 1)]
+        val lang = langs[Random.nextInt(langs.size - 1)]
+        val type = activityTypes[Random.nextInt(activityTypes.size - 1)]
+        val conf = moods[Random.nextInt(moods.size - 1)]
+        val moti = moods[Random.nextInt(moods.size - 1)]
+        val activity = Activity(title, text, lang, type, conf, moti, day, id = ObjectId())
+        aLotOfActivities.add(activity)
+        day = day.minusDays(Random.nextLong(1, 3))
+    }
 }

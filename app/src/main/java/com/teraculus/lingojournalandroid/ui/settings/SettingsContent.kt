@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.ThemePreference
 import com.teraculus.lingojournalandroid.ui.components.RadioSelectDialog
@@ -34,7 +35,7 @@ class SettingsViewModel(val repository: Repository = Repository.getRepository())
 @ExperimentalMaterialApi
 @Composable
 fun SettingsContent(
-    viewModel: SettingsViewModel = SettingsViewModel(),
+    viewModel: SettingsViewModel = viewModel("settingsViewModel"),
     onDismiss: () -> Unit,
     openPrivacyPolicy: () -> Unit
 ) {

@@ -4,6 +4,7 @@ import com.teraculus.lingojournalandroid.utils.*
 import io.realm.Realm
 import io.realm.RealmObject
 import io.realm.Sort
+import io.realm.annotations.Index
 import io.realm.annotations.PrimaryKey
 import io.realm.annotations.Required
 import io.realm.kotlin.where
@@ -29,7 +30,7 @@ open class Activity() :
     var motivation: Float = 100f
     var lastChangeTs: Long = 0 // allows LiveData to update correctly if only "type" was changed, see LiveRealmObject::onActive
 
-    @Required private var _date: Date = asDate(LocalDate.now())
+    @Required @Index private var _date: Date = asDate(LocalDate.now())
     @Required private var _startTime: String = toRealmTimeString(LocalTime.now().minusHours(1))
     private var _endTime: String = toRealmTimeString(LocalTime.now())
 
