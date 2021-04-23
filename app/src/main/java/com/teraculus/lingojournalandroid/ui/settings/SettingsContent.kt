@@ -37,7 +37,8 @@ class SettingsViewModel(val repository: Repository = Repository.getRepository())
 fun SettingsContent(
     viewModel: SettingsViewModel = viewModel("settingsViewModel"),
     onDismiss: () -> Unit,
-    openPrivacyPolicy: () -> Unit
+    openPrivacyPolicy: () -> Unit,
+    onOpenFeedback: () -> Unit
 ) {
     val theme by viewModel.theme.observeAsState()
     val options = viewModel.themeOptions
@@ -72,6 +73,7 @@ fun SettingsContent(
             ListItem(text = { Text("Theme") },
                 modifier = Modifier.clickable { showThemeDialog = true })
             ListItem(text = { Text("Privacy policy") }, modifier = Modifier.clickable { openPrivacyPolicy() })
+            ListItem(text = { Text("Feedback") }, modifier = Modifier.clickable { onOpenFeedback() })
         }
     }
 }
