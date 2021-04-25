@@ -218,6 +218,7 @@ private fun DayStreakContent(it: DayLanguageStreakData) {
 
 @Composable
 private fun LanguageStatContent(it: LanguageStatData) {
+    LineChart()
     DonutCard(stats = it)
     SentimentStatsCard(stats = it)
 }
