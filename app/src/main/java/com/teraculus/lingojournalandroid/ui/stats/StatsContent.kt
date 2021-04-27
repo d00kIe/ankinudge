@@ -3,6 +3,7 @@ package com.teraculus.lingojournalandroid.ui.stats
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,22 +39,56 @@ fun StatsContent(
     onItemClick: (id: String) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val scrollState = rememberScrollState()
     Scaffold(
         topBar = {
+//            TopAppBar(
+//                title = {
+//                    Text("Stats", style = MaterialTheme.typography.h6)
+//                },
+//                navigationIcon = {
+//                    IconButton(onClick = onDismiss) {
+//                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
+//                    }
+//                },
+//                backgroundColor = MaterialTheme.colors.background,
+//                elevation = 0.dp,
+//            )
+
+            val tabIndex by model.rangeIndex.observeAsState(1)
+            val tabs by rememberSaveable {
+                mutableStateOf(listOf(StatisticRange.DAY.title,
+                    StatisticRange.MONTH.title,
+                    StatisticRange.ALL.title))
+            }
+
+            val elevation =
+                if (MaterialTheme.colors.isLight && (scrollState.value > 0)) AppBarDefaults.TopAppBarElevation else 0.dp
             TopAppBar(
-                title = {
-                    Text("Stats", style = MaterialTheme.typography.h6)
-                },
-                navigationIcon = {
-                    IconButton(onClick = onDismiss) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                backgroundColor = MaterialTheme.colors.background, elevation = elevation) {
+                IconButton(onClick = onDismiss) {
+                    Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                }
+                TabRow(
+                    selectedTabIndex = tabIndex,
+                    backgroundColor = MaterialTheme.colors.surface,
+                    divider = {},
+                    modifier = Modifier.padding(end = 48.dp)
+                ) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            text = { Text(title) },
+                            selected = index == tabIndex,
+                            onClick = { model.setRangeIndex(index) }
+                        )
                     }
-                },
-                backgroundColor = MaterialTheme.colors.background,
-                elevation = 0.dp,
-            )
+                }
+            }
         }) {
-        InnerContent(model = model, onItemClick = onItemClick, modifier = modifier)
+        InnerContent(model = model,
+            onItemClick = onItemClick,
+            modifier = modifier,
+            scrollState = scrollState)
     }
 }
 
@@ -66,146 +101,117 @@ private fun InnerContent(
     modifier: Modifier = Modifier,
     model: StatisticsViewModel,
     onItemClick: (id: String) -> Unit,
+    scrollState: ScrollState,
 ) {
-    val tabIndex by model.rangeIndex.observeAsState(1)
-    val tabs by rememberSaveable {
-        mutableStateOf(listOf(StatisticRange.DAY.title,
-            StatisticRange.MONTH.title,
-            StatisticRange.ALL.title))
-    }
     val loading by model.loading.observeAsState()
-    val stats by model.stats.observeAsState()
-    val dayStreak by model.dayStreakData.observeAsState()
+    val tabIndex by model.rangeIndex.observeAsState(1)
+    val languageStats by model.languageStats.observeAsState()
+    val languageDayStreak by model.languageDayStreak.observeAsState()
     val day by model.day.observeAsState()
-    var languageTab = remember { mutableStateOf(0) }
-    var initialCalendarLoadingDone by remember { mutableStateOf(false) }
-    model.stats.observeWithDelegate { languageTab.value = 0 }
-    val scrollState = rememberScrollState()
-    Scaffold(topBar = {
+    val languages by model.languages.observeAsState()
+    val languageIndex by model.languageIndex.observeAsState()
 
-        val elevation =
-            if (MaterialTheme.colors.isLight && (scrollState.value > 0)) AppBarDefaults.TopAppBarElevation else 0.dp
-        TopAppBar(
-            backgroundColor = MaterialTheme.colors.background,
-            elevation = elevation) {
-            TabRow(
-                selectedTabIndex = tabIndex,
-                backgroundColor = MaterialTheme.colors.surface,
-                divider = {},
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        text = { Text(title) },
-                        selected = index == tabIndex,
-                        onClick = { model.setRangeIndex(index) }
-                    )
-                }
+    Column(modifier = modifier.verticalScroll(scrollState)) {
+        AnimatedVisibility(visible = tabIndex == 0) {
+            Selector(Modifier.fillMaxWidth(),
+                onNext = { model.setDay(day?.plusDays(1)!!) },
+                onPrev = { model.setDay(day?.minusDays(1)!!) },
+                hasNext = true,
+                hasPrev = true) {
+                Text(modifier = Modifier.padding(16.dp),
+                    text = toDayString(day),
+                    style = MaterialTheme.typography.body1
+                )
             }
         }
-    }) {
-        Column(modifier = modifier.verticalScroll(scrollState)) {
-            AnimatedVisibility(visible = tabIndex == 0) {
-                Selector(Modifier.fillMaxWidth(),
-                    onNext = { model.setDay(day?.plusDays(1)!!) },
-                    onPrev = { model.setDay(day?.minusDays(1)!!) },
-                    hasNext = true,
-                    hasPrev = true) {
-                    Text(modifier = Modifier.padding(16.dp),
-                        text = toDayString(day),
-                        style = MaterialTheme.typography.body1
-                    )
-                }
+        if (tabIndex == 1) {
+            Column {
+                CalendarSwipeable(Modifier.fillMaxWidth(), model)
             }
-//            if (tabIndex == 1 && !initialCalendarLoadingDone) {
-//                SideEffect {
-//                    initialCalendarLoadingDone = true
-//                }
-//            }
-            if(tabIndex == 1) {
-                Column {
-                    CalendarSwipeable(Modifier.fillMaxWidth(), model)
-                }
-            }
-            if(loading != true) {
-                Column {
-
-//            Divider()
-                    val notNullStats = stats.orEmpty()
-                    if (notNullStats.isNotEmpty()) {
-                        Column {
-                            Spacer(modifier = Modifier.size(8.dp))
-                            LanguageBar(languageTab, notNullStats)
-                            LanguageStatContent(notNullStats[languageTab.value])
-                            AnimatedVisibility(visible = tabIndex == 0 && dayStreak.orEmpty()
-                                .isNotEmpty()) {
-                                Column {
-                                    ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
-                                        contentAlpha = ContentAlpha.medium) {
-                                        Text(text = "Streak this day",
-                                            modifier = Modifier.padding(start = 16.dp, top = 8.dp))
-                                    }
-                                    DayStreakContent(dayStreak.orEmpty()[languageTab.value])
+        }
+        if (loading != true) {
+            Column {
+                if (languageStats != null && languageIndex != null) {
+                    Column {
+                        Spacer(modifier = Modifier.size(8.dp))
+                        LanguageBar(languages.orEmpty(), languageIndex) { l -> model.setLanguage(l) }
+                        LanguageStatContent(languageStats!!, tabIndex == 1)
+                        AnimatedVisibility(visible = tabIndex == 0 && languageDayStreak != null) {
+                            Column {
+                                ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
+                                    contentAlpha = ContentAlpha.medium) {
+                                    Text(text = "Streak this day",
+                                        modifier = Modifier.padding(start = 16.dp, top = 8.dp))
                                 }
+                                languageDayStreak?.let { DayStreakContent(it) }
                             }
-                        }
-                        if (tabIndex == 0) {
-                            ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
-                                contentAlpha = ContentAlpha.medium) {
-                                Text(text = "Activities",
-                                    modifier = Modifier.padding(start = 16.dp, top = 8.dp))
-                            }
-                            ActivitiesForTheDay(model = model,
-                                onItemClick = onItemClick,
-                                language = notNullStats[languageTab.value].language)
-                        }
-                    } else {
-                        Column {
-                            ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
-                                contentAlpha = ContentAlpha.medium) {
-                                Text(text = "No activities for this period",
-                                    modifier = Modifier.padding(16.dp))
-                            }
-                            LanguageStatContent(it = LanguageStatData.empty())
                         }
                     }
-
+                    if (tabIndex == 0) {
+                        ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
+                            contentAlpha = ContentAlpha.medium) {
+                            Text(text = "Activities",
+                                modifier = Modifier.padding(start = 16.dp, top = 8.dp))
+                        }
+                        ActivitiesForTheDay(model = model,
+                            onItemClick = onItemClick,
+                            language = languageStats!!.language)
+                    }
+                } else {
+                    Column {
+                        ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
+                            contentAlpha = ContentAlpha.medium) {
+                            Text(text = "No activities for this period",
+                                modifier = Modifier.padding(16.dp))
+                        }
+                        LanguageStatContent(it = LanguageStatData.empty())
+                    }
                 }
+
             }
-            Spacer(modifier = Modifier.size(80.dp))
         }
+        Spacer(modifier = Modifier.size(80.dp))
     }
 }
 
 @Composable
 private fun LanguageBar(
-    languageTab: MutableState<Int>,
-    stats: List<LanguageStatData>,
+    languages: List<String>,
+    languageIndex: Int?,
+    onSetLanguage: (lang: String) -> Unit
 ) {
-    var tab by languageTab
+    val outlinedButtonColors =  ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.surface, contentColor = MaterialTheme.colors.onSurface)
+    val selectedButtonColors =  ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.surface, contentColor = MaterialTheme.colors.primary)
     ScrollableTabRow(
-        selectedTabIndex = tab,
+        selectedTabIndex = languageIndex ?: 0,
         backgroundColor = MaterialTheme.colors.surface,
         modifier = Modifier.fillMaxWidth(),
         edgePadding = 8.dp,
         divider = {},
         indicator = {}) {
-        stats.forEachIndexed { index, stats ->
-            if (index == tab) {
-                Button(onClick = { tab = index },
+        languages.forEachIndexed { index, lang ->
+            if (index == languageIndex) {
+                Button(onClick = {},
                     modifier = Modifier.padding(8.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.surface,
-                        contentColor = MaterialTheme.colors.primary)) {
-                    Text(getLanguageDisplayName(stats.language))
+                    colors = selectedButtonColors) {
+                    Text(getLanguageDisplayName(lang))
                 }
             } else {
-                OutlinedButton(onClick = { tab = index },
+                OutlinedButton(onClick = { onSetLanguage(lang) },
                     modifier = Modifier.padding(8.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.surface,
-                        contentColor = MaterialTheme.colors.onSurface)) {
-                    Text(getLanguageDisplayName(stats.language))
+                    colors = outlinedButtonColors) {
+                    Text(getLanguageDisplayName(lang))
                 }
+            }
+        }
+        if(languages.isEmpty()) {
+            OutlinedButton(onClick = { },
+                modifier = Modifier.padding(8.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = outlinedButtonColors) {
+                Text("No activities")
             }
         }
     }
@@ -217,10 +223,13 @@ private fun DayStreakContent(it: DayLanguageStreakData) {
 }
 
 @Composable
-private fun LanguageStatContent(it: LanguageStatData) {
-    LineChart()
+private fun LanguageStatContent(it: LanguageStatData, showChart: Boolean = true) {
     DonutCard(stats = it)
+//    if(showChart)
+//        SentimentChartsCard(stats = it)
+//    else
     SentimentStatsCard(stats = it)
+    TopActivityTypes(stats = it)
 }
 
 @ExperimentalMaterialApi

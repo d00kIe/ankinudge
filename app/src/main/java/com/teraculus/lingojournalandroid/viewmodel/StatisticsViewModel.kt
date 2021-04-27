@@ -8,7 +8,6 @@ import com.teraculus.lingojournalandroid.model.LiveRealmResults
 import com.teraculus.lingojournalandroid.model.transform
 import com.teraculus.lingojournalandroid.utils.getMinutes
 import io.realm.RealmResults
-import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -33,11 +32,16 @@ class ActivityCategoryStat(val category: ActivityCategory?, activities: List<Act
     val count: Int = activities.size
     val confidence: Float = activities.map { it.confidence }.average().toFloat()
     val motivation: Float = activities.map { it.motivation }.average().toFloat()
+    val topTypes = activities.groupBy { it.type }.map { Pair(it.key, it.value.sumOf { a -> getMinutes(a) }) }.sortedBy { it.second }
 }
 
 open class LanguageStatData(
     val language: String,
     val categoryStats: List<ActivityCategoryStat>,
+    val minutesPerRangeStats: Map<String, Float>,
+    val countPerRangeStats: Map<String, Float>,
+    val motivationPerRangeStats: Map<String, Float>,
+    val confidencePerRangeStats: Map<String, Float>,
 ) {
     val allMinutes: Long =
         if (categoryStats.isNotEmpty()) categoryStats.map { it.minutes }.sum() else 0
@@ -49,10 +53,17 @@ open class LanguageStatData(
     val allMotivation: Float =
         if (categoryStats.isNotEmpty()) categoryStats.filter { !it.motivation.isNaN() }.map { it.motivation }.average()
             .toFloat() else 0f
+    val topActivityTypes = categoryStats.flatMap { it.topTypes }.sortedByDescending { it.second }.take(5)
+    val topActivityTypeMinutes = topActivityTypes.firstOrNull()?.second ?: 0
 
     companion object {
         fun empty(): LanguageStatData {
-            return LanguageStatData("", listOf())
+            return LanguageStatData("",
+                listOf(),
+                emptyMap(),
+                emptyMap(),
+                emptyMap(),
+                emptyMap())
         }
     }
 }
@@ -61,7 +72,12 @@ class DayLanguageStreakData (
     language: String,
     categoryStats: List<ActivityCategoryStat>,
     streakMap:  Map<LocalDate, List<Activity>>
-) : LanguageStatData(language, categoryStats) {
+) : LanguageStatData(language,
+    categoryStats,
+    emptyMap(),
+    emptyMap(),
+    emptyMap(),
+    emptyMap()) {
     val streak: Int = streakMap.size
 }
 
@@ -192,10 +208,60 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
     val day = MutableLiveData(LocalDate.now())
     val month = MutableLiveData(YearMonth.now())
 
-    val stats = frozenActivities.transform(scope = viewModelScope) { if(it != null) mapToStats(it) else emptyList() } //
+    val stats = frozenActivities.transform(scope = viewModelScope) {
+        if(it != null) {
+            if(range.value == StatisticRange.MONTH) {
+                mapToStats(it, month.value)
+            } else {
+                mapToStats(it, null)
+            }
+        }
+        else
+            emptyList()
+    } //
     val dayStreakData = frozenActivitiesFromBeginning.transform(scope = viewModelScope) { if(it != null) mapToStreakData(it, day.value) else emptyList() }
+    private var language = MutableLiveData("") //only for internal use, could be different than the selected language
+    val languages = Transformations.map(stats) { it.map { d -> d.language } }
+    val languageIndex = MediatorLiveData<Int>().apply {
+        fun update() {
+            value = if (languages.value?.contains(language.value) == true) languages.value?.indexOf(language.value) else 0
+        }
+
+        addSource(language) { update() }
+        addSource(languages) { update() }
+
+        update()
+    }
+
+    val languageStats = Transformations.map(languageIndex) { langIdx ->
+        if(langIdx >= stats.value.orEmpty().size) {
+            LanguageStatData.empty()
+        } else {
+            stats.value.orEmpty()[langIdx]
+        }
+    }
+
+    val languageDayStreak = MediatorLiveData<DayLanguageStreakData>().apply {
+        fun update() {
+            value = if(languageIndex.value == null || languageIndex.value!! >= dayStreakData.value.orEmpty().size) {
+                null
+            } else {
+                dayStreakData.value.orEmpty()[languageIndex.value!!]
+            }
+        }
+
+        addSource(languageIndex) { update() }
+        addSource(dayStreakData) { update() }
+
+        update()
+    }
+
     init {
         setMonth(YearMonth.now())
+    }
+
+    fun setLanguage(newLanguage: String) {
+        language.value = newLanguage
     }
 
     fun setRangeIndex(idx: Int) {
@@ -235,8 +301,13 @@ private fun groupByCategory(items: List<Activity>?): Map<ActivityCategory?, List
     return items?.groupBy { it -> it.type?.category }.orEmpty()
 }
 
-private fun mapToStats(items: List<Activity>): List<LanguageStatData> {
+private fun groupByDay(items: List<Activity>?): Map<LocalDate, List<Activity>> {
+    return items?.groupBy { it -> it.date }.orEmpty()
+}
+
+private fun mapToStats(items: List<Activity>, month: YearMonth?): List<LanguageStatData> {
     return groupByLanguage(items).map { languageGroup ->
+        // create per-type stats
         val byCategory = groupByCategory(languageGroup.value)
         val typeStats = ActivityCategory.values().map {
             if(byCategory.containsKey(it)) {
@@ -245,7 +316,36 @@ private fun mapToStats(items: List<Activity>): List<LanguageStatData> {
                 ActivityCategoryStat(it, emptyList())
             }
         }
-        LanguageStatData(languageGroup.key, typeStats)
+
+        // create per-day stats
+        val minutesPerDayStats = mutableMapOf<String, Float>()
+        val countPerDayStats = mutableMapOf<String, Float>()
+        val motivationPerDayStats = mutableMapOf<String, Float>()
+        val confidencePerDayStats = mutableMapOf<String, Float>()
+//        if(month != null) {
+//            val byDate = groupByDay(languageGroup.value).mapKeys { it.key.dayOfMonth }
+//            for (d in 1 until month.lengthOfMonth() + 1) {
+//                if(byDate.containsKey(d)) {
+//                    minutesPerDayStats[d.toString()] = byDate[d].orEmpty().sumOf { getMinutes(it).coerceAtLeast(0) }.toFloat()
+//                    countPerDayStats[d.toString()] = byDate[d].orEmpty().size.toFloat()
+//                    motivationPerDayStats[d.toString()] = byDate[d].orEmpty().map { it.motivation }.average().toFloat()
+//                    confidencePerDayStats[d.toString()] = byDate[d].orEmpty().map { it.confidence }.average().toFloat()
+//                } else {
+//                    minutesPerDayStats[d.toString()] = 0f
+//                    countPerDayStats[d.toString()] = 0f
+//
+//                    if(d == 1 || d == month.lengthOfMonth()) {
+//                        motivationPerDayStats[d.toString()] = 50f
+//                        confidencePerDayStats[d.toString()] = 50f
+//                    } else {
+//                        motivationPerDayStats[d.toString()] = -1f
+//                        confidencePerDayStats[d.toString()] = -1f
+//                    }
+//                }
+//            }
+//        }
+
+        LanguageStatData(languageGroup.key, typeStats, minutesPerDayStats, countPerDayStats, motivationPerDayStats, confidencePerDayStats)
     }.sortedBy { it.language }
 }
 

@@ -1,8 +1,6 @@
 package com.teraculus.lingojournalandroid.ui.stats
 
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -15,21 +13,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Typeface
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.viewinterop.AndroidViewBinding
-import com.db.williamchart.data.AxisType
-import com.db.williamchart.data.Scale
-import com.db.williamchart.view.BarChartView
-import com.db.williamchart.view.HorizontalBarChartView
-import com.db.williamchart.view.LineChartView
-import com.teraculus.lingojournalandroid.R
 import com.teraculus.lingojournalandroid.ui.components.SentimentIcon
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.getDurationString
@@ -51,9 +37,9 @@ class Constants {
 
 @Composable
 fun StatsItem(
+    modifier: Modifier = Modifier,
     label: String,
     bottomLabel: Boolean = false,
-    modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     Column(modifier = modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -75,11 +61,11 @@ fun StatsItem(
 
 @Composable
 fun TextStatsItem(
+    modifier: Modifier = Modifier,
     label: String,
     value: String,
     style: TextStyle = MaterialTheme.typography.h5,
     bottomLabel: Boolean = false,
-    modifier: Modifier = Modifier,
 ) {
     StatsItem(label = label, bottomLabel = bottomLabel, modifier = modifier) {
         Text(text = value, style = style, textAlign = TextAlign.Center)
@@ -89,13 +75,14 @@ fun TextStatsItem(
 @Composable
 fun StatsCard(
     modifier: Modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-    content: @Composable() () -> Unit,
+    content: @Composable () -> Unit,
 ) {
     Card(modifier = modifier, elevation = 2.dp, content = content)
 }
 
 @Composable
 fun SentimentStatsCard(stats: LanguageStatData) {
+    val color = if (stats.allCount == 0) Constants.ItemBackground else MaterialTheme.colors.primary
     ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
         contentAlpha = ContentAlpha.medium) {
         Text(text = "Confidence & Motivation",
@@ -108,23 +95,23 @@ fun SentimentStatsCard(stats: LanguageStatData) {
             .weight(1f)
             .padding(end = 8.dp)) {
             StatsItem(label = "Avg. Confidence") {
-                SentimentIcon(value = stats.allConfidence, modifier = Modifier.size(48.dp))
+                SentimentIcon(value = stats.allConfidence, modifier = Modifier.size(48.dp), color)
             }
         }
         Card(elevation = 2.dp, modifier = Modifier
             .weight(1f)
             .padding(start = 8.dp)) {
             StatsItem(label = "Avg. Motivation") {
-                SentimentIcon(value = stats.allMotivation, modifier = Modifier.size(48.dp))
+                SentimentIcon(value = stats.allMotivation, modifier = Modifier.size(48.dp), color)
             }
         }
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun DonutCard(stats: LanguageStatData) {
     var isTime: Boolean by rememberSaveable { mutableStateOf(true) }
-    val strokeWidth = 8.dp
 
     ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
         contentAlpha = ContentAlpha.medium) {
@@ -145,46 +132,55 @@ fun DonutCard(stats: LanguageStatData) {
         }
     }
 
-    StatsCard() {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically) {
-                Box(modifier = Modifier
-                    .weight(1f),
-                    contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(progress = 1f,
-                        color = Constants.ItemBackground,
-                        strokeWidth = strokeWidth,
-                        modifier = Modifier.size(120.dp))
+    StatsCard {
+        Box(modifier = Modifier.padding(16.dp)) {
+            SplitDonut(isTime, stats)
+        }
+    }
+}
+
+@Composable
+private fun SplitDonut(
+    isTime: Boolean,
+    stats: LanguageStatData,
+) {
+    val strokeWidth = 8.dp
+    Row(modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically) {
+        Box(modifier = Modifier
+            .weight(1f),
+            contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(progress = 1f,
+                color = Constants.ItemBackground,
+                strokeWidth = strokeWidth,
+                modifier = Modifier.size(120.dp))
 
 
-                    val perUnit =
-                        if (isTime) 1f / (stats.allMinutes + Float.MIN_VALUE) else 1f / (stats.allCount + Float.MIN_VALUE)
-                    var currentSpan = 1f
-                    stats.categoryStats.forEach {
-                        CircularProgressIndicator(progress = currentSpan,
-                            color = Color(it.category?.color!!),
-                            strokeWidth = strokeWidth,
-                            modifier = Modifier.size(120.dp))
-                        currentSpan -= perUnit * (if (isTime) it.minutes else it.count).toFloat()
-                    }
+            val perUnit =
+                if (isTime) 1f / (stats.allMinutes + Float.MIN_VALUE) else 1f / (stats.allCount + Float.MIN_VALUE)
+            var currentSpan = 1f
+            stats.categoryStats.forEach {
+                CircularProgressIndicator(progress = currentSpan,
+                    color = Color(it.category?.color!!),
+                    strokeWidth = strokeWidth,
+                    modifier = Modifier.size(120.dp))
+                currentSpan -= perUnit * (if (isTime) it.minutes else it.count).toFloat()
+            }
 
-                    Text(text = if (isTime) getDurationString(stats.allMinutes) else "${stats.allCount}x")
+            Text(text = if (isTime) getDurationString(stats.allMinutes) else "${stats.allCount}x")
+        }
+        Row(modifier = Modifier
+            .weight(1f)) {
+            Column {
+                stats.categoryStats.forEach {
+                    it.category?.let { it1 -> DonutLegendItem(it1.title, it1.color) }
                 }
-                Row(modifier = Modifier
-                    .weight(1f)) {
-                    Column() {
-                        stats.categoryStats.forEach {
-                            it.category?.let { it1 -> DonutLegendItem(it1.title, it1.color) }
-                        }
-                    }
-                    Column() {
-                        stats.categoryStats.forEach {
-                            Text(if (isTime) getDurationString(it.minutes) else "${it.count}x",
-                                modifier = Modifier.padding(top = 8.dp, start = 16.dp),
-                                style = MaterialTheme.typography.caption)
-                        }
-                    }
+            }
+            Column {
+                stats.categoryStats.forEach {
+                    Text(if (isTime) getDurationString(it.minutes) else "${it.count}x",
+                        modifier = Modifier.padding(top = 8.dp, start = 16.dp),
+                        style = MaterialTheme.typography.caption)
                 }
             }
         }
@@ -212,7 +208,7 @@ fun Selector(
     onPrev: () -> Unit,
     hasNext: Boolean,
     hasPrev: Boolean,
-    content: @Composable() () -> Unit,
+    content: @Composable () -> Unit,
 ) {
     Row(modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -251,6 +247,40 @@ fun DayStreak(stats: DayLanguageStreakData) {
     }
 }
 
+@Composable
+fun TopActivityTypes(stats: LanguageStatData) {
+    if(stats.topActivityTypes.isNotEmpty()) {
+        val factor = 1f / stats.topActivityTypeMinutes
+        StatsHeader(text="Top activities")
+        StatsCard {
+            Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                stats.topActivityTypes.forEachIndexed { idx, it ->
+                    if(idx != 0)
+                        Spacer(Modifier.height(16.dp))
+                    it.first?.let { at ->
+                        Row(modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween) {
+                            StatsHeader(text = "${at.category?.title}: ${at.name}",
+                                modifier = Modifier.padding(bottom = 8.dp))
+                            StatsHeader(text = getDurationString(it.second),
+                                modifier = Modifier.padding(bottom = 8.dp))
+                        }
+                        LinearProgressIndicator(progress = factor * it.second, color=Color(at.category?.color ?: android.graphics.Color.GRAY), modifier = Modifier.fillMaxWidth().height(8.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun StatsHeader(modifier: Modifier = Modifier.padding(start = 16.dp, top = 8.dp), text: String) {
+    ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
+        contentAlpha = ContentAlpha.medium) {
+        Text(text = text, modifier = modifier)
+    }
+}
+
 // Month:
 // Mood bar chart per day
 // Hours/count per day
@@ -262,42 +292,3 @@ fun DayStreak(stats: DayLanguageStreakData) {
 // Remove average mood
 // Longest streak ?
 
-@Composable
-fun LineChart() {
-    val points = remember { linkedMapOf("Reading" to 4F, "Writing" to 7F, "Listening" to 2F, "Speaking" to 5F, "Learning" to 9f) }
-    val height = with(LocalDensity.current) { 100.dp.toPx().toInt() }
-    val lineThickness = with(LocalDensity.current) { 8.dp.toPx() }
-    val lineColor = MaterialTheme.colors.secondary.toArgb()
-    val labelsFont =
-        MaterialTheme.typography.caption.fontFamily?.let { MaterialTheme.typography.caption.fontStyle?.ordinal?.let { it1 ->
-            android.graphics.Typeface.create(it.toString(),
-                it1)
-        } }
-    val labelColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium).toArgb()
-    val fontSize = with(LocalDensity.current) { 12.dp.toPx() }
-    var width by remember { mutableStateOf(0) }
-    BoxWithConstraints(modifier = Modifier
-        .padding(16.dp)) {
-        if(width != constraints.maxWidth)
-            width =  constraints.maxWidth
-    }
-
-    AndroidView(::HorizontalBarChartView , modifier = Modifier
-        .padding(16.dp)
-        .fillMaxWidth()
-        .height(100.dp),
-        update = { view ->
-//            view.smooth = true
-//            view.lineThickness = lineThickness
-//            view.lineColor = lineColor
-//            view.pointsDrawableRes = R.drawable.ic_chart_point
-            view.barRadius = lineThickness / 2
-            view.barsColor = lineColor
-            view.axis = AxisType.Y
-            view.labelsSize = fontSize
-            view.labelsColor = labelColor
-            labelsFont?.let { view.labelsFont = it }
-            view.measure(width, height)
-            view.animate(points)
-        })
-}

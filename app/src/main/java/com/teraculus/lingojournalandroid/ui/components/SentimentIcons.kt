@@ -79,11 +79,11 @@ fun closest(of: Float, values: List<Float>): Float {
 }
 
 @Composable
-fun SentimentIcon(value: Float?, modifier: Modifier = Modifier) {
+fun SentimentIcon(value: Float?, modifier: Modifier = Modifier, color: Color = MaterialTheme.colors.primary) {
     value?.let {
         val closestValue = closest(value, iconMap.keys.sorted())
         iconMap[closestValue]?.let { icon ->
-            Icon(icon, contentDescription = null, tint = MaterialTheme.colors.primary, modifier = modifier)
+            Icon(icon, contentDescription = null, tint = color, modifier = modifier)
         }
     }
 }
