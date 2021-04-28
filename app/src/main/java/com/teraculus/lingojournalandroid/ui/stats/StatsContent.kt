@@ -225,11 +225,11 @@ private fun DayStreakContent(it: DayLanguageStreakData) {
 @Composable
 private fun LanguageStatContent(it: LanguageStatData, showChart: Boolean = true) {
     DonutCard(stats = it)
+    TopActivityTypes(stats = it)
 //    if(showChart)
 //        SentimentChartsCard(stats = it)
 //    else
     SentimentStatsCard(stats = it)
-    TopActivityTypes(stats = it)
 }
 
 @ExperimentalMaterialApi
