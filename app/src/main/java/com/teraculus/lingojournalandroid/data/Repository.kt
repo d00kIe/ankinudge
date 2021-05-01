@@ -20,6 +20,7 @@ class Repository {
     private val activities: LiveRealmResults<Activity>
     private val types: LiveData<List<ActivityType>?>
     private val userPreferences: LiveData<UserPreferences>
+    private val goals: LiveRealmResults<ActivityGoal>
 
     init {
         initializeRealm()
@@ -34,11 +35,14 @@ class Repository {
 
         // dummy activities
         activities = Activity.createOrQuery(realm!!, types.value)
+
+        // goals
+        goals = ActivityGoal.query(realm!!)
     }
 
     private fun initializeRealm() {
         val config = RealmConfiguration.Builder()
-            .deleteRealmIfMigrationNeeded() //TODO: Remove
+            //.deleteRealmIfMigrationNeeded() //TODO: Remove
             .allowQueriesOnUiThread(true)
             .allowWritesOnUiThread(true)
             .build()
@@ -144,6 +148,46 @@ class Repository {
     fun updateThemePreference(theme: String) {
         realm!!.executeTransaction {
             userPreferences.value?.theme = theme
+        }
+    }
+
+    fun getActivityGoals(): LiveRealmResults<ActivityGoal> {
+        return goals
+    }
+
+    fun getActivityGoal(id: String): LiveRealmObject<ActivityGoal?> {
+        return LiveRealmObject(realm!!.where<ActivityGoal>().equalTo("id", ObjectId(id)).findFirst())
+    }
+
+    fun addActivityGoal(goal: ActivityGoal) {
+        realm!!.executeTransaction { tr -> tr.insert(goal) }
+    }
+
+    fun removeActivityGoal(goal: ActivityGoal) {
+        realm!!.executeTransaction {
+            goal.deleteFromRealm()
+        }
+    }
+
+    fun updateActivityGoal(
+        id: String,
+        title: String,
+        text: String,
+        language: String,
+        activityType: ActivityType,
+        date: LocalDate,
+        weekDays: Array<Int>
+    ) {
+        val goal = getActivityGoal(id).value
+        goal?.let {
+            realm!!.executeTransaction {
+                goal.text = text
+                goal.language = language
+                goal.activityType = activityType
+                goal.date = date
+                goal.lastChangeTs = Instant.now().toEpochMilli()
+                goal.weekDays = RealmList(*weekDays)
+            }
         }
     }
 

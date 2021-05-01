@@ -41,8 +41,6 @@ fun ActivityRow(rawactivity: Activity, onClick: (id: String) -> Unit, model: Act
             ListItem(
                 icon = {
                     ActivityRowIcon(activity!!.type?.category?.icon,
-                        activity!!.confidence,
-                        activity!!.motivation,
                         activity!!.type?.category?.color)
                 },
                 text = { Text(activity!!.title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
@@ -54,13 +52,6 @@ fun ActivityRow(rawactivity: Activity, onClick: (id: String) -> Unit, model: Act
                 })
         }
     }
-
-}
-
-@Composable
-fun SecondaryText(text: String?) {
-    if(text.orEmpty().isNotEmpty())
-        Text(text.orEmpty(), maxLines = 3, overflow = TextOverflow.Ellipsis)
 }
 
 @Composable
@@ -70,11 +61,9 @@ fun OverlineText(startTime: LocalTime?, endTime: LocalTime?, language: String?, 
 }
 
 @Composable
-fun ActivityRowIcon(icon: Int?, confidence: Float?, motivation: Float?, color: Int?) {
-    if(icon != null && confidence != null && motivation != null && color != null)
+fun ActivityRowIcon(icon: Int?, color: Int?) {
+    if(icon != null && color != null)
         Surface(elevation = 0.dp,modifier = Modifier.size(42.dp), shape = CircleShape, color = Color(color)) {
-            //ConfidenceMotivationIndicator(confidence = confidence, motivation = motivation)
-
             Icon(painter = painterResource(id = icon), modifier = Modifier
                 .padding(8.dp), tint = MaterialTheme.colors.onPrimary, contentDescription = null)
         }
