@@ -13,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,12 +22,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.teraculus.lingojournalandroid.data.Language
-import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.data.getAllLanguages
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.model.UserPreferences
-import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
 
 @Composable
 fun SelectDialog(
@@ -120,23 +117,21 @@ fun LanguageItem(lang: Language, onClick: (item: Language) -> Unit, isRecent: Bo
 }
 
 
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ActivityTypeSelectDialog(
     onItemClick: (item: ActivityType) -> Unit,
     onAddTypeClick: (item: ActivityType) -> Unit,
     onDismissRequest: () -> Unit,
-    model: EditActivityViewModel,
+    groups: State<Map<ActivityCategory?, List<ActivityType>>?>,
 ) {
     SelectDialog(
         onDismissRequest = onDismissRequest,
         title = "Activity type",
     ) {
-        val groups by model.groupedTypes.observeAsState()
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            groups?.forEach { (category, categoryTypes) ->
+            groups.value.orEmpty().forEach { (category, categoryTypes) ->
                 stickyHeader {
                     ActivityTypeHeader(category = category, onAddTypeClick)
                 }
@@ -149,7 +144,7 @@ fun ActivityTypeSelectDialog(
 }
 
 
-@ExperimentalMaterialApi
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ActivityTypeHeader(category: ActivityCategory?, onAddActivity: (item: ActivityType) -> Unit) {
     var showAddDialog by remember { mutableStateOf(false) }
@@ -191,7 +186,7 @@ fun ActivityTypeHeader(category: ActivityCategory?, onAddActivity: (item: Activi
             title = "New ${category?.title} activity")
 }
 
-@ExperimentalMaterialApi
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ActivityTypeItem(type: ActivityType, onClick: (item: ActivityType) -> Unit) {
     ListItem(text = { Text(type.name) }, modifier = Modifier.clickable { onClick(type) })

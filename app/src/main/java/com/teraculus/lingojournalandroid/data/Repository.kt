@@ -163,31 +163,26 @@ class Repository {
         realm!!.executeTransaction { tr -> tr.insert(goal) }
     }
 
-    fun removeActivityGoal(goal: ActivityGoal) {
-        realm!!.executeTransaction {
-            goal.deleteFromRealm()
+    fun removeActivityGoal(goalId: ObjectId) {
+        val goal = getActivityGoal(goalId.toString()).value
+        goal?.let {
+            realm!!.executeTransaction {
+                goal.deleteFromRealm()
+            }
         }
     }
 
     fun updateActivityGoal(
-        id: String,
-        title: String,
-        text: String,
-        language: String,
-        activityType: ActivityType,
-        date: LocalDate,
-        weekDays: Array<Int>
+        goalId: ObjectId,
+        update: (goal: ActivityGoal) -> Unit
     ) {
-        val goal = getActivityGoal(id).value
-        goal?.let {
-            realm!!.executeTransaction {
-                goal.text = text
-                goal.language = language
-                goal.activityType = activityType
-                goal.date = date
-                goal.lastChangeTs = Instant.now().toEpochMilli()
-                goal.weekDays = RealmList(*weekDays)
+        realm!!.executeTransaction {
+            val goal = getActivityGoal(goalId.toString()).value
+            goal?.let {
+                update(it)
+                it.lastChangeTs = Instant.now().toEpochMilli()
             }
+
         }
     }
 

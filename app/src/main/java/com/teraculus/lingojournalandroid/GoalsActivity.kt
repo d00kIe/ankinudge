@@ -13,6 +13,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.ui.LingoTheme
+import com.teraculus.lingojournalandroid.ui.goals.GoalsActivityContent
 import com.teraculus.lingojournalandroid.ui.settings.SettingsContent
 import com.teraculus.lingojournalandroid.ui.stats.StatsContent
 import com.teraculus.lingojournalandroid.utils.LocalSysUiController
@@ -30,22 +31,18 @@ fun createGoalsActivityIntent(context: Context): Intent {
 }
 
 class GoalsActivity : AppCompatActivity() {
-    //private val statsViewModel: StatisticsViewModel by viewModels { StatisticsViewModelFactory() }
-
     @ExperimentalMaterialApi
     @ExperimentalFoundationApi
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        PickerProvider.getPickerProvider().fragmentManager = supportFragmentManager
         setContent {
             val systemUiController = remember { SystemUiController(window) }
             CompositionLocalProvider(LocalSysUiController provides systemUiController) {
                 LingoTheme {
-//                    StatsContent(
-//                        onItemClick = { launchDetailsActivity(this, it) },
-//                        onDismiss = { finish() },
-//                        model = statsViewModel)
+                    GoalsActivityContent(onDismiss = { finish() })
                 }
             }
         }

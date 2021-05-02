@@ -39,6 +39,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
     val confidence by model.confidence.observeAsState()
     val motivation by model.motivation.observeAsState()
     val preferences by model.preferences.observeAsState()
+    val typeGroups = model.groupedTypes.observeAsState()
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
     var showActivityTypeDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -57,7 +58,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
 
     if(showActivityTypeDialog) {
         ActivityTypeSelectDialog(
-            model = model,
+            groups = typeGroups,
             onItemClick = {
                 model.onTypeChange(it)
                 showActivityTypeDialog = false
@@ -166,7 +167,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
 }
 
 @Composable
-private fun ActivityTypeIcon(type: ActivityType?) {
+fun ActivityTypeIcon(type: ActivityType?) {
     if(type?.category != null) {
         val category = type.category
         Surface(elevation = 0.dp,
@@ -174,7 +175,8 @@ private fun ActivityTypeIcon(type: ActivityType?) {
             shape = CircleShape,
             color = Color(category?.color!!)) {
             Icon(painter = painterResource(id = category.icon),
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier
+                    .size(24.dp)
                     .padding(4.dp),
                 tint = MaterialTheme.colors.onPrimary,
                 contentDescription = null)

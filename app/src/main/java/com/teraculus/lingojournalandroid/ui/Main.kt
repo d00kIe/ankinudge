@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.AddTask
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
@@ -21,27 +22,6 @@ import com.teraculus.lingojournalandroid.ui.components.Pulsating
 import com.teraculus.lingojournalandroid.ui.home.HomeScreen
 import com.teraculus.lingojournalandroid.viewmodel.MainViewModel
 
-
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
-@Composable
-fun Main(
-    onActivityClick: (id: String) -> Unit,
-    onOpenEditor: (id: String?) -> Unit,
-    onOpenSettings: () -> Unit,
-    onOpenStats: () -> Unit,
-) {
-    LingoTheme {
-        MainContent(
-            onAddActivity = { onOpenEditor(null) },
-            onActivityClick = onActivityClick,
-            onOpenSettings = onOpenSettings,
-            onOpenStats = onOpenStats)
-    }
-}
-
-
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
@@ -51,6 +31,7 @@ fun MainContent(
     onActivityClick: (id: String) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenStats: () -> Unit,
+    onOpenGoals: () -> Unit,
     viewModel: MainViewModel = viewModel("mainViewModel"),
 ) {
     val scrollState = rememberLazyListState()
@@ -66,6 +47,9 @@ fun MainContent(
                 backgroundColor = MaterialTheme.colors.background,
                 elevation = elevation,
                 actions = {
+                    IconButton(onClick = onOpenGoals) {
+                        Icon(Icons.Rounded.AddTask, contentDescription = null)
+                    }
                     IconButton(onClick = onOpenStats) {
                         Icon(Icons.Rounded.BarChart, contentDescription = null)
                     }

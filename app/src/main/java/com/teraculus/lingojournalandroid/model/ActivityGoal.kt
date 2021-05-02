@@ -22,11 +22,11 @@ open class ActivityGoal() : RealmObject() {
     @Required
     var language: String = ""
     var text: String = ""
-    @Required
     var activityType: ActivityType? = null
     var goalType: String = "daily"
     var lastChangeTs: Long = 0 // allows LiveData to update correctly if only "type" was changed, see LiveRealmObject::onActive
     var weekDays: RealmList<Int> = RealmList<Int>()
+    var active: Boolean = true
 
     @Required
     private var _date: Date = asDate(LocalDate.now())
@@ -52,7 +52,8 @@ open class ActivityGoal() : RealmObject() {
         activityType: ActivityType,
         date: LocalDate = LocalDate.now(),
         id: ObjectId = ObjectId(),
-        reminder: LocalDate? = null
+        reminder: LocalDate? = null,
+        weekDays: Array<Int>
     ) : this() {
         this.id = id
         this.text = text
@@ -61,6 +62,7 @@ open class ActivityGoal() : RealmObject() {
         this.date = date
         this.lastChangeTs = Instant.now().toEpochMilli()
         this.reminder = reminder
+        this.weekDays = RealmList(*weekDays)
     }
 
 

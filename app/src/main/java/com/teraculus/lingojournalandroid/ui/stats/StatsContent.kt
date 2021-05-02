@@ -15,11 +15,13 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.ui.calendar.CalendarSwipeable
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
+import com.teraculus.lingojournalandroid.ui.components.ToggleButton
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.observeWithDelegate
 import com.teraculus.lingojournalandroid.utils.toDayString
@@ -190,27 +192,15 @@ private fun LanguageBar(
         divider = {},
         indicator = {}) {
         languages.forEachIndexed { index, lang ->
-            if (index == languageIndex) {
-                Button(onClick = {},
-                    modifier = Modifier.padding(8.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = selectedButtonColors) {
-                    Text(getLanguageDisplayName(lang))
-                }
-            } else {
-                OutlinedButton(onClick = { onSetLanguage(lang) },
-                    modifier = Modifier.padding(8.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = outlinedButtonColors) {
-                    Text(getLanguageDisplayName(lang))
-                }
+            ToggleButton(onClick = { onSetLanguage(lang) },
+                selected = index == languageIndex,
+                modifier = Modifier.padding(8.dp) ) {
+                Text(getLanguageDisplayName(lang))
             }
         }
         if(languages.isEmpty()) {
-            OutlinedButton(onClick = { },
-                modifier = Modifier.padding(8.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = outlinedButtonColors) {
+            ToggleButton(onClick = { }, selected = false,
+                modifier = Modifier.padding(8.dp)) {
                 Text("No activities")
             }
         }
