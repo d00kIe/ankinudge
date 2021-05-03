@@ -14,8 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
+import com.teraculus.lingojournalandroid.ui.goals.FeedGoalRow
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.toDayString
+import com.teraculus.lingojournalandroid.utils.toDayStringOrToday
+import java.time.LocalDate
 
 @ExperimentalMaterialApi
 @Composable
@@ -39,16 +42,29 @@ fun ActivityList(
     scrollState: LazyListState,
 ) {
     val groups by model.grouped.observeAsState()
+    val today = LocalDate.now()
+    val todayGoals by model.todayGoals.observeAsState()
 
     LazyColumn(state = scrollState) {
         item {
             HomeStatsCard(onOpenStats, model = model)
         }
+
+        if(!todayGoals.isNullOrEmpty()) {
+            item {
+                ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {
+                    Text(text = "Today's Goals", modifier = Modifier.padding(top=16.dp, start = 16.dp))
+                }
+            }
+            items(todayGoals.orEmpty()) { goal ->
+                FeedGoalRow(goal)
+            }
+        }
         if (groups != null && groups.orEmpty().isNotEmpty()) {
             groups.orEmpty().forEach { (date, items) ->
                 item {
                     ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {
-                        Text(text = toDayString(date), modifier = Modifier.padding(top=24.dp, start = 16.dp))
+                        Text(text = toDayStringOrToday(date), modifier = Modifier.padding(top=16.dp, start = 16.dp))
                     }
                 }
                 items(items) { activity ->

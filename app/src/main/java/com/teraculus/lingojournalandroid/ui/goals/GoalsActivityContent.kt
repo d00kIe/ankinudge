@@ -8,19 +8,23 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusModifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -32,9 +36,9 @@ import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.ActivityGoal
 import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.ui.components.*
-import com.teraculus.lingojournalandroid.ui.home.WeekDayItem
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import io.realm.RealmResults
+import org.bson.types.ObjectId
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -42,10 +46,11 @@ import java.util.*
 
 class GoalsViewModel(val repository: Repository = Repository.getRepository()) : ViewModel() {
     private val goals = repository.getActivityGoals()
-    val frozen = Transformations.map(goals) { (it as RealmResults<ActivityGoal>).freeze() }
+    val frozen = Transformations.map(goals) { (it as RealmResults<ActivityGoal>).freeze().sortedByDescending { g -> g.id.timestamp } }
     val preferences = repository.getUserPreferences()
     val types = repository.getTypes()
     val groupedTypes = Transformations.map(types) { it.orEmpty().groupBy { it1 -> it1.category } }
+    val lastAddedId = MutableLiveData<ObjectId>(null)
 
     fun addNewActivityGoal(type: ActivityType) {
         val language = preferences.value?.languages?.firstOrNull() ?: "en"
@@ -59,14 +64,17 @@ class GoalsViewModel(val repository: Repository = Repository.getRepository()) : 
     }
 }
 
-class GoalItemViewModel(private val frozenGoal: ActivityGoal, owner: LifecycleOwner, val repository: Repository = Repository.getRepository()) : ViewModel() {
+class GoalItemViewModel(private val frozenGoal: ActivityGoal,
+                        private val expand: Boolean,
+                        owner: LifecycleOwner,
+                        val repository: Repository = Repository.getRepository()) : ViewModel() {
     private val goal = Repository.getRepository().getActivityGoal(frozenGoal.id.toString())
     val snapshot =
         MutableLiveData<ActivityGoal>(if (goal.value?.isValid == true) goal.value!!.freeze<ActivityGoal>() else null)
     val preferences = repository.getUserPreferences()
     val types = repository.getTypes()
     val groupedTypes = Transformations.map(types) { it.orEmpty().groupBy { it1 -> it1.category } }
-    var expanded = MutableLiveData(false)
+    var expanded = MutableLiveData(expand)
     val goalWeekDaysString = Transformations.map(snapshot) {
         it?.weekDays?.sorted()?.map { d -> DayOfWeek.of(d) }
             ?.joinToString(truncated = ",") { d -> d.getDisplayName(TextStyle.SHORT, Locale.getDefault()) }
@@ -126,12 +134,13 @@ class GoalItemViewModel(private val frozenGoal: ActivityGoal, owner: LifecycleOw
 
 class GoalItemViewModelFactory(
     private val rawGoal: ActivityGoal,
+    private val expanded: Boolean,
     private val owner: LifecycleOwner,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(GoalItemViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return GoalItemViewModel(rawGoal, owner) as T
+            return GoalItemViewModel(rawGoal, expanded, owner) as T
         }
 
         throw IllegalArgumentException("Unknown view model class")
@@ -146,6 +155,7 @@ fun GoalsActivityContent(
     val scrollState = rememberLazyListState()
     val goals by model.frozen.observeAsState()
     val typeGroups = model.groupedTypes.observeAsState()
+    val lastAddedId by model.lastAddedId.observeAsState()
     var showActivityTypeDialog by rememberSaveable { mutableStateOf(false) }
 
     if(showActivityTypeDialog) {
@@ -186,7 +196,7 @@ fun GoalsActivityContent(
         LazyColumn(state = scrollState) {
             items(goals.orEmpty()) { goal ->
                 key(goal.id) {
-                    GoalRow(goal)
+                    GoalRow(goal, expanded = goal.id == lastAddedId)
                 }
             }
         }
@@ -197,8 +207,9 @@ fun GoalsActivityContent(
 @Composable
 fun GoalRow(
     rawGoal: ActivityGoal,
+    expanded: Boolean,
     model: GoalItemViewModel = viewModel("goalRow${rawGoal.id}",
-        GoalItemViewModelFactory(rawGoal, LocalLifecycleOwner.current)),
+        GoalItemViewModelFactory(rawGoal, expanded, LocalLifecycleOwner.current)),
 ) {
     val goal by model.snapshot.observeAsState()
     val preferences by model.preferences.observeAsState()
@@ -325,6 +336,49 @@ fun WeekDaysSelector(weekDays: IntArray, onSelect: (Int) -> Unit) {
         for (d in 1 until 8) {
             ToggleButton(onClick = { onSelect(d) }, selected = weekDays.contains(d), highlighted = true, round = true) {
                 Text(dayLetters[d-1])
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
+@Composable
+fun FeedGoalRow(
+    rawGoal: ActivityGoal,
+    model: GoalItemViewModel = viewModel("goalRow${rawGoal.id}",
+        GoalItemViewModelFactory(rawGoal, false, LocalLifecycleOwner.current)),
+) {
+    val goal by model.snapshot.observeAsState()
+    var done by remember { mutableStateOf(false) }
+
+    goal?.let {
+        AnimatedVisibility(goal != null && !done, exit = shrinkVertically() + fadeOut()) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                elevation = 2.dp,
+                shape = RoundedCornerShape(topStartPercent = 50, bottomStartPercent = 50)
+            )
+            {
+                Column {
+                    ListItem(
+                        modifier = Modifier.clickable(onClick = { done = true }),
+                        icon = {
+                            Icon(Icons.Rounded.RadioButtonUnchecked, modifier = Modifier.size(42.dp), tint = MaterialTheme.colors.onSurface.copy(ContentAlpha.disabled), contentDescription = null)
+                        },
+                        text = {
+                            Text("${goal!!.activityType?.category?.title} : ${goal!!.activityType?.name}",
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis)
+                        },
+                        secondaryText = {
+                            Text(getLanguageDisplayName(goal!!.language),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis)
+                        }
+                    )
+                }
             }
         }
     }

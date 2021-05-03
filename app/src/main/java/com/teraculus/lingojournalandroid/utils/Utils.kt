@@ -47,6 +47,15 @@ fun toTimeString(time: LocalTime?) : String {
     return time.format(timeFormatter)
 }
 
+fun toDayStringOrToday(date: LocalDate?) : String {
+    return if(date == LocalDate.now()) {
+        "Today"
+    }
+    else {
+        toDayString(date)
+    }
+}
+
 fun toDayString(date: LocalDate?) : String {
     if(date == null)
         return ""
