@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.*
+import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
@@ -36,6 +37,8 @@ import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import io.realm.RealmResults
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.*
 
 class GoalsViewModel(val repository: Repository = Repository.getRepository()) : ViewModel() {
     private val goals = repository.getActivityGoals()
@@ -66,7 +69,7 @@ class GoalItemViewModel(private val frozenGoal: ActivityGoal, owner: LifecycleOw
     var expanded = MutableLiveData(false)
     val goalWeekDaysString = Transformations.map(snapshot) {
         it?.weekDays?.sorted()?.map { d -> DayOfWeek.of(d) }
-            ?.joinToString(truncated = ",") { d -> d.toString().substring(0,1) }
+            ?.joinToString(truncated = ",") { d -> d.getDisplayName(TextStyle.SHORT, Locale.getDefault()) }
     }
 
     init {
@@ -264,7 +267,7 @@ fun GoalRow(
                         Row(modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp), Arrangement.SpaceBetween) {
-                            Text(goalWeekDaysString.orEmpty())
+                            Text(goalWeekDaysString.orEmpty(), style = MaterialTheme.typography.body2)
                             Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = null)
                         }
                     }
@@ -274,7 +277,6 @@ fun GoalRow(
                             DropDownTextField(label = { Text("Activity") },
                                 modifier = Modifier
                                     .fillMaxWidth(),
-                                leadingIcon = { ActivityTypeIcon(goal!!.activityType) },
                                 value = "${goal!!.activityType?.category?.title} : ${goal!!.activityType?.name}",
                                 onClick = { showActivityTypeDialog = true })
 
