@@ -1,5 +1,8 @@
 package com.teraculus.lingojournalandroid.ui.home
 
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.*
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.Activity
@@ -32,9 +35,9 @@ class ActivityListViewModel(repository: Repository) : ViewModel() {
     val todayGoals = MediatorLiveData<List<ActivityGoal>>().apply {
         fun update() {
             val today = LocalDate.now()
+            val todaysActivities = todayActivities.value.orEmpty()
             value = frozenGoals.value.orEmpty().filter { g ->
-                g.active && g.weekDays.contains(today.dayOfWeek.value) && todayActivities.value.orEmpty()
-                    .none { a -> a.language == g.language && a.type == g.activityType }
+                g.active && g.weekDays.contains(today.dayOfWeek.value) && todaysActivities.none { a -> a.language == g.language && a.type?.id == g.activityType?.id }
             }
         }
 

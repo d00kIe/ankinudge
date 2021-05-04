@@ -37,7 +37,7 @@ class GoalsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        PickerProvider.getPickerProvider().fragmentManager = supportFragmentManager
+        PickerProvider.getPickerProvider().fragmentManagerProvider = { supportFragmentManager }
         setContent {
             val systemUiController = remember { SystemUiController(window) }
             CompositionLocalProvider(LocalSysUiController provides systemUiController) {

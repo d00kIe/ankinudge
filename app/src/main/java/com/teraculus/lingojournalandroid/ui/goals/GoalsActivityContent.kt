@@ -2,7 +2,10 @@ package com.teraculus.lingojournalandroid.ui.goals
 
 import android.os.Handler
 import android.os.Looper
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,20 +27,27 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teraculus.lingojournalandroid.PickerProvider
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.ActivityGoal
 import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.ui.components.*
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
+import com.teraculus.lingojournalandroid.utils.getDurationString
+import com.teraculus.lingojournalandroid.utils.getMinutes
+import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
+import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModelFactory
 import io.realm.RealmResults
+import kotlinx.coroutines.launch
 import org.bson.types.ObjectId
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -46,7 +56,9 @@ import java.util.*
 
 class GoalsViewModel(val repository: Repository = Repository.getRepository()) : ViewModel() {
     private val goals = repository.getActivityGoals()
-    val frozen = Transformations.map(goals) { (it as RealmResults<ActivityGoal>).freeze().sortedByDescending { g -> g.id.timestamp } }
+    val frozen = Transformations.map(goals) {
+        (it as RealmResults<ActivityGoal>).freeze().sortedByDescending { g -> g.id.timestamp }
+    }
     val preferences = repository.getUserPreferences()
     val types = repository.getTypes()
     val groupedTypes = Transformations.map(types) { it.orEmpty().groupBy { it1 -> it1.category } }
@@ -54,8 +66,13 @@ class GoalsViewModel(val repository: Repository = Repository.getRepository()) : 
 
     fun addNewActivityGoal(type: ActivityType) {
         val language = preferences.value?.languages?.firstOrNull() ?: "en"
-        val weekDays = arrayOf(1,2,3,4,5,6,7)
-        val goal = ActivityGoal(text = "", language = language, activityType = type, date = LocalDate.now(), reminder = null, weekDays = weekDays)
+        val weekDays = arrayOf(1, 2, 3, 4, 5, 6, 7)
+        val goal = ActivityGoal(text = "",
+            language = language,
+            activityType = type,
+            date = LocalDate.now(),
+            reminder = null,
+            weekDays = weekDays)
         lastAddedId.value = goal.id
         repository.addActivityGoal(goal)
     }
@@ -65,10 +82,12 @@ class GoalsViewModel(val repository: Repository = Repository.getRepository()) : 
     }
 }
 
-class GoalItemViewModel(private val frozenGoal: ActivityGoal,
-                        private val expand: Boolean,
-                        owner: LifecycleOwner,
-                        val repository: Repository = Repository.getRepository()) : ViewModel() {
+class GoalItemViewModel(
+    private val frozenGoal: ActivityGoal,
+    private val expand: Boolean,
+    owner: LifecycleOwner,
+    val repository: Repository = Repository.getRepository(),
+) : ViewModel() {
     private val goal = Repository.getRepository().getActivityGoal(frozenGoal.id.toString())
     val snapshot =
         MutableLiveData<ActivityGoal>(if (goal.value?.isValid == true) goal.value!!.freeze<ActivityGoal>() else null)
@@ -78,7 +97,10 @@ class GoalItemViewModel(private val frozenGoal: ActivityGoal,
     var expanded = MutableLiveData(expand)
     val goalWeekDaysString = Transformations.map(snapshot) {
         it?.weekDays?.sorted()?.map { d -> DayOfWeek.of(d) }
-            ?.joinToString(truncated = ",") { d -> d.getDisplayName(TextStyle.SHORT, Locale.getDefault()) }
+            ?.joinToString(truncated = ",") { d ->
+                d.getDisplayName(TextStyle.SHORT,
+                    Locale.getDefault())
+            }
     }
 
     init {
@@ -95,7 +117,7 @@ class GoalItemViewModel(private val frozenGoal: ActivityGoal,
     }
 
     fun onLanguageChange(value: String) {
-        repository.updateActivityGoal(frozenGoal.id) {goal ->
+        repository.updateActivityGoal(frozenGoal.id) { goal ->
             goal.language = value
         }
     }
@@ -124,7 +146,7 @@ class GoalItemViewModel(private val frozenGoal: ActivityGoal,
 
     fun toggleWeekDay(day: Int) {
         repository.updateActivityGoal(frozenGoal.id) { goal ->
-            if(goal.weekDays.contains(day)) {
+            if (goal.weekDays.contains(day)) {
                 goal.weekDays.removeIf() { it == day }
             } else {
                 goal.weekDays.add(day)
@@ -159,7 +181,7 @@ fun GoalsActivityContent(
     val lastAddedId by model.lastAddedId.observeAsState()
     var showActivityTypeDialog by rememberSaveable { mutableStateOf(false) }
 
-    if(showActivityTypeDialog) {
+    if (showActivityTypeDialog) {
         ActivityTypeSelectDialog(
             groups = typeGroups,
             onItemClick = {
@@ -188,9 +210,11 @@ fun GoalsActivityContent(
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(text = { Text(text = "New Goal") }, onClick = { showActivityTypeDialog = true }, icon = {
-                Icon(Icons.Filled.Add, contentDescription = null)
-            })
+            ExtendedFloatingActionButton(text = { Text(text = "New Goal") },
+                onClick = { showActivityTypeDialog = true },
+                icon = {
+                    Icon(Icons.Filled.Add, contentDescription = null)
+                })
         }
     )
     {
@@ -221,7 +245,7 @@ fun GoalRow(
     val expanded by model.expanded.observeAsState()
     var deleted by remember { mutableStateOf(false) }
 
-    if(showLanguageDialog) {
+    if (showLanguageDialog) {
         LanguageSelectDialog(
             onItemClick = {
                 model.onLanguageChange(it.code)
@@ -231,14 +255,14 @@ fun GoalRow(
             preferences = preferences)
     }
 
-    if(showActivityTypeDialog) {
+    if (showActivityTypeDialog) {
         ActivityTypeSelectDialog(
             groups = typeGroups,
             onItemClick = {
                 model.onTypeChange(it)
                 showActivityTypeDialog = false
             },
-            onAddTypeClick =  {
+            onAddTypeClick = {
                 model.addActivityType(it)
             },
             onDismissRequest = { showActivityTypeDialog = false })
@@ -279,7 +303,8 @@ fun GoalRow(
                         Row(modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp), Arrangement.SpaceBetween) {
-                            Text(goalWeekDaysString.orEmpty(), style = MaterialTheme.typography.body2)
+                            Text(goalWeekDaysString.orEmpty(),
+                                style = MaterialTheme.typography.body2)
                             Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = null)
                         }
                     }
@@ -299,7 +324,8 @@ fun GoalRow(
                                 value = getLanguageDisplayName(goal!!.language),
                                 onClick = { showLanguageDialog = true })
                             Spacer(modifier = Modifier.size(16.dp))
-                            ApplyTextStyle(textStyle = MaterialTheme.typography.caption, contentAlpha = ContentAlpha.medium) {
+                            ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
+                                contentAlpha = ContentAlpha.medium) {
                                 Text("Week days")
                             }
                             Spacer(modifier = Modifier.size(8.dp))
@@ -313,7 +339,8 @@ fun GoalRow(
                                 .fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically) {
-                                TextButton(onClick = { model.removeGoal(); deleted = true }, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.error)) {
+                                TextButton(onClick = { model.removeGoal(); deleted = true },
+                                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.error)) {
                                     Icon(Icons.Filled.DeleteForever, contentDescription = null)
                                     Text(text = "Delete")
                                 }
@@ -330,13 +357,16 @@ fun GoalRow(
 @Composable
 fun WeekDaysSelector(weekDays: IntArray, onSelect: (Int) -> Unit) {
     val dayLetters = remember {
-        IntRange(1, 7).map { DayOfWeek.of(it).toString().substring(0,1) }
+        IntRange(1, 7).map { DayOfWeek.of(it).toString().substring(0, 1) }
     }
 
     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
         for (d in 1 until 8) {
-            ToggleButton(onClick = { onSelect(d) }, selected = weekDays.contains(d), highlighted = true, round = true) {
-                Text(dayLetters[d-1])
+            ToggleButton(onClick = { onSelect(d) },
+                selected = weekDays.contains(d),
+                highlighted = true,
+                round = true) {
+                Text(dayLetters[d - 1])
             }
         }
     }
@@ -350,11 +380,18 @@ fun FeedGoalRow(
         GoalItemViewModelFactory(rawGoal, false, LocalLifecycleOwner.current)),
 ) {
     val goal by model.snapshot.observeAsState()
-    var done by remember { mutableStateOf(false) }
+    var showDoneDialog by remember { mutableStateOf(false) }
 
     goal?.let {
-        AnimatedVisibility(goal != null && !done, exit = shrinkVertically() + fadeOut()) {
+        val cardColor = goal?.activityType?.category?.color?.let { it1 -> Color(it1) }
+        if(showDoneDialog) {
+            GoalDoneDialog(onConfirm = { showDoneDialog = false; }, onDismissRequest = { showDoneDialog = false }, rawGoal = rawGoal)
+        }
+
+        AnimatedVisibility(goal != null , exit = shrinkVertically() + fadeOut()) {
             Card(
+                backgroundColor = cardColor ?: MaterialTheme.colors.surface,
+                contentColor = if(cardColor != null) Color.White else MaterialTheme.colors.onSurface,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -364,9 +401,12 @@ fun FeedGoalRow(
             {
                 Column {
                     ListItem(
-                        modifier = Modifier.clickable(onClick = { done = true }),
+                        modifier = Modifier.clickable(onClick = { showDoneDialog = true }),
                         icon = {
-                            Icon(Icons.Rounded.RadioButtonUnchecked, modifier = Modifier.size(42.dp), tint = MaterialTheme.colors.onSurface.copy(ContentAlpha.disabled), contentDescription = null)
+                            Icon(Icons.Rounded.RadioButtonUnchecked,
+                                modifier = Modifier.size(42.dp),
+                                tint = if(cardColor != null) Color.White else MaterialTheme.colors.onSurface,
+                                contentDescription = null)
                         },
                         text = {
                             Text("${goal!!.activityType?.category?.title} : ${goal!!.activityType?.name}",
@@ -379,6 +419,95 @@ fun FeedGoalRow(
                                 overflow = TextOverflow.Ellipsis)
                         }
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun GoalDoneDialog(
+    onConfirm: () -> Unit,
+    onDismissRequest: () -> Unit,
+    rawGoal: ActivityGoal,
+    editModel: EditActivityViewModel = viewModel("completeGoal${rawGoal.id}",
+        EditActivityViewModelFactory(id = null, PickerProvider.getPickerProvider())),
+    model: GoalItemViewModel = viewModel("goalRow${rawGoal.id}",
+        GoalItemViewModelFactory(rawGoal, false, LocalLifecycleOwner.current)),
+) {
+    val goal by model.snapshot.observeAsState()
+    val startTime by editModel.startTime.observeAsState()
+    val endTime by editModel.endTime.observeAsState()
+    val confidence by editModel.confidence.observeAsState()
+    val motivation by editModel.motivation.observeAsState()
+    val pickerScope = rememberCoroutineScope()
+    val cardColor = goal?.activityType?.category?.color?.let { it1 -> Color(it1) }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Card(
+            Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+            shape = RoundedCornerShape(16.dp),) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    backgroundColor = cardColor ?: MaterialTheme.colors.surface,
+                    contentColor = if(cardColor != null) Color.White else MaterialTheme.colors.onSurface) {
+
+                    Text(
+                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                        text = "${goal!!.activityType?.category?.title} : ${goal!!.activityType?.name}",
+                        textAlign= TextAlign.Center,
+                        style = MaterialTheme.typography.subtitle1)
+                }
+
+                Spacer(modifier = Modifier.size(32.dp))
+
+                DropDownTextField(
+                    label = { Text("Duration") },
+                    value = getDurationString(getMinutes(startTime, endTime)),
+                    onClick = { pickerScope.launch { editModel.pickDuration() } },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                )
+
+                Spacer(modifier = Modifier.size(16.dp))
+                ApplyTextStyle(MaterialTheme.typography.caption, ContentAlpha.medium) {
+                    Text("Confidence", modifier = Modifier.padding(horizontal = 16.dp))
+                }
+
+                Spacer(modifier = Modifier.size(8.dp))
+                SentimentIcons(value = confidence,
+                    onSentimentChange = { editModel.onConfidenceChange(it) },
+                    color = MaterialTheme.colors.secondary,
+                    size = 36.dp)
+
+                Spacer(modifier = Modifier.size(16.dp))
+                ApplyTextStyle(MaterialTheme.typography.caption, ContentAlpha.medium) {
+                    Text("Motivation", modifier = Modifier.padding(horizontal = 16.dp))
+                }
+                Spacer(modifier = Modifier.size(8.dp))
+                SentimentIcons(value = motivation,
+                    onSentimentChange = { editModel.onMotivationChange(it) },
+                    color = MaterialTheme.colors.secondary,
+                    size = 36.dp)
+
+                Spacer(modifier = Modifier.size(32.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    TextButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            goal?.let {
+                                editModel.onLanguageChange(it.language)
+                                editModel.onTypeChange(it.activityType!!)
+                                editModel.save()
+                                onConfirm()
+                            }
+                        }) {
+                            Icon(Icons.Rounded.Check, contentDescription = null)
+                            Text(text = "Done", style = MaterialTheme.typography.subtitle2)
+                        }
                 }
             }
         }

@@ -47,7 +47,7 @@ class EditorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val args = getDetailsArgs(intent)
 
-        PickerProvider.getPickerProvider().fragmentManager = supportFragmentManager
+        PickerProvider.getPickerProvider().fragmentManagerProvider = { supportFragmentManager }
         modelFactory = EditActivityViewModelFactory(args.id, PickerProvider.getPickerProvider())
 
         setContent {

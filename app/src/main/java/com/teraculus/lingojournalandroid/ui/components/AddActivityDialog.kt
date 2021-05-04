@@ -96,68 +96,59 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
             .fillMaxSize()
             .padding(horizontal = 8.dp)
             .verticalScroll(scrollState)) {
-            Row {
-                OutlinedTextField(label = { Text("Title") },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    value = title.value.toString(),
-                    onValueChange = { model.onTitleChange(it) })
-            }
-            Row {
-                DropDownTextField(label = { Text("Language") },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    value = getLanguageDisplayName(language.value.orEmpty()) ,
-                    onClick = { showLanguageDialog = true })
-            }
-            Row {
-                DropDownTextField(label = { Text("Activity") },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    leadingIcon = { ActivityTypeIcon(type) },
-                    value = "${type?.category?.title} : ${type?.name}",
-                    onClick = { showActivityTypeDialog = true })
-            }
-
-            Divider(Modifier.padding(top = 16.dp))
-
-            Row {
-                OutlinedTextField(label = { Text("Note") },
-                    maxLines = 5,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    value = text.value.toString(),
-                    onValueChange = { model.onTextChange(it) })
-            }
+            Spacer(modifier = Modifier.size(8.dp))
+            TextField(label = { Text("Title") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                value = title.value.toString(),
+                onValueChange = { model.onTitleChange(it) })
+            Spacer(modifier = Modifier.size(16.dp))
+            DropDownTextField(label = { Text("Language") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                value = getLanguageDisplayName(language.value.orEmpty()) ,
+                onClick = { showLanguageDialog = true })
+            Spacer(modifier = Modifier.size(16.dp))
+            DropDownTextField(label = { Text("Activity") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                leadingIcon = { ActivityTypeIcon(type) },
+                value = "${type?.category?.title} : ${type?.name}",
+                onClick = { showActivityTypeDialog = true })
+            Spacer(modifier = Modifier.size(16.dp))
+            Divider()
+            Spacer(modifier = Modifier.size(16.dp))
+            TextField(label = { Text("Note") },
+                maxLines = 5,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                value = text.value.toString(),
+                onValueChange = { model.onTextChange(it) })
+            Spacer(modifier = Modifier.size(16.dp))
             DateAndTimeRow(date.value,
                 startTime.value,
                 getDurationString(getMinutes(startTime.value!!, endTime.value!!)),
                 { coroutineScope.launch { model.pickDate() } },
                 { coroutineScope.launch { model.pickStartTime() } },
                 { coroutineScope.launch { model.pickDuration() } })
-
-            Row(Modifier.padding(bottom = 8.dp)) {
-                ApplyTextStyle(MaterialTheme.typography.body1, ContentAlpha.medium) {
-                    Text("Confidence",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center)
-                }
+            Spacer(modifier = Modifier.size(16.dp))
+            ApplyTextStyle(MaterialTheme.typography.caption, ContentAlpha.medium) {
+                Text("Confidence", modifier = Modifier.padding(horizontal = 16.dp))
             }
+            Spacer(modifier = Modifier.size(8.dp))
             SentimentIcons(value = confidence,
                 onSentimentChange = { model.onConfidenceChange(it) },
                 color = MaterialTheme.colors.secondary,
                 size = 36.dp)
-            Row(Modifier.padding(top = 16.dp, bottom = 8.dp)) {
-                ApplyTextStyle(MaterialTheme.typography.body1, ContentAlpha.medium) {
-                    Text("Motivation",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center)
-                }
+            Spacer(modifier = Modifier.size(16.dp))
+            ApplyTextStyle(MaterialTheme.typography.caption, ContentAlpha.medium) {
+                Text("Motivation", modifier = Modifier.padding(horizontal = 16.dp))
             }
+            Spacer(modifier = Modifier.size(8.dp))
             SentimentIcons(value = motivation,
                 onSentimentChange = { model.onMotivationChange(it) },
                 color = MaterialTheme.colors.secondary,
@@ -195,7 +186,7 @@ private fun DateAndTimeRow(
 ) {
     Column(Modifier
         .fillMaxSize()) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 16.dp)) {
             DropDownTextField(
                 label = { Text("Date") },
                 value = toDateString(date),
@@ -213,8 +204,9 @@ private fun DateAndTimeRow(
                 onClick = onPickStartTime
             )
         }
+        Spacer(modifier = Modifier.size(16.dp))
         Row(Modifier
-            .padding(16.dp)) {
+            .padding(horizontal = 16.dp)) {
             DropDownTextField(
                 label = { Text("Duration") },
                 value = duration,

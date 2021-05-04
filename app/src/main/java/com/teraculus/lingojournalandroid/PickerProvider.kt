@@ -13,13 +13,13 @@ import java.time.ZoneOffset
 import java.util.*
 
 class PickerProvider() {
-    private lateinit var _fragmentManager: FragmentManager
-    var fragmentManager: FragmentManager
+    private lateinit var _fragmentManagerProvider: () -> FragmentManager
+    var fragmentManagerProvider: () -> FragmentManager
         get() {
-            return _fragmentManager
+            return _fragmentManagerProvider
         }
         set(value) {
-            _fragmentManager = value
+            _fragmentManagerProvider = value
         }
 
     suspend fun pickDate(title: CharSequence?, initialDate: LocalDate, onDateChange: (changedDate: LocalDate) -> Unit) {
@@ -42,7 +42,7 @@ class PickerProvider() {
             )
         }
 
-        picker.show(fragmentManager, picker.toString())
+        picker.show(fragmentManagerProvider(), picker.toString())
     }
 
     suspend fun pickTime(title: CharSequence?, initialTime: LocalTime, onTimeChange: (changedTime: LocalTime) -> Unit) {
@@ -63,7 +63,7 @@ class PickerProvider() {
             ))
         }
 
-        picker.show(fragmentManager, picker.toString())
+        picker.show(fragmentManagerProvider(), picker.toString())
     }
 
     suspend fun pickDuration(title: CharSequence?, initialTime: LocalTime, onTimeChange: (changedTime: LocalTime) -> Unit) {
@@ -84,7 +84,7 @@ class PickerProvider() {
             ))
         }
 
-        picker.show(fragmentManager, picker.toString())
+        picker.show(fragmentManagerProvider(), picker.toString())
     }
 
 
