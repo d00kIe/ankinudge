@@ -2,19 +2,26 @@ package com.teraculus.lingojournalandroid.ui.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.Mail
+import androidx.compose.material.icons.rounded.Policy
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teraculus.lingojournalandroid.BuildConfig
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.ThemePreference
 import com.teraculus.lingojournalandroid.ui.components.RadioSelectDialog
@@ -66,14 +73,17 @@ fun SettingsContent(
                     }
                 }
             )
+        },
+        bottomBar = {
+            Text(text = "Version: ${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE}", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
         }
     )
     {
         Column(modifier = Modifier.verticalScroll(scrollState)) {
-            ListItem(text = { Text("Theme") },
+            ListItem(icon ={ Icon(Icons.Rounded.DarkMode, contentDescription = null) }, text = { Text("Theme") },
                 modifier = Modifier.clickable { showThemeDialog = true })
-            ListItem(text = { Text("Privacy policy") }, modifier = Modifier.clickable { openPrivacyPolicy() })
-            ListItem(text = { Text("Feedback") }, modifier = Modifier.clickable { onOpenFeedback() })
+            ListItem(icon ={ Icon(Icons.Rounded.Policy, contentDescription = null) }, text = { Text("Privacy policy") }, modifier = Modifier.clickable { openPrivacyPolicy() })
+            ListItem(icon ={ Icon(Icons.Rounded.Mail, contentDescription = null) }, text = { Text("Feedback") }, modifier = Modifier.clickable { onOpenFeedback() })
         }
     }
 }

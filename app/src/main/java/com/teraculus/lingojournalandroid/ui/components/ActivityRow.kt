@@ -28,27 +28,28 @@ import java.time.LocalTime
 @ExperimentalMaterialApi
 @Composable
 fun ActivityRow(rawactivity: Activity, onClick: (id: String) -> Unit, model: ActivityItemViewModel = viewModel("activityRow${rawactivity.id}", ActivityItemViewModelFactory(rawactivity, LocalLifecycleOwner.current))) {
-    val activity by model.snapshot.observeAsState()
-    if(activity != null) {
+    val snapshot by model.snapshot.observeAsState()
+    snapshot?.let { activity ->
+        val title = if(activity.title.isEmpty()) "${activity.type?.category?.title} : ${activity.type?.name}" else activity.title
         Card(
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
-                .clickable(onClick = { onClick(activity!!.id.toString()) }),
+                .clickable(onClick = { onClick(activity.id.toString()) }),
             elevation = 2.dp)
         {
             ListItem(
                 icon = {
-                    ActivityRowIcon(activity!!.type?.category?.icon,
-                        activity!!.type?.category?.color)
+                    ActivityRowIcon(activity.type?.category?.icon,
+                        activity.type?.category?.color)
                 },
-                text = { Text(activity!!.title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+                text = { Text(title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
                 secondaryText = {
-                    OverlineText(activity!!.startTime,
-                        activity!!.endTime,
-                        activity!!.language,
-                        activity!!.type?.name)
+                    OverlineText(activity.startTime,
+                        activity.endTime,
+                        activity.language,
+                        activity.type?.name)
                 })
         }
     }

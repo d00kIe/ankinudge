@@ -56,6 +56,7 @@ class GoalsViewModel(val repository: Repository = Repository.getRepository()) : 
         val language = preferences.value?.languages?.firstOrNull() ?: "en"
         val weekDays = arrayOf(1,2,3,4,5,6,7)
         val goal = ActivityGoal(text = "", language = language, activityType = type, date = LocalDate.now(), reminder = null, weekDays = weekDays)
+        lastAddedId.value = goal.id
         repository.addActivityGoal(goal)
     }
 
@@ -312,7 +313,7 @@ fun GoalRow(
                                 .fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically) {
-                                TextButton(onClick = { model.removeGoal(); deleted = true }) {
+                                TextButton(onClick = { model.removeGoal(); deleted = true }, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.error)) {
                                     Icon(Icons.Filled.DeleteForever, contentDescription = null)
                                     Text(text = "Delete")
                                 }
@@ -358,7 +359,7 @@ fun FeedGoalRow(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 elevation = 2.dp,
-                shape = RoundedCornerShape(topStartPercent = 50, bottomStartPercent = 50)
+                shape = RoundedCornerShape(16.dp)
             )
             {
                 Column {

@@ -50,10 +50,10 @@ fun ActivityList(
             HomeStatsCard(onOpenStats, model = model)
         }
 
-        if(!todayGoals.isNullOrEmpty()) {
+        if(!groups.orEmpty().containsKey(today) && !todayGoals.isNullOrEmpty()) {
             item {
                 ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {
-                    Text(text = "Today's Goals", modifier = Modifier.padding(top=16.dp, start = 16.dp))
+                    Text(text = "Today", modifier = Modifier.padding(top=16.dp, start = 16.dp))
                 }
             }
             items(todayGoals.orEmpty()) { goal ->
@@ -65,6 +65,11 @@ fun ActivityList(
                 item {
                     ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {
                         Text(text = toDayStringOrToday(date), modifier = Modifier.padding(top=16.dp, start = 16.dp))
+                    }
+                }
+                if (date == today) {
+                    items(todayGoals.orEmpty()) { goal ->
+                        FeedGoalRow(goal)
                     }
                 }
                 items(items) { activity ->

@@ -15,6 +15,7 @@ class LanguageDayData(val language: String, val data: List<DayData>)
 class ActivityListViewModel(repository: Repository) : ViewModel() {
     private val activities = repository.getActivities()
     private val goals = repository.getActivityGoals()
+    val frozenGoals = Transformations.map(goals) { (it as RealmResults<ActivityGoal>).freeze().sortedByDescending { g -> g.id.timestamp } }
     val frozen = Transformations.map(activities) { (it as RealmResults<Activity>).freeze() }
     var grouped = Transformations.map(frozen) {
         it?.groupBy { it1 -> it1.date }.orEmpty()
@@ -31,14 +32,14 @@ class ActivityListViewModel(repository: Repository) : ViewModel() {
     val todayGoals = MediatorLiveData<List<ActivityGoal>>().apply {
         fun update() {
             val today = LocalDate.now()
-            value = goals.value.orEmpty().filter { g ->
+            value = frozenGoals.value.orEmpty().filter { g ->
                 g.active && g.weekDays.contains(today.dayOfWeek.value) && todayActivities.value.orEmpty()
                     .none { a -> a.language == g.language && a.type == g.activityType }
             }
         }
 
         addSource(todayActivities) { update() }
-        addSource(goals) { update() }
+        addSource(frozenGoals) { update() }
 
         update()
     }
