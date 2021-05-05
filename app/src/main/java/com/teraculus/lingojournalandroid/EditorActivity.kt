@@ -22,19 +22,22 @@ import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModelFactory
 
 private const val KEY_ARG_EDITOR_ACTIVITY_ID = "KEY_ARG_EDITOR_ACTIVITY_ID"
+private const val KEY_ARG_EDITOR_FROM_GOAL_ACTIVITY_ID = "KEY_ARG_EDITOR_FROM_GOAL_ACTIVITY_ID"
 
-fun launchEditorActivity(context: Context, id: String?) {
-    context.startActivity(createEditorActivityIntent(context, id))
+fun launchEditorActivity(context: Context, id: String?, goalId: String? = null) {
+    context.startActivity(createEditorActivityIntent(context, id, goalId))
 }
 
-fun createEditorActivityIntent(context: Context, id: String?): Intent {
+fun createEditorActivityIntent(context: Context, id: String?, goalId: String?): Intent {
     val intent = Intent(context, EditorActivity::class.java)
     intent.putExtra(KEY_ARG_EDITOR_ACTIVITY_ID, id)
+    intent.putExtra(KEY_ARG_EDITOR_FROM_GOAL_ACTIVITY_ID, goalId)
     return intent
 }
 
 data class EditorActivityArg(
-    val id: String?
+    val id: String?,
+    val goalId: String?
 )
 
 class EditorActivity : AppCompatActivity() {
@@ -48,7 +51,7 @@ class EditorActivity : AppCompatActivity() {
         val args = getDetailsArgs(intent)
 
         PickerProvider.getPickerProvider().fragmentManagerProvider = { supportFragmentManager }
-        modelFactory = EditActivityViewModelFactory(args.id, PickerProvider.getPickerProvider())
+        modelFactory = EditActivityViewModelFactory(args.id, args.goalId, PickerProvider.getPickerProvider())
 
         setContent {
             val systemUiController = remember { SystemUiController(window) }
@@ -63,6 +66,7 @@ class EditorActivity : AppCompatActivity() {
 
     private fun getDetailsArgs(intent: Intent): EditorActivityArg {
         val id = intent.getStringExtra(KEY_ARG_EDITOR_ACTIVITY_ID)
-        return EditorActivityArg(id)
+        val goalId = intent.getStringExtra(KEY_ARG_EDITOR_FROM_GOAL_ACTIVITY_ID)
+        return EditorActivityArg(id,goalId)
     }
 }

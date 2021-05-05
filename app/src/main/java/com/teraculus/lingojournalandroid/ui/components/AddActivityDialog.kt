@@ -116,7 +116,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 leadingIcon = { ActivityTypeIcon(type) },
-                value = "${type?.category?.title} : ${type?.name}",
+                value = toActivityTypeTitle(type),
                 onClick = { showActivityTypeDialog = true })
             Spacer(modifier = Modifier.size(16.dp))
             Divider()

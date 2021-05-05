@@ -30,7 +30,8 @@ class MainActivity : AppCompatActivity() {
                         onAddActivity = { launchEditorActivity(this, null) },
                         onOpenSettings = { launchSettingsActivity(this) },
                         onOpenStats = { launchStatsActivity(this) },
-                        onOpenGoals = { launchGoalsActivity(this) }
+                        onOpenGoals = { launchGoalsActivity(this) },
+                        onGoalClick = { launchEditorActivity(this, null, it) }
                     )
                 }
             }

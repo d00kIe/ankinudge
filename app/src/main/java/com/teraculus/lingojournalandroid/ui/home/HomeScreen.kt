@@ -9,14 +9,12 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
 import com.teraculus.lingojournalandroid.ui.goals.FeedGoalRow
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
-import com.teraculus.lingojournalandroid.utils.toDayString
 import com.teraculus.lingojournalandroid.utils.toDayStringOrToday
 import java.time.LocalDate
 
@@ -27,9 +25,10 @@ fun HomeScreen(
         ActivityListViewModelFactory()),
     onItemClick: (id: String) -> Unit,
     onOpenStats: () -> Unit,
-    scrollState: LazyListState
+    scrollState: LazyListState,
+    onGoalClick: (goalId: String) -> Unit
 ) {
-    ActivityList(model = model, onItemClick, onOpenStats, scrollState)
+    ActivityList(model = model, onItemClick, onOpenStats, scrollState, onGoalClick = onGoalClick)
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -40,6 +39,7 @@ fun ActivityList(
     onItemClick: (id: String) -> Unit,
     onOpenStats: () -> Unit,
     scrollState: LazyListState,
+    onGoalClick: (goalId: String) -> Unit,
 ) {
     val groups by model.grouped.observeAsState()
     val today = LocalDate.now()
@@ -57,7 +57,7 @@ fun ActivityList(
                 }
             }
             items(todayGoals.orEmpty()) { goal ->
-                FeedGoalRow(goal)
+                FeedGoalRow(goal, onClick = onGoalClick)
             }
         }
         if (groups != null && groups.orEmpty().isNotEmpty()) {
@@ -69,7 +69,7 @@ fun ActivityList(
                 }
                 if (date == today) {
                     items(todayGoals.orEmpty()) { goal ->
-                        FeedGoalRow(goal)
+                        FeedGoalRow(goal, onClick = onGoalClick)
                     }
                 }
                 items(items) { activity ->

@@ -12,6 +12,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.LiveData
 import com.teraculus.lingojournalandroid.model.Activity
+import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.model.ThemePreference
 import com.teraculus.lingojournalandroid.model.UserPreferences
 import com.teraculus.lingojournalandroid.ui.DarkColors
@@ -169,6 +170,10 @@ fun getMinutes(start: LocalTime?, end: LocalTime?): Long {
         0
     else
         abs(Duration.between(start, end).toMinutes())
+}
+
+fun toActivityTypeTitle(type: ActivityType?): String {
+    return type?.let { "${type.category?.title}: ${type.name}" } ?: ""
 }
 
 

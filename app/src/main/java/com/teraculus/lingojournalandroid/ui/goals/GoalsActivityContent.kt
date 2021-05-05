@@ -44,6 +44,7 @@ import com.teraculus.lingojournalandroid.ui.components.*
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.getDurationString
 import com.teraculus.lingojournalandroid.utils.getMinutes
+import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModelFactory
 import io.realm.RealmResults
@@ -314,7 +315,7 @@ fun GoalRow(
                             DropDownTextField(label = { Text("Activity") },
                                 modifier = Modifier
                                     .fillMaxWidth(),
-                                value = "${goal!!.activityType?.category?.title} : ${goal!!.activityType?.name}",
+                                value = toActivityTypeTitle(goal?.activityType),
                                 onClick = { showActivityTypeDialog = true })
 
                             Spacer(modifier = Modifier.size(8.dp))
@@ -378,15 +379,11 @@ fun FeedGoalRow(
     rawGoal: ActivityGoal,
     model: GoalItemViewModel = viewModel("goalRow${rawGoal.id}",
         GoalItemViewModelFactory(rawGoal, false, LocalLifecycleOwner.current)),
+    onClick: (goalId: String) -> Unit,
 ) {
     val goal by model.snapshot.observeAsState()
-    var showDoneDialog by remember { mutableStateOf(false) }
-
     goal?.let {
         val cardColor = goal?.activityType?.category?.color?.let { it1 -> Color(it1) }
-        if(showDoneDialog) {
-            GoalDoneDialog(onConfirm = { showDoneDialog = false; }, onDismissRequest = { showDoneDialog = false }, rawGoal = rawGoal)
-        }
 
         AnimatedVisibility(goal != null , exit = shrinkVertically() + fadeOut()) {
             Card(
@@ -401,7 +398,7 @@ fun FeedGoalRow(
             {
                 Column {
                     ListItem(
-                        modifier = Modifier.clickable(onClick = { showDoneDialog = true }),
+                        modifier = Modifier.clickable(onClick = { onClick(goal?.id.toString()) }),
                         icon = {
                             Icon(Icons.Rounded.RadioButtonUnchecked,
                                 modifier = Modifier.size(42.dp),
@@ -409,7 +406,7 @@ fun FeedGoalRow(
                                 contentDescription = null)
                         },
                         text = {
-                            Text("${goal!!.activityType?.category?.title} : ${goal!!.activityType?.name}",
+                            Text(toActivityTypeTitle(goal?.activityType),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis)
                         },
@@ -419,95 +416,6 @@ fun FeedGoalRow(
                                 overflow = TextOverflow.Ellipsis)
                         }
                     )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun GoalDoneDialog(
-    onConfirm: () -> Unit,
-    onDismissRequest: () -> Unit,
-    rawGoal: ActivityGoal,
-    editModel: EditActivityViewModel = viewModel("completeGoal${rawGoal.id}",
-        EditActivityViewModelFactory(id = null, PickerProvider.getPickerProvider())),
-    model: GoalItemViewModel = viewModel("goalRow${rawGoal.id}",
-        GoalItemViewModelFactory(rawGoal, false, LocalLifecycleOwner.current)),
-) {
-    val goal by model.snapshot.observeAsState()
-    val startTime by editModel.startTime.observeAsState()
-    val endTime by editModel.endTime.observeAsState()
-    val confidence by editModel.confidence.observeAsState()
-    val motivation by editModel.motivation.observeAsState()
-    val pickerScope = rememberCoroutineScope()
-    val cardColor = goal?.activityType?.category?.color?.let { it1 -> Color(it1) }
-
-    Dialog(onDismissRequest = onDismissRequest) {
-        Card(
-            Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
-            shape = RoundedCornerShape(16.dp),) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    backgroundColor = cardColor ?: MaterialTheme.colors.surface,
-                    contentColor = if(cardColor != null) Color.White else MaterialTheme.colors.onSurface) {
-
-                    Text(
-                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                        text = "${goal!!.activityType?.category?.title} : ${goal!!.activityType?.name}",
-                        textAlign= TextAlign.Center,
-                        style = MaterialTheme.typography.subtitle1)
-                }
-
-                Spacer(modifier = Modifier.size(32.dp))
-
-                DropDownTextField(
-                    label = { Text("Duration") },
-                    value = getDurationString(getMinutes(startTime, endTime)),
-                    onClick = { pickerScope.launch { editModel.pickDuration() } },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                )
-
-                Spacer(modifier = Modifier.size(16.dp))
-                ApplyTextStyle(MaterialTheme.typography.caption, ContentAlpha.medium) {
-                    Text("Confidence", modifier = Modifier.padding(horizontal = 16.dp))
-                }
-
-                Spacer(modifier = Modifier.size(8.dp))
-                SentimentIcons(value = confidence,
-                    onSentimentChange = { editModel.onConfidenceChange(it) },
-                    color = MaterialTheme.colors.secondary,
-                    size = 36.dp)
-
-                Spacer(modifier = Modifier.size(16.dp))
-                ApplyTextStyle(MaterialTheme.typography.caption, ContentAlpha.medium) {
-                    Text("Motivation", modifier = Modifier.padding(horizontal = 16.dp))
-                }
-                Spacer(modifier = Modifier.size(8.dp))
-                SentimentIcons(value = motivation,
-                    onSentimentChange = { editModel.onMotivationChange(it) },
-                    color = MaterialTheme.colors.secondary,
-                    size = 36.dp)
-
-                Spacer(modifier = Modifier.size(32.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    TextButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            goal?.let {
-                                editModel.onLanguageChange(it.language)
-                                editModel.onTypeChange(it.activityType!!)
-                                editModel.save()
-                                onConfirm()
-                            }
-                        }) {
-                            Icon(Icons.Rounded.Check, contentDescription = null)
-                            Text(text = "Done", style = MaterialTheme.typography.subtitle2)
-                        }
                 }
             }
         }

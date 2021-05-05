@@ -120,7 +120,7 @@ fun DonutCard(stats: LanguageStatData) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 16.dp, top = 8.dp, end = 16.dp)) {
-            Text(text = "Splits")
+            Text(text = "Spread")
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Show count",
                     style = MaterialTheme.typography.caption,

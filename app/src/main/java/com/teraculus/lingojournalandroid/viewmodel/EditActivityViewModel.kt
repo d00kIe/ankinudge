@@ -18,6 +18,7 @@ class EditActivityViewModel(
     private val repository: Repository,
     private val pickerProvider: PickerProvider,
     id: String?,
+    goalId: String?,
 ) : ViewModel() {
     val types = repository.getTypes()
     val groupedTypes = Transformations.map(types) { it.orEmpty().groupBy { it1 -> it1.category } }
@@ -35,10 +36,10 @@ class EditActivityViewModel(
     val preferences = repository.getUserPreferences()
 
     init {
-        prepareActivity(id)
+        prepareActivity(id, goalId)
     }
 
-    private fun prepareActivity(id: String?) {
+    private fun prepareActivity(id: String?, goalId: String?) {
         val activity = id?.let { repository.getActivity(it).value }
         if (activity != null) {
             preparedId = id
@@ -52,15 +53,28 @@ class EditActivityViewModel(
             startTime.value = activity.startTime
             endTime.value = activity.endTime
         } else {
-            title.value = ""
-            text.value = ""
-            language.value = preferences.value?.languages?.firstOrNull() ?: "en"
-            type.value = types.value!!.first()
-            confidence.value = 50f
-            motivation.value = 50f
-            date.value = LocalDate.now()
-            startTime.value = LocalTime.now().minusHours(1)
-            endTime.value = LocalTime.now()
+            val goal = goalId?.let { repository.getActivityGoal(it).value }
+            if(goal == null) {
+                title.value = ""
+                text.value = ""
+                language.value = preferences.value?.languages?.firstOrNull() ?: "en"
+                type.value = types.value!!.first()
+                confidence.value = 50f
+                motivation.value = 50f
+                date.value = LocalDate.now()
+                startTime.value = LocalTime.now().minusHours(1)
+                endTime.value = LocalTime.now()
+            } else {
+                title.value = ""
+                text.value = ""
+                language.value = goal?.language ?: "en"
+                type.value = types.value!!.find { it.id == goal?.activityType?.id } ?: types.value!!.first()
+                confidence.value = 50f
+                motivation.value = 50f
+                date.value = LocalDate.now()
+                startTime.value = LocalTime.now().minusHours(1)
+                endTime.value = LocalTime.now()
+            }
         }
     }
 
@@ -160,12 +174,12 @@ class EditActivityViewModel(
     }
 }
 
-class EditActivityViewModelFactory(val id: String?, private val pickerProvider: PickerProvider) :
+class EditActivityViewModelFactory(val id: String?, val goalId: String?, private val pickerProvider: PickerProvider) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(EditActivityViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return EditActivityViewModel(Repository.getRepository(), pickerProvider, id) as T
+            return EditActivityViewModel(Repository.getRepository(), pickerProvider, id, goalId) as T
         }
 
         throw IllegalArgumentException("Unknown view model class")

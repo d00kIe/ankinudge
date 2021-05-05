@@ -22,6 +22,7 @@ import com.teraculus.lingojournalandroid.ui.home.ActivityItemViewModel
 import com.teraculus.lingojournalandroid.ui.home.ActivityItemViewModelFactory
 import com.teraculus.lingojournalandroid.utils.getDurationString
 import com.teraculus.lingojournalandroid.utils.getMinutes
+import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
 import java.time.LocalTime
 
 
@@ -30,7 +31,7 @@ import java.time.LocalTime
 fun ActivityRow(rawactivity: Activity, onClick: (id: String) -> Unit, model: ActivityItemViewModel = viewModel("activityRow${rawactivity.id}", ActivityItemViewModelFactory(rawactivity, LocalLifecycleOwner.current))) {
     val snapshot by model.snapshot.observeAsState()
     snapshot?.let { activity ->
-        val title = if(activity.title.isEmpty()) "${activity.type?.category?.title} : ${activity.type?.name}" else activity.title
+        val title = if(activity.title.isEmpty()) toActivityTypeTitle(activity.type) else activity.title
         Card(
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier

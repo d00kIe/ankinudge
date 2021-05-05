@@ -33,6 +33,7 @@ fun MainContent(
     onOpenStats: () -> Unit,
     onOpenGoals: () -> Unit,
     viewModel: MainViewModel = viewModel("mainViewModel"),
+    onGoalClick: (goalId: String) -> Unit,
 ) {
     val scrollState = rememberLazyListState()
     val newUser by viewModel.newUser.observeAsState()
@@ -73,7 +74,8 @@ fun MainContent(
         } else {
             HomeScreen(onItemClick = onActivityClick,
                 onOpenStats = onOpenStats,
-                scrollState = scrollState)
+                scrollState = scrollState,
+                onGoalClick = onGoalClick)
         }
     }
 }

@@ -39,6 +39,7 @@ fun ActivityDetailsDialogContent(onDismiss: () -> Unit,
                                  model : ActivityDetailsViewModel) {
     val title by model.title.observeAsState()
     val text by model.text.observeAsState()
+    val type by model.type.observeAsState()
     val typeName by model.typeName.observeAsState()
     val categoryTitle by model.categoryTitle.observeAsState()
     val date by model.date.observeAsState()
@@ -85,9 +86,9 @@ fun ActivityDetailsDialogContent(onDismiss: () -> Unit,
     {
         Column(Modifier
             .fillMaxSize()
-            .padding(vertical = 16.dp, horizontal = 24.dp)
+            .padding(vertical = 8.dp, horizontal = 24.dp)
             .verticalScroll(scrollState)) {
-            Text(title.orEmpty(), style = MaterialTheme.typography.h5)
+            Text(if(title.isNullOrEmpty()) toActivityTypeTitle(type) else title.orEmpty(), style = MaterialTheme.typography.h5)
             Spacer(Modifier.size(8.dp))
             ApplyTextStyle(MaterialTheme.typography.body2, ContentAlpha.medium) {
                 Text("${getLanguageDisplayName(language.orEmpty())} · $typeName")
