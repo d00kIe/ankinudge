@@ -1,7 +1,6 @@
 package com.teraculus.lingojournalandroid.data
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.teraculus.lingojournalandroid.model.*
 import com.teraculus.lingojournalandroid.utils.asDate
 import io.realm.*
@@ -10,6 +9,7 @@ import org.bson.types.ObjectId
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
+import java.util.*
 
 class Repository {
     private var realm: Realm? = null
@@ -36,51 +36,35 @@ class Repository {
         goals = ActivityGoal.query(realm!!)
     }
 
-    val migration = object: RealmMigration {
-        override fun migrate(realm: DynamicRealm, oldVersion: Long, newVersion: Long) {
-//            var version: Long = oldVersion
-            // DynamicRealm exposes an editable schema
-//            val schema: RealmSchema = realm.schema
-//            // Changes from version 0 to 1: Adding lastName.
-//            // All properties will be initialized with the default value "".
-//            if (version == 0L) {
-//                schema.get("Person")!!
-//                    .addField("lastName", String::class.java, FieldAttribute.REQUIRED)
-//                version++
-//            }
-//            // Changes from version 1 to 2: Combining firstName/lastName into fullName
-//            if (version == 1L) {
-//                schema.get("Person")!!
-//                    .addField("fullName", String::class.java, FieldAttribute.REQUIRED)
-//                    .transform { obj: DynamicRealmObject ->
-//                        val name = "${obj.getString("firstName")} ${obj.getString("lastName")}"
-//                        obj.setString("fullName", name)
-//                    }
-//                    .removeField("firstName")
-//                    .removeField("lastName")
-//                version++
-//            }
-//            // Changes from version 2 to 3: Replace age with birthday
-//            if (version == 2L) {
-//                schema.get("Person")!!
-//                    .addField("birthday", Date::class.java, FieldAttribute.REQUIRED)
-//                    .transform { obj: DynamicRealmObject ->
-//                        var birthYear = Date().year - obj.getInt("age")
-//                        obj.setDate("birthday", Date(birthYear, 1, 1))
-//                    }
-//                    .removeField("age")
-//                version++
-//            }
-        }
-    }
-
     private fun initializeRealm() {
+         val migration = RealmMigration { realm, oldVersion, newVersion ->
+            var version: Long = oldVersion
+            // DynamicRealm exposes an editable schema
+            val schema: RealmSchema = realm.schema
+
+            // Changes from version 0 to 1: Adding ActivityGoal.
+            if (version == 0L) {
+                schema.create("ActivityGoal")
+                    .addField("id", ObjectId::class.java, FieldAttribute.PRIMARY_KEY, FieldAttribute.REQUIRED)
+                    .addField("language", String::class.java, FieldAttribute.REQUIRED)
+                    .addField("text", String::class.java, FieldAttribute.REQUIRED)
+                    .addRealmObjectField("activityType", schema.get("ActivityType")!!)
+                    .addField("goalType", String::class.java, FieldAttribute.REQUIRED)
+                    .addField("lastChangeTs", Long::class.java)
+                    .addRealmListField("weekDays", Integer::class.java)
+                    .addField("active", Boolean::class.java)
+                    .addField("_date", Date::class.java, FieldAttribute.REQUIRED)
+                    .addField("_reminder", Date::class.java)
+
+                //version++
+            }
+        }
+
         val config = RealmConfiguration.Builder()
-            //.deleteRealmIfMigrationNeeded() //TODO: Remove
             .allowQueriesOnUiThread(true)
             .allowWritesOnUiThread(true)
-//            .schemaVersion(2)
-//            .migration(migration)
+            .schemaVersion(1)
+            .migration(migration)
             .build()
 
         Realm.setDefaultConfiguration(config)
