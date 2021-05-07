@@ -8,7 +8,7 @@ class TransformedLiveData<Source, Output>(
     private val scope: CoroutineScope ,
     private val source: LiveData<Source>,
     private val transformation: (Source?) -> Output?,
-    private val initialSource: Source? = null)
+    initialSource: Source? = null)
     : LiveData<Output>(transformation(initialSource)) {
     private var job: Job? = null
 

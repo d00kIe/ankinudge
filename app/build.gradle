@@ -21,7 +21,7 @@ android {
         applicationId "com.teraculus.lingojournalandroid"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 7
+        versionCode 8
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -106,11 +106,11 @@ dependencies {
     // optional - Test helpers for LiveData
     testImplementation "androidx.arch.core:core-testing:$arch_version"
 
-    implementation 'androidx.compose.ui:ui:1.0.0-beta05'
+    implementation 'androidx.compose.ui:ui:1.0.0-beta06'
     // Tooling support (Previews, etc.)
     implementation 'androidx.compose.ui:ui-tooling:1.0.0-beta05'
     // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
-    implementation 'androidx.compose.foundation:foundation:1.0.0-beta05'
+    implementation 'androidx.compose.foundation:foundation:1.0.0-beta06'
     // Material Design
     implementation 'androidx.compose.material:material:1.0.0-beta05'
     // Material design icons
@@ -129,6 +129,6 @@ dependencies {
 
     implementation 'androidx.navigation:navigation-compose:1.0.0-alpha10'
     implementation 'androidx.compose.ui:ui-viewbinding:1.0.0-beta05'
-    implementation 'com.google.accompanist:accompanist-pager:0.8.0'
+    implementation 'com.google.accompanist:accompanist-pager:0.9.0'
     implementation 'com.diogobernardino:williamchart:3.10.1'
 }

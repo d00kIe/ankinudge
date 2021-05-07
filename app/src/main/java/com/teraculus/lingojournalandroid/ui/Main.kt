@@ -61,7 +61,7 @@ fun MainContent(
         },
         floatingActionButton = {
             if (newUser == true) {
-                Pulsating() {
+                Pulsating {
                     FAB(onAddActivity)
                 }
             } else {

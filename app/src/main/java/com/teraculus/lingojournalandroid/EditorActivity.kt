@@ -56,7 +56,7 @@ class EditorActivity : AppCompatActivity() {
         setContent {
             val systemUiController = remember { SystemUiController(window) }
             CompositionLocalProvider(LocalSysUiController provides systemUiController) {
-                LingoTheme() {
+                LingoTheme {
                     val model : EditActivityViewModel = viewModel("editActivityViewModel", modelFactory)
                     AddActivityDialogContent(onDismiss = { finish() }, model)
                 }

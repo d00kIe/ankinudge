@@ -1,6 +1,5 @@
 package com.teraculus.lingojournalandroid.model
 
-import android.graphics.Color
 import androidx.core.graphics.toColorInt
 import com.teraculus.lingojournalandroid.R
 

@@ -41,7 +41,7 @@ fun getMonthItems(): List<YearMonth> {
     val thisMonth = YearMonth.now().minusYears(YEARS / 2)
     val result = mutableListOf<YearMonth>()
     for (m in 0 until months) {
-        result.add(thisMonth.plusMonths(m.toLong()))
+        result.add(thisMonth.plusMonths(m))
     }
 
     return result

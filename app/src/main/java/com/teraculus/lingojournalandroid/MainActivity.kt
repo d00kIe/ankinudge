@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val systemUiController = remember { SystemUiController(window) }
             CompositionLocalProvider(LocalSysUiController provides systemUiController) {
-                LingoTheme() {
+                LingoTheme {
                     MainContent(
                         onActivityClick = { launchDetailsActivity(this, it) },
                         onAddActivity = { launchEditorActivity(this, null) },

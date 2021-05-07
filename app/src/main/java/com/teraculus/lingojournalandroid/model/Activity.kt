@@ -1,6 +1,9 @@
 package com.teraculus.lingojournalandroid.model
 
-import com.teraculus.lingojournalandroid.utils.*
+import com.teraculus.lingojournalandroid.utils.asDate
+import com.teraculus.lingojournalandroid.utils.asLocalDate
+import com.teraculus.lingojournalandroid.utils.parseRealmTimeString
+import com.teraculus.lingojournalandroid.utils.toRealmTimeString
 import io.realm.Realm
 import io.realm.RealmObject
 import io.realm.Sort
@@ -11,7 +14,6 @@ import io.realm.kotlin.where
 import org.bson.types.ObjectId
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.*
 

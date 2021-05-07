@@ -12,7 +12,7 @@ import java.time.LocalTime
 import java.time.ZoneOffset
 import java.util.*
 
-class PickerProvider() {
+class PickerProvider {
     private lateinit var _fragmentManagerProvider: () -> FragmentManager
     var fragmentManagerProvider: () -> FragmentManager
         get() {
@@ -22,7 +22,7 @@ class PickerProvider() {
             _fragmentManagerProvider = value
         }
 
-    suspend fun pickDate(title: CharSequence?, initialDate: LocalDate, onDateChange: (changedDate: LocalDate) -> Unit) {
+    fun pickDate(title: CharSequence?, initialDate: LocalDate, onDateChange: (changedDate: LocalDate) -> Unit) {
         val builder = MaterialDatePicker.Builder.datePicker()
         val picker = builder
             .setTitleText(title)
@@ -45,7 +45,7 @@ class PickerProvider() {
         picker.show(fragmentManagerProvider(), picker.toString())
     }
 
-    suspend fun pickTime(title: CharSequence?, initialTime: LocalTime, onTimeChange: (changedTime: LocalTime) -> Unit) {
+    fun pickTime(title: CharSequence?, initialTime: LocalTime, onTimeChange: (changedTime: LocalTime) -> Unit) {
         val builder = MaterialTimePicker.Builder()
         val picker =
             builder
@@ -66,7 +66,7 @@ class PickerProvider() {
         picker.show(fragmentManagerProvider(), picker.toString())
     }
 
-    suspend fun pickDuration(title: CharSequence?, initialTime: LocalTime, onTimeChange: (changedTime: LocalTime) -> Unit) {
+    fun pickDuration(title: CharSequence?, initialTime: LocalTime, onTimeChange: (changedTime: LocalTime) -> Unit) {
         val builder = MaterialTimePicker.Builder()
         val picker =
             builder

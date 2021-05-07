@@ -149,7 +149,7 @@ fun ActivityTypeSelectDialog(
 fun ActivityTypeHeader(category: ActivityCategory?, onAddActivity: (item: ActivityType) -> Unit) {
     var showAddDialog by remember { mutableStateOf(false) }
     if (category != null)
-        Surface() {
+        Surface {
             Column {
                 ListItem(
                     text = {

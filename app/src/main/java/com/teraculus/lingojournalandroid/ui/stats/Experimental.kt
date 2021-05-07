@@ -39,7 +39,7 @@ fun BarChart(values: Map<String, Float>, formatter: (Float) -> String = { it.toS
     val fontSize = with(LocalDensity.current) { 10.dp.toPx() }
     var width by remember { mutableStateOf(0) }
 
-    BoxWithConstraints() {
+    BoxWithConstraints {
         if(width != constraints.maxWidth)
             width =  constraints.maxWidth
     }
@@ -83,7 +83,7 @@ fun LineChart(values: Map<String, Float>, formatter: (Float) -> String = { it.to
     val fontSize = with(LocalDensity.current) { 8.dp.toPx() }
     var width by remember { mutableStateOf(0) }
 
-    BoxWithConstraints() {
+    BoxWithConstraints {
         if(width != constraints.maxWidth)
             width =  constraints.maxWidth
     }
@@ -120,7 +120,7 @@ fun SentimentBarChartScale() {
 
 @Composable
 fun SentimentChartsCard(stats: LanguageStatData) {
-    Column() {
+    Column {
         ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
             contentAlpha = ContentAlpha.medium) {
             Text(text = "Confidence",

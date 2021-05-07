@@ -85,7 +85,7 @@ class GoalsViewModel(val repository: Repository = Repository.getRepository()) : 
 
 class GoalItemViewModel(
     private val frozenGoal: ActivityGoal,
-    private val expand: Boolean,
+    expand: Boolean,
     owner: LifecycleOwner,
     val repository: Repository = Repository.getRepository(),
 ) : ViewModel() {
@@ -148,7 +148,7 @@ class GoalItemViewModel(
     fun toggleWeekDay(day: Int) {
         repository.updateActivityGoal(frozenGoal.id) { goal ->
             if (goal.weekDays.contains(day)) {
-                goal.weekDays.removeIf() { it == day }
+                goal.weekDays.removeIf { it == day }
             } else {
                 goal.weekDays.add(day)
             }
@@ -219,10 +219,14 @@ fun GoalsActivityContent(
         }
     )
     {
-        LazyColumn(state = scrollState) {
-            items(goals.orEmpty()) { goal ->
-                key(goal.id) {
-                    GoalRow(goal, expanded = goal.id == lastAddedId)
+        if (goals.isNullOrEmpty()) {
+            WelcomingScreen()
+        } else {
+            LazyColumn(state = scrollState) {
+                items(goals.orEmpty()) { goal ->
+                    key(goal.id) {
+                        GoalRow(goal, expand = goal.id == lastAddedId)
+                    }
                 }
             }
         }
@@ -233,9 +237,9 @@ fun GoalsActivityContent(
 @Composable
 fun GoalRow(
     rawGoal: ActivityGoal,
-    expanded: Boolean,
+    expand: Boolean,
     model: GoalItemViewModel = viewModel("goalRow${rawGoal.id}",
-        GoalItemViewModelFactory(rawGoal, expanded, LocalLifecycleOwner.current)),
+        GoalItemViewModelFactory(rawGoal, expand, LocalLifecycleOwner.current)),
 ) {
     val goal by model.snapshot.observeAsState()
     val preferences by model.preferences.observeAsState()
@@ -418,6 +422,26 @@ fun FeedGoalRow(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun WelcomingScreen() {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .padding(bottom = 64.dp),
+        contentAlignment = Alignment.Center) {
+        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp)) {
+            Text(text = "Set daily goals!",
+                style = MaterialTheme.typography.h5,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center)
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "Daily goals help you stay motivated and practice every day. Click on the green button to create your first goal!",
+                style = MaterialTheme.typography.subtitle1,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center)
         }
     }
 }

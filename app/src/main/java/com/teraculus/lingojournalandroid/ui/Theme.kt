@@ -49,7 +49,7 @@ class LingoThemeViewModel(val repository: Repository = Repository.getRepository(
     private val preferences = repository.getUserPreferences()
     val theme: MutableLiveData<String> = MutableLiveData(preferences.value?.theme)
     init {
-        preferences.observeForever() {
+        preferences.observeForever {
             theme.value = preferences.value?.theme
         }
     }

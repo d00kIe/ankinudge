@@ -36,7 +36,7 @@ fun HomeStatsCard(openStatsActivity: () -> Unit, model: ActivityListViewModel) {
     StatsCard(modifier = Modifier
         .padding(16.dp)
         .clickable { scope.launch { openStatsActivity() } }) {
-        Column() {            
+        Column {
             ListItem(
                 text={ Text("Your activities")},
                 secondaryText={Text("Streak and last 7 days", style=MaterialTheme.typography.body2)},
@@ -44,7 +44,7 @@ fun HomeStatsCard(openStatsActivity: () -> Unit, model: ActivityListViewModel) {
             )
             AnimatedVisibility(!lastSevenDays.isNullOrEmpty()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    lastSevenDays.orEmpty().forEachIndexed() { idx: Int, it: LanguageDayData ->
+                    lastSevenDays.orEmpty().forEachIndexed { idx: Int, it: LanguageDayData ->
                         if(idx != 0)
                             Divider(modifier = Modifier.padding(vertical = 16.dp))
                         ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {
@@ -62,7 +62,7 @@ fun HomeStatsCard(openStatsActivity: () -> Unit, model: ActivityListViewModel) {
 @Composable
 fun StreakText(streak: Int, data: List<DayData>) {
     Row(modifier= Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-        Column() {
+        Column {
             Text(text = "$streak ${if(streak == 1) "day" else "days"}", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h6)
             ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {
                 Text(text = "Streak")
@@ -76,7 +76,7 @@ fun StreakText(streak: Int, data: List<DayData>) {
 @Composable
 fun LastSevenDays(lastSevenDays: List<DayData>) {
     require(lastSevenDays.size == 7)
-    Row() {
+    Row {
         for (d in 0 until 7) {
             Spacer(modifier = Modifier.width(4.dp))
             WeekDayItem(lastSevenDays[d])

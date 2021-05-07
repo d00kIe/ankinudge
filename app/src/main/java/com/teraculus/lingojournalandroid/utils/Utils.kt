@@ -7,8 +7,6 @@ import androidx.compose.material.ProvideTextStyle
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.LiveData
 import com.teraculus.lingojournalandroid.model.Activity
@@ -17,9 +15,7 @@ import com.teraculus.lingojournalandroid.model.ThemePreference
 import com.teraculus.lingojournalandroid.model.UserPreferences
 import com.teraculus.lingojournalandroid.ui.DarkColors
 import com.teraculus.lingojournalandroid.ui.LightColors
-import java.text.DateFormat
 import java.text.DateFormatSymbols
-import java.text.SimpleDateFormat
 import java.time.*
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -136,14 +132,13 @@ fun getMonthForInt(num: Int): String {
 fun getDurationString(minutes: Long): String {
     val hours = minutes / 60
     val min = minutes % 60
-    val result = when {
+
+    return when {
         (hours > 0L && min > 0L) -> "${hours}h ${min}m"
         (hours == 0L && min > 0L) -> "${min}m"
         (hours > 0L && min == 0L) -> "${hours}h"
         else -> "0m"
     }
-
-    return result
 }
 
 @Composable
@@ -154,7 +149,7 @@ fun <R, T : R> LiveData<T>.observeWithDelegate(initial: R, delegate: (T) -> Unit
     val lifecycleOwner = LocalLifecycleOwner.current
     val state = remember { mutableStateOf(initial) }
     DisposableEffect(this, lifecycleOwner) {
-        val observer = Observer<T>(delegate)
+        val observer = Observer(delegate)
         observe(lifecycleOwner, observer)
         onDispose { removeObserver(observer) }
     }

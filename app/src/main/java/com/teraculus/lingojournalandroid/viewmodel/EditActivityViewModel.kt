@@ -67,8 +67,8 @@ class EditActivityViewModel(
             } else {
                 title.value = ""
                 text.value = ""
-                language.value = goal?.language ?: "en"
-                type.value = types.value!!.find { it.id == goal?.activityType?.id } ?: types.value!!.first()
+                language.value = goal.language
+                type.value = types.value!!.find { it.id == goal.activityType?.id } ?: types.value!!.first()
                 confidence.value = 50f
                 motivation.value = 50f
                 date.value = LocalDate.now()

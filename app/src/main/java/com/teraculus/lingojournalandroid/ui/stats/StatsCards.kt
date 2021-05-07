@@ -225,7 +225,7 @@ fun Selector(
 
 @Composable
 fun DayStreak(stats: DayLanguageStreakData) {
-    StatsCard() {
+    StatsCard {
         Column(modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)) {

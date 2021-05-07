@@ -14,7 +14,7 @@ open class ActivityType() : RealmObject() {
     var lastUsed: Date? = null
 
     var category: ActivityCategory?
-        get() = ActivityCategory.values().firstOrNull() { it.title == categoryEnum }
+        get() = ActivityCategory.values().firstOrNull { it.title == categoryEnum }
         set(value) {
             this.categoryEnum = value?.title ?: ""
         }

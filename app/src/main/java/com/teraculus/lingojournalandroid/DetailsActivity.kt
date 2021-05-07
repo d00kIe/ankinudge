@@ -57,7 +57,7 @@ class DetailsActivity : AppCompatActivity() {
         setContent {
             val systemUiController = remember { SystemUiController(window) }
             CompositionLocalProvider(LocalSysUiController provides systemUiController) {
-                LingoTheme() {
+                LingoTheme {
                     val model: ActivityDetailsViewModel =
                         viewModel("activityDetailsViewModel", modelFactory)
                     ActivityDetailsDialogContent(onDismiss = { finish() },
