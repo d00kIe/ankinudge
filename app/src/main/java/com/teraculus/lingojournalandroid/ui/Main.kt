@@ -75,7 +75,8 @@ fun MainContent(
             HomeScreen(onItemClick = onActivityClick,
                 onOpenStats = onOpenStats,
                 scrollState = scrollState,
-                onGoalClick = onGoalClick)
+                onGoalClick = onGoalClick,
+                onOpenGoals = onOpenGoals)
         }
     }
 }
@@ -84,7 +85,7 @@ fun MainContent(
 private fun WelcomingScreen() {
     Box(modifier = Modifier
         .fillMaxSize()
-        .padding(bottom = 64.dp),
+        .padding(bottom = 128.dp),
         contentAlignment = Alignment.Center) {
         Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp)) {
             Text(text = "Welcome, language learner!",

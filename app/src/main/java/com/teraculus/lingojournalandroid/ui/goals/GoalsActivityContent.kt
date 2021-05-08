@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
@@ -31,24 +30,17 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.teraculus.lingojournalandroid.PickerProvider
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.ActivityGoal
 import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.ui.components.*
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
-import com.teraculus.lingojournalandroid.utils.getDurationString
-import com.teraculus.lingojournalandroid.utils.getMinutes
 import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
-import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
-import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModelFactory
 import io.realm.RealmResults
-import kotlinx.coroutines.launch
 import org.bson.types.ObjectId
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -430,7 +422,7 @@ fun FeedGoalRow(
 private fun WelcomingScreen() {
     Box(modifier = Modifier
         .fillMaxSize()
-        .padding(bottom = 64.dp),
+        .padding(bottom = 128.dp),
         contentAlignment = Alignment.Center) {
         Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp)) {
             Text(text = "Set daily goals!",

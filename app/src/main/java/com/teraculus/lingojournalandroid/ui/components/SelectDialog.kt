@@ -10,7 +10,6 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -58,11 +57,12 @@ fun InputDialog(
                 Text(text = title,
                     style = MaterialTheme.typography.h6)
                 Spacer(modifier = Modifier.size(16.dp))
-                OutlinedTextField(value = value, onValueChange = { value = it }, label = { Text("New activity type") })
+                OutlinedTextField(value = value, onValueChange = { value = it }, label = { Text("New activity type") }, modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.size(16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     TextButton(onClick = onDismissRequest) { Text(text = "Cancel") }
-                    TextButton(onClick = {onConfirm(value)}) { Text(text = "Add") }
+                    Spacer(modifier = Modifier.size(16.dp))
+                    Button(onClick = {onConfirm(value)}) { Text(text = "Add") }
                 }
             }
         }
@@ -171,8 +171,10 @@ fun ActivityTypeHeader(category: ActivityCategory?, onAddActivity: (item: Activi
                         }
                     },
                     trailing = {
-                        IconButton(onClick = { showAddDialog = true }) {
-                            Icon(Icons.Rounded.AddCircle, contentDescription = null)
+                        OutlinedButton(
+                            onClick = { showAddDialog = true },
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colors.onSurface)) {
+                            Text("Add")
                         }
                     }
                 )

@@ -1,8 +1,5 @@
 package com.teraculus.lingojournalandroid.ui.home
 
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.*
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.Activity
@@ -19,6 +16,7 @@ class ActivityListViewModel(repository: Repository) : ViewModel() {
     private val activities = repository.getActivities()
     private val goals = repository.getActivityGoals()
     val frozenGoals = Transformations.map(goals) { (it as RealmResults<ActivityGoal>).freeze().sortedByDescending { g -> g.id.timestamp } }
+    val hasGoals = Transformations.map(frozenGoals) { it.isNotEmpty() }
     val frozen = Transformations.map(activities) { (it as RealmResults<Activity>).freeze() }
     var grouped = Transformations.map(frozen) {
         it?.groupBy { it1 -> it1.date }.orEmpty()
