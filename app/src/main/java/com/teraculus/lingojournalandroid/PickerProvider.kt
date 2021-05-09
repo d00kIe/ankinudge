@@ -3,10 +3,8 @@ package com.teraculus.lingojournalandroid
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat.CLOCK_12H
 import com.google.android.material.timepicker.TimeFormat.CLOCK_24H
-import com.teraculus.lingojournalandroid.data.Repository
-import com.teraculus.lingojournalandroid.utils.asDate
-import com.teraculus.lingojournalandroid.utils.localDateToDate
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset
@@ -51,7 +49,7 @@ class PickerProvider {
             builder
                 .setTitleText(title)
                 .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
-                .setTimeFormat(CLOCK_24H)
+                .setTimeFormat(CLOCK_12H)
                 .setHour(initialTime.hour)
                 .setMinute(initialTime.minute)
                 .build()

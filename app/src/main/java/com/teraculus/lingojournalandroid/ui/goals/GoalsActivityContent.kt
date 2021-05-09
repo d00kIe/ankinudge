@@ -16,7 +16,6 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
@@ -337,8 +336,7 @@ fun GoalRow(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically) {
                                 TextButton(onClick = { model.removeGoal(); deleted = true },
-                                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.error)) {
-                                    Icon(Icons.Filled.DeleteForever, contentDescription = null)
+                                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.onSurface)) {
                                     Text(text = "Delete")
                                 }
                                 Icon(Icons.Rounded.KeyboardArrowUp, contentDescription = null)

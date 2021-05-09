@@ -3,6 +3,7 @@ package com.teraculus.lingojournalandroid.data
 import androidx.lifecycle.LiveData
 import com.teraculus.lingojournalandroid.model.*
 import com.teraculus.lingojournalandroid.utils.asDate
+import com.teraculus.lingojournalandroid.utils.toRealmTimeString
 import io.realm.*
 import io.realm.kotlin.where
 import org.bson.types.ObjectId
@@ -37,7 +38,7 @@ class Repository {
     }
 
     private fun initializeRealm() {
-         val migration = RealmMigration { realm, oldVersion, newVersion ->
+        val migration = RealmMigration { realm, oldVersion, newVersion ->
             var version: Long = oldVersion
             // DynamicRealm exposes an editable schema
             val schema: RealmSchema = realm.schema
@@ -45,7 +46,10 @@ class Repository {
             // Changes from version 0 to 1: Adding ActivityGoal.
             if (version == 0L) {
                 schema.create("ActivityGoal")
-                    .addField("id", ObjectId::class.java, FieldAttribute.PRIMARY_KEY, FieldAttribute.REQUIRED)
+                    .addField("id",
+                        ObjectId::class.java,
+                        FieldAttribute.PRIMARY_KEY,
+                        FieldAttribute.REQUIRED)
                     .addField("language", String::class.java, FieldAttribute.REQUIRED)
                     .addField("text", String::class.java, FieldAttribute.REQUIRED)
                     .addRealmObjectField("activityType", schema.get("ActivityType")!!)
@@ -56,6 +60,18 @@ class Repository {
                     .addField("_date", Date::class.java, FieldAttribute.REQUIRED)
                     .addField("_reminder", Date::class.java)
 
+                version++
+            }
+
+            if (version == 1L) {
+                schema.get("UserPreferences")!!
+                    .addField("_reminder", String::class.java)
+                    .addField("reminderActive", Boolean::class.java)
+                    .transform { obj: DynamicRealmObject ->
+                        obj.setString("_reminder", toRealmTimeString(LocalTime.of(20,0)))
+                        obj.setBoolean("reminderActive", false)
+                    }
+
                 //version++
             }
         }
@@ -63,7 +79,7 @@ class Repository {
         val config = RealmConfiguration.Builder()
             .allowQueriesOnUiThread(true)
             .allowWritesOnUiThread(true)
-            .schemaVersion(1)
+            .schemaVersion(2)
             .migration(migration)
             .build()
 
@@ -120,7 +136,7 @@ class Repository {
         motivation: Float,
         date: LocalDate,
         startTime: LocalTime,
-        endTime: LocalTime
+        endTime: LocalTime,
     ) {
         val activity = getActivity(id).value
         activity?.let {
@@ -152,15 +168,15 @@ class Repository {
     private fun updateLastLanguagePreference(language: String) {
         realm!!.executeTransaction {
             userPreferences.value?.languages?.let { languages ->
-            if(languages.find { it == language } == null) {
-                languages.add(0,language)
-            } else {
-                languages.remove(language)
-                languages.add(0,language)
-            }
+                if (languages.find { it == language } == null) {
+                    languages.add(0, language)
+                } else {
+                    languages.remove(language)
+                    languages.add(0, language)
+                }
 
-            if(languages.size > maxRecentLangSize)
-                languages.removeAll(languages.takeLast(languages.size - maxRecentLangSize))
+                if (languages.size > maxRecentLangSize)
+                    languages.removeAll(languages.takeLast(languages.size - maxRecentLangSize))
             }
         }
     }
@@ -171,12 +187,25 @@ class Repository {
         }
     }
 
+    fun updateReminderActivePreference(active: Boolean) {
+        realm!!.executeTransaction {
+            userPreferences.value?.reminderActive = active
+        }
+    }
+
+    fun updateReminderPreference(time: LocalTime) {
+        realm!!.executeTransaction {
+            userPreferences.value?.reminder = time
+        }
+    }
+
     fun getActivityGoals(): LiveRealmResults<ActivityGoal> {
         return goals
     }
 
     fun getActivityGoal(id: String): LiveRealmObject<ActivityGoal?> {
-        return LiveRealmObject(realm!!.where<ActivityGoal>().equalTo("id", ObjectId(id)).findFirst())
+        return LiveRealmObject(realm!!.where<ActivityGoal>().equalTo("id", ObjectId(id))
+            .findFirst())
     }
 
     fun addActivityGoal(goal: ActivityGoal) {
@@ -194,7 +223,7 @@ class Repository {
 
     fun updateActivityGoal(
         goalId: ObjectId,
-        update: (goal: ActivityGoal) -> Unit
+        update: (goal: ActivityGoal) -> Unit,
     ) {
         realm!!.executeTransaction {
             val goal = getActivityGoal(goalId.toString()).value
@@ -202,7 +231,6 @@ class Repository {
                 update(it)
                 it.lastChangeTs = Instant.now().toEpochMilli()
             }
-
         }
     }
 
