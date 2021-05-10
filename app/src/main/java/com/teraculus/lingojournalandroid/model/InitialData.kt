@@ -1,6 +1,5 @@
 package com.teraculus.lingojournalandroid.model
 
-import com.teraculus.lingojournalandroid.BuildConfig
 import org.bson.types.ObjectId
 import java.time.LocalDate
 import kotlin.random.Random
@@ -13,6 +12,7 @@ fun activityTypeData(): List<ActivityType> {
         ActivityType(ActivityCategory.WRITING, "Email"),
         ActivityType(ActivityCategory.WRITING, "Diary"),
         ActivityType(ActivityCategory.WRITING, "Homework"),
+        ActivityType(ActivityCategory.WRITING, "Dictation"),
         ActivityType(ActivityCategory.LISTENING, "Audio book"),
         ActivityType(ActivityCategory.LISTENING, "Music"),
         ActivityType(ActivityCategory.LISTENING, "Radio"),
@@ -20,12 +20,13 @@ fun activityTypeData(): List<ActivityType> {
         ActivityType(ActivityCategory.LISTENING, "TV"),
         ActivityType(ActivityCategory.LISTENING, "Movie"),
         ActivityType(ActivityCategory.SPEAKING, "With Friends"),
-        ActivityType(ActivityCategory.SPEAKING, "Ghosting"),
+        ActivityType(ActivityCategory.SPEAKING, "On the phone"),
         ActivityType(ActivityCategory.LEARNING, "Grammar"),
         ActivityType(ActivityCategory.LEARNING, "Vocabulary"),
-        ActivityType(ActivityCategory.OTHER, "Preparation"),
+        ActivityType(ActivityCategory.LEARNING, "Pronunciation"),
+        ActivityType(ActivityCategory.OTHER, "App - Anki"),
+        ActivityType(ActivityCategory.OTHER, "Exam"),
         ActivityType(ActivityCategory.OTHER, "Certificate"),
-        ActivityType(ActivityCategory.OTHER, "Nothing, being lazy."),
     )
 }
 
@@ -54,7 +55,7 @@ private fun generateRandomData(
         "Chatting with Mia",
         "Interesting article",
         "Book review",
-        "Ghosting a movie"
+        "Watching a movie"
     )
 
     val langs = listOf("en", "de", "en", "de", "en", "de", "en", "de", "en", "de", "en", "de")

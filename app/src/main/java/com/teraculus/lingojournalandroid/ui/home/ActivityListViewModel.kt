@@ -30,17 +30,36 @@ class ActivityListViewModel(repository: Repository) : ViewModel() {
     }
 
     private val todayActivities = Transformations.map(grouped) { it[LocalDate.now()] }
-    val todayGoals = MediatorLiveData<List<ActivityGoal>>().apply {
+    val todayGoals = Transformations.map(frozenGoals) {
+        val today = LocalDate.now();
+        it.filter { g -> g.active && g.weekDays.contains(today.dayOfWeek.value) }
+    }
+
+    val todayGoalsLeft = MediatorLiveData<List<ActivityGoal>>().apply {
         fun update() {
-            val today = LocalDate.now()
             val todaysActivities = todayActivities.value.orEmpty()
-            value = frozenGoals.value.orEmpty().filter { g ->
-                g.active && g.weekDays.contains(today.dayOfWeek.value) && todaysActivities.none { a -> a.language == g.language && a.type?.id == g.activityType?.id }
+            value = todayGoals.value.orEmpty().filter { g -> todaysActivities.none { a -> a.language == g.language && a.type?.id == g.activityType?.id }
             }
         }
 
         addSource(todayActivities) { update() }
-        addSource(frozenGoals) { update() }
+        addSource(todayGoals) { update() }
+
+        update()
+    }
+
+    val goalsAchievedString = MediatorLiveData<String>().apply {
+        fun update() {
+            val allSize = todayGoals.value.orEmpty().size
+            val doneSize = allSize - todayGoalsLeft.value.orEmpty().size
+            if(allSize == 0)
+                value = "/"
+            else
+                value = "$doneSize / $allSize"
+        }
+
+        addSource(todayGoalsLeft) { update() }
+        addSource(todayGoals) { update() }
 
         update()
     }
