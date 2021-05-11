@@ -15,7 +15,7 @@ open class UserPreferences : RealmObject() {
     var id = "UserPreferences_StaticID"
     var languages = RealmList<String>()
     var theme = ThemePreference.SYSTEM
-    var reminderActive: Boolean = true
+    var reminderActive: Boolean = false
 
     private var _reminder: String? = toRealmTimeString(LocalTime.of(20,0))
 

@@ -1,5 +1,6 @@
 package com.teraculus.lingojournalandroid.model
 
+//import com.teraculus.lingojournalandroid.BuildConfig
 import org.bson.types.ObjectId
 import java.time.LocalDate
 import kotlin.random.Random
