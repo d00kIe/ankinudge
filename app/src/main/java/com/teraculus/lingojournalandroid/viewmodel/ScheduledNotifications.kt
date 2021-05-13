@@ -23,7 +23,7 @@ const val DATA_TEXT_ID = "notification_data_text_id"
 const val DATA_HOUR_ID = "notification_data_hour_id"
 const val DATA_MINUTE_ID = "notification_data_minute_id"
 
-fun scheduleNotification(ctx: Context, hour: Int, minute: Int, title: String, text: String, reschedule: Boolean = false) {
+fun scheduleNotification(ctx: Context, hour: Int, minute: Int, title: String = "How was your day?", text: String = "Track your language learning activities.", reschedule: Boolean = false) {
     val currentDate = Calendar.getInstance()
     val dueDate = Calendar.getInstance()
     dueDate.set(Calendar.HOUR_OF_DAY, hour)

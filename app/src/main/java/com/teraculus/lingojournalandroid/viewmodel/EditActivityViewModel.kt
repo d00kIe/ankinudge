@@ -10,7 +10,6 @@ import com.teraculus.lingojournalandroid.data.getAllLanguages
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.utils.getMinutes
-import io.realm.RealmObject
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -113,10 +112,10 @@ class EditActivityViewModel(
     }
 
     suspend fun pickStartTime() {
+        val minutes = getMinutes(startTime.value!!, endTime.value!!)
         pickerProvider.pickTime("Select start time", startTime.value!!) {
-            val minutes = getMinutes(startTime.value!!, endTime.value!!)
             startTime.value = it
-            setEndTimeFromDuration(LocalTime.of(0, 0).plusMinutes(minutes))
+            setEndTimeFromDuration(minutes)
         }
     }
 
@@ -125,14 +124,13 @@ class EditActivityViewModel(
             val minutes = getMinutes(startTime.value!!, endTime.value!!)
             val duration = LocalTime.of(0, 0).plusMinutes(minutes)
             pickerProvider.pickDuration("Duration", duration) {
-                setEndTimeFromDuration(it)
+                setEndTimeFromDuration(it.hour * 60L + it.minute)
             }
         }
     }
 
-    private fun setEndTimeFromDuration(it: LocalTime) {
-        endTime.value = LocalTime.from(startTime.value).plusHours(it.hour.toLong())
-            .plusMinutes(it.minute.toLong())
+    private fun setEndTimeFromDuration(minutes: Long) {
+        endTime.value = LocalTime.from(startTime.value).plusMinutes(minutes)
     }
 
     private fun addNote() {

@@ -62,7 +62,7 @@ fun InputDialog(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     TextButton(onClick = onDismissRequest) { Text(text = "Cancel") }
                     Spacer(modifier = Modifier.size(16.dp))
-                    Button(onClick = {onConfirm(value)}) { Text(text = "Add") }
+                    Button( enabled = value.isNotBlank(), onClick = {onConfirm(value)}) { Text(text = "Add") }
                 }
             }
         }
@@ -125,6 +125,19 @@ fun ActivityTypeSelectDialog(
     onDismissRequest: () -> Unit,
     groups: State<Map<ActivityCategory?, List<ActivityType>>?>,
 ) {
+    var showAddDialog by remember { mutableStateOf(false) }
+    var dialogCategory: ActivityCategory? by remember { mutableStateOf(null) }
+
+    if(showAddDialog && dialogCategory != null)
+        InputDialog(
+            onConfirm = {
+                onAddTypeClick(ActivityType(dialogCategory, it));
+                showAddDialog = false
+                dialogCategory = null
+            },
+            onDismissRequest = { showAddDialog = false },
+            title = "New ${dialogCategory?.title} activity")
+
     SelectDialog(
         onDismissRequest = onDismissRequest,
         title = "Activity type",
@@ -133,7 +146,10 @@ fun ActivityTypeSelectDialog(
         ) {
             groups.value.orEmpty().forEach { (category, categoryTypes) ->
                 stickyHeader {
-                    ActivityTypeHeader(category = category, onAddTypeClick)
+                    ActivityTypeHeader(category = category) {
+                        dialogCategory = it
+                        showAddDialog = true
+                    }
                 }
                 items(categoryTypes) { item ->
                     ActivityTypeItem(item, onClick = onItemClick)
@@ -146,8 +162,8 @@ fun ActivityTypeSelectDialog(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ActivityTypeHeader(category: ActivityCategory?, onAddActivity: (item: ActivityType) -> Unit) {
-    var showAddDialog by remember { mutableStateOf(false) }
+fun ActivityTypeHeader(category: ActivityCategory?, onAddTypeClick: (item: ActivityCategory) -> Unit ) {
+
     if (category != null)
         Surface {
             Column {
@@ -172,7 +188,7 @@ fun ActivityTypeHeader(category: ActivityCategory?, onAddActivity: (item: Activi
                     },
                     trailing = {
                         OutlinedButton(
-                            onClick = { showAddDialog = true },
+                            onClick = { onAddTypeClick(category) },
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colors.onSurface)) {
                             Text("Add")
                         }
@@ -181,11 +197,6 @@ fun ActivityTypeHeader(category: ActivityCategory?, onAddActivity: (item: Activi
                 Divider()
             }
         }
-    if(showAddDialog)
-        InputDialog(
-            onConfirm = { onAddActivity(ActivityType(category, it)); showAddDialog = false },
-            onDismissRequest = { showAddDialog = false },
-            title = "New ${category?.title} activity")
 }
 
 @OptIn(ExperimentalMaterialApi::class)

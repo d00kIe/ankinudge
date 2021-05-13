@@ -50,7 +50,7 @@ class SettingsViewModel(val repository: Repository = Repository.getRepository())
         if(!value)
             cancelScheduledNotification(ctx)
         else
-            reminder.value?.let { scheduleNotification(ctx, it.hour, it.minute, "How was your day?", "Track your language learning activities.") }
+            reminder.value?.let { scheduleNotification(ctx, it.hour, it.minute) }
         repository.updateReminderActivePreference(value)
 
     }
@@ -59,7 +59,7 @@ class SettingsViewModel(val repository: Repository = Repository.getRepository())
         PickerProvider.getPickerProvider().pickTime("Set reminder time", reminder.value ?: LocalTime.now()
         ) {
             if(reminderActive.value == true)
-                scheduleNotification(ctx, it.hour, it.minute, "How was your day?", "Track your language learning activities.")
+                scheduleNotification(ctx, it.hour, it.minute)
             repository.updateReminderPreference(it)
         }
 

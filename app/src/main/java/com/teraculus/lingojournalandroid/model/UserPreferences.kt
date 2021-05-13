@@ -2,6 +2,7 @@ package com.teraculus.lingojournalandroid.model
 
 import com.teraculus.lingojournalandroid.utils.parseRealmTimeString
 import com.teraculus.lingojournalandroid.utils.toRealmTimeString
+import com.teraculus.lingojournalandroid.viewmodel.scheduleNotification
 import io.realm.Realm
 import io.realm.RealmList
 import io.realm.RealmObject
@@ -15,7 +16,7 @@ open class UserPreferences : RealmObject() {
     var id = "UserPreferences_StaticID"
     var languages = RealmList<String>()
     var theme = ThemePreference.SYSTEM
-    var reminderActive: Boolean = false
+    var reminderActive: Boolean = true
 
     private var _reminder: String? = toRealmTimeString(LocalTime.of(20,0))
 
@@ -33,6 +34,7 @@ open class UserPreferences : RealmObject() {
 
             if (userPreferencesRes == null) {
                 realm.executeTransaction { tr -> tr.insert(UserPreferences()) }
+                Realm.getApplicationContext()?.let { scheduleNotification(it, 20, 0) }
             }
 
             return LiveRealmObject(queryUserPreferences.findFirst())

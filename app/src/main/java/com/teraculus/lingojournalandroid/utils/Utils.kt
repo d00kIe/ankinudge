@@ -7,8 +7,8 @@ import androidx.compose.material.ProvideTextStyle
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.model.ThemePreference
@@ -19,8 +19,8 @@ import java.text.DateFormatSymbols
 import java.time.*
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.time.temporal.ChronoUnit
 import java.util.*
-import kotlin.math.abs
 
 fun toDateString(date: LocalDate?) : String {
     if(date == null)
@@ -160,11 +160,17 @@ fun getMinutes(activity: Activity): Long {
     return getMinutes(activity.startTime, activity.endTime)
 }
 
+// https://stackoverflow.com/questions/53254475/localtime-difference-between-two-times
 fun getMinutes(start: LocalTime?, end: LocalTime?): Long {
     return if(start == null || end == null)
-        0
-    else
-        abs(Duration.between(start, end).toMinutes())
+        return 0
+    else {
+        var diff = ChronoUnit.MINUTES.between(start, end)
+        if(diff < 0)
+            diff += 1440
+
+        return diff
+    }
 }
 
 fun toActivityTypeTitle(type: ActivityType?): String {
