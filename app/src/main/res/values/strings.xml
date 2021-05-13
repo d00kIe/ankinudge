@@ -20,4 +20,6 @@
     <string name="journal">Journal</string>
     <string name="channel_name">Reminder</string>
     <string name="channel_description">Lingo Journal reminders</string>
+    <string name="filter_view_lingojournal_add_new">Add New Activity</string>
+    <string name="filter_view_lingojournal_stats">Activity Stats</string>
 </resources>

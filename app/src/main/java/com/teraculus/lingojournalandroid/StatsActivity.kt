@@ -2,22 +2,19 @@ package com.teraculus.lingojournalandroid
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.ui.LingoTheme
-import com.teraculus.lingojournalandroid.ui.settings.SettingsContent
 import com.teraculus.lingojournalandroid.ui.stats.StatsContent
 import com.teraculus.lingojournalandroid.utils.LocalSysUiController
 import com.teraculus.lingojournalandroid.utils.SystemUiController
-import com.teraculus.lingojournalandroid.utils.initStatusBarColor
 import com.teraculus.lingojournalandroid.viewmodel.StatisticsViewModel
 import com.teraculus.lingojournalandroid.viewmodel.StatisticsViewModelFactory
 
@@ -44,10 +41,20 @@ class StatsActivity : AppCompatActivity() {
                 LingoTheme {
                     StatsContent(
                         onItemClick = { launchDetailsActivity(this, it) },
-                        onDismiss = { finish() },
+                        onDismiss = { onBackPressed() },
                         model = statsViewModel)
                 }
             }
+        }
+    }
+
+    override fun onBackPressed() {
+        if (isTaskRoot) {
+            val parentIntent = Intent(this, MainActivity::class.java)
+            startActivity(parentIntent)
+            finish()
+        } else {
+            super.onBackPressed()
         }
     }
 }
