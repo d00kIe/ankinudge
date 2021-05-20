@@ -1,14 +1,11 @@
 package com.teraculus.lingojournalandroid.viewmodel
 
-import androidx.lifecycle.*
-import com.teraculus.lingojournalandroid.PickerProvider
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.teraculus.lingojournalandroid.data.Repository
-import com.teraculus.lingojournalandroid.data.getAllLanguages
 import com.teraculus.lingojournalandroid.model.Activity
-import com.teraculus.lingojournalandroid.model.ActivityType
-import com.teraculus.lingojournalandroid.utils.getMinutes
-import java.time.LocalDate
-import java.time.LocalTime
 
 class ActivityDetailsViewModel(id: String,
     private val repository: Repository
@@ -19,6 +16,7 @@ class ActivityDetailsViewModel(id: String,
     val date = Transformations.map(activity) { it?.date }
     val startTime = Transformations.map(activity) { it?.startTime }
     val endTime = Transformations.map(activity) { it?.endTime }
+    val unitCount = Transformations.map(activity) { it?.unitCount }
     val confidence = Transformations.map(activity) { it?.confidence }
     val motivation = Transformations.map(activity) { it?.motivation }
     val type = Transformations.map(activity) { it?.type }

@@ -6,16 +6,16 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
@@ -23,7 +23,6 @@ import com.teraculus.lingojournalandroid.ui.calendar.CalendarSwipeable
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
 import com.teraculus.lingojournalandroid.ui.components.ToggleButton
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
-import com.teraculus.lingojournalandroid.utils.observeWithDelegate
 import com.teraculus.lingojournalandroid.utils.toDayString
 import com.teraculus.lingojournalandroid.viewmodel.DayLanguageStreakData
 import com.teraculus.lingojournalandroid.viewmodel.LanguageStatData
@@ -182,8 +181,6 @@ private fun LanguageBar(
     languageIndex: Int?,
     onSetLanguage: (lang: String) -> Unit
 ) {
-    val outlinedButtonColors =  ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.surface, contentColor = MaterialTheme.colors.onSurface)
-    val selectedButtonColors =  ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.surface, contentColor = MaterialTheme.colors.primary)
     ScrollableTabRow(
         selectedTabIndex = languageIndex ?: 0,
         backgroundColor = MaterialTheme.colors.surface,

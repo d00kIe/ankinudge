@@ -1,11 +1,12 @@
 package com.teraculus.lingojournalandroid.ui.components
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -18,10 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.Activity
+import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.ui.home.ActivityItemViewModel
 import com.teraculus.lingojournalandroid.ui.home.ActivityItemViewModelFactory
-import com.teraculus.lingojournalandroid.utils.getDurationString
-import com.teraculus.lingojournalandroid.utils.getMinutes
+import com.teraculus.lingojournalandroid.utils.getActivityUnitValueString
 import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
 import java.time.LocalTime
 
@@ -36,11 +37,11 @@ fun ActivityRow(rawactivity: Activity, onClick: (id: String) -> Unit, model: Act
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .clickable(onClick = { onClick(activity.id.toString()) }),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             elevation = 2.dp)
         {
             ListItem(
+                modifier = Modifier.clickable(onClick = { onClick(activity.id.toString()) }),
                 icon = {
                     ActivityRowIcon(activity.type?.category?.icon,
                         activity.type?.category?.color)
@@ -50,23 +51,24 @@ fun ActivityRow(rawactivity: Activity, onClick: (id: String) -> Unit, model: Act
                     OverlineText(activity.startTime,
                         activity.endTime,
                         activity.language,
-                        activity.type?.name)
+                        activity.type,
+                        activity.unitCount)
                 })
         }
     }
 }
 
 @Composable
-fun OverlineText(startTime: LocalTime?, endTime: LocalTime?, language: String?, typeName: String?) {
-    val text = "${getDurationString(getMinutes(startTime, endTime))} · ${getLanguageDisplayName(language.orEmpty())} · ${ typeName.orEmpty() }"
+fun OverlineText(startTime: LocalTime?, endTime: LocalTime?, language: String?, type: ActivityType?, unitCount: Float?) {
+    val text = "${getActivityUnitValueString(type, startTime, endTime, unitCount ?: 0f)} · ${getLanguageDisplayName(language.orEmpty())} · ${ type?.name.orEmpty() }"
     Text(modifier = Modifier.padding(bottom = 8.dp), text = text, style = MaterialTheme.typography.body2)
 }
 
 @Composable
 fun ActivityRowIcon(icon: Int?, color: Int?) {
     if(icon != null && color != null)
-        Surface(elevation = 0.dp,modifier = Modifier.size(42.dp), shape = CircleShape, color = Color(color)) {
+        Surface(elevation = 0.dp, modifier = Modifier.size(42.dp), shape = CircleShape, color = Color(color)) {
             Icon(painter = painterResource(id = icon), modifier = Modifier
-                .padding(8.dp), tint = MaterialTheme.colors.onPrimary, contentDescription = null)
+                .padding(10.dp), tint = MaterialTheme.colors.onPrimary, contentDescription = null)
         }
 }

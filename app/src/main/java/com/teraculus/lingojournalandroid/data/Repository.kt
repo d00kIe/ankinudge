@@ -38,7 +38,7 @@ class Repository {
     }
 
     private fun initializeRealm() {
-        val migration = RealmMigration { realm, oldVersion, newVersion ->
+        val migration = RealmMigration { realm, oldVersion, _ ->
             var version: Long = oldVersion
             // DynamicRealm exposes an editable schema
             val schema: RealmSchema = realm.schema
@@ -72,6 +72,21 @@ class Repository {
                         obj.setBoolean("reminderActive", false)
                     }
 
+                version++
+            }
+
+            if (version == 2L) {
+                schema.get("ActivityType")!!
+                    .addField("unitEnum", String::class.java, FieldAttribute.REQUIRED)
+                    .transform { obj: DynamicRealmObject ->
+                        obj.setString("unitEnum", "time")
+                    }
+
+                schema.get("Activity")!!
+                    .addField("unitCount", Float::class.java)
+                    .transform { obj: DynamicRealmObject ->
+                        obj.setFloat("unitCount", 1f)
+                    }
                 //version++
             }
         }
@@ -79,7 +94,7 @@ class Repository {
         val config = RealmConfiguration.Builder()
             .allowQueriesOnUiThread(true)
             .allowWritesOnUiThread(true)
-            .schemaVersion(2)
+            .schemaVersion(3)
             .migration(migration)
             .build()
 
@@ -132,6 +147,7 @@ class Repository {
         text: String,
         language: String,
         type: ActivityType?,
+        unitCount: Float,
         confidence: Float,
         motivation: Float,
         date: LocalDate,
@@ -147,6 +163,7 @@ class Repository {
                 activity.type = type
                 activity.confidence = confidence
                 activity.motivation = motivation
+                activity.unitCount = unitCount
                 activity.date = date
                 activity.startTime = startTime
                 activity.endTime = endTime

@@ -28,6 +28,7 @@ open class Activity() :
     var language: String = ""
     var text: String = ""
     var type: ActivityType? = null
+    var unitCount: Float = 1f
     var confidence: Float = 100f
     var motivation: Float = 100f
     var lastChangeTs: Long = 0 // allows LiveData to update correctly if only "type" was changed, see LiveRealmObject::onActive
@@ -59,6 +60,7 @@ open class Activity() :
         text: String,
         language: String,
         type: ActivityType?,
+        unitCount: Float = 1f,
         confidence: Float = 100f,
         motivation: Float = 100f,
         date: LocalDate = LocalDate.now(),
@@ -74,6 +76,7 @@ open class Activity() :
         this.date = date
         this.startTime = startTime
         this.endTime = endTime
+        this.unitCount = unitCount
         this.confidence = confidence
         this.motivation = motivation
         this.lastChangeTs = Instant.now().toEpochMilli()

@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.teraculus.lingojournalandroid.PickerProvider
 import com.teraculus.lingojournalandroid.data.Repository
-import com.teraculus.lingojournalandroid.data.getAllLanguages
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.utils.getMinutes
@@ -22,10 +21,10 @@ class EditActivityViewModel(
     val types = repository.getTypes()
     val groupedTypes = Transformations.map(types) { it.orEmpty().groupBy { it1 -> it1.category } }
     private var preparedId: String? = null
-    val languages = MutableLiveData(getAllLanguages())
     val date = MutableLiveData(LocalDate.now())
     val startTime = MutableLiveData(LocalTime.now().minusHours(1))
     val endTime = MutableLiveData(LocalTime.now())
+    val unitCount = MutableLiveData(1.0f)
     val title = MutableLiveData("")
     val text = MutableLiveData("")
     val language = MutableLiveData("")
@@ -51,6 +50,7 @@ class EditActivityViewModel(
             date.value = activity.date
             startTime.value = activity.startTime
             endTime.value = activity.endTime
+            unitCount.value = activity.unitCount
         } else {
             val goal = goalId?.let { repository.getActivityGoal(it).value }
             if(goal == null) {
@@ -63,6 +63,7 @@ class EditActivityViewModel(
                 date.value = LocalDate.now()
                 startTime.value = LocalTime.now().minusHours(1)
                 endTime.value = LocalTime.now()
+                unitCount.value = 1f
             } else {
                 title.value = ""
                 text.value = ""
@@ -73,6 +74,7 @@ class EditActivityViewModel(
                 date.value = LocalDate.now()
                 startTime.value = LocalTime.now().minusHours(1)
                 endTime.value = LocalTime.now()
+                unitCount.value = 1f
             }
         }
     }
@@ -95,6 +97,11 @@ class EditActivityViewModel(
     fun onLanguageChange(value: String) {
         if (language.value != value)
             language.value = value // language code
+    }
+
+    fun onUnitCountChange(value: Float) {
+        if (unitCount.value != value)
+            unitCount.value = value
     }
 
     fun onConfidenceChange(value: Float) {
@@ -138,6 +145,7 @@ class EditActivityViewModel(
             text.value!!,
             language.value!!,
             type.value!!,
+            unitCount.value!!,
             confidence.value!!,
             motivation.value!!,
             date.value!!,
@@ -152,6 +160,7 @@ class EditActivityViewModel(
             text.value!!,
             language.value!!,
             type.value!!,
+            unitCount.value!!,
             confidence.value!!,
             motivation.value!!,
             date.value!!,

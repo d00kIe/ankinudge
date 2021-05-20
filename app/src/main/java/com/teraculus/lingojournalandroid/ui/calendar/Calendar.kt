@@ -9,29 +9,25 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.teraculus.lingojournalandroid.ui.stats.Selector
 import com.teraculus.lingojournalandroid.utils.getMonthForInt
+import com.teraculus.lingojournalandroid.viewmodel.DayData
+import com.teraculus.lingojournalandroid.viewmodel.MonthItemViewModel
+import com.teraculus.lingojournalandroid.viewmodel.MonthItemViewModelFactory
+import com.teraculus.lingojournalandroid.viewmodel.StatisticsViewModel
 import kotlinx.coroutines.launch
 import java.lang.Float.min
 import java.time.LocalDate
 import java.time.YearMonth
 import kotlin.math.ceil
-import android.util.Log
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.teraculus.lingojournalandroid.ui.stats.*
-import com.teraculus.lingojournalandroid.viewmodel.DayData
-import com.teraculus.lingojournalandroid.viewmodel.MonthItemViewModel
-import com.teraculus.lingojournalandroid.viewmodel.MonthItemViewModelFactory
-import com.teraculus.lingojournalandroid.viewmodel.StatisticsViewModel
-import kotlin.math.abs
 
 private const val TAG: String = "Calendar"
 private const val YEARS: Long = 20
@@ -66,8 +62,8 @@ fun CalendarSwipeable(modifier: Modifier, model: StatisticsViewModel) {
                 modifier = Modifier.padding(16.dp))
         }
 
-        HorizontalPager(state = pagerState) { page ->
-            val item = items[page]
+        HorizontalPager(state = pagerState) { p ->
+            val item = items[p]
             SideEffect {
                 val page = pagerState.currentPage
                 if (month != items[page]) {

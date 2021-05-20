@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.teraculus.lingojournalandroid.ui.components.Pulsating
 import com.teraculus.lingojournalandroid.ui.home.HomeScreen
 import com.teraculus.lingojournalandroid.viewmodel.MainViewModel
 
@@ -61,9 +60,9 @@ fun MainContent(
         },
         floatingActionButton = {
             if (newUser == true) {
-                Pulsating {
+                //Pulsating {
                     FAB(onAddActivity)
-                }
+                //}
             } else {
                 FAB(onAddActivity)
             }

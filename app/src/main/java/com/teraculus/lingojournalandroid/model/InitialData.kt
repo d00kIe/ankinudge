@@ -69,7 +69,7 @@ private fun generateRandomData(
         val type = activityTypes[Random.nextInt(activityTypes.size - 1)]
         val conf = moods[Random.nextInt(moods.size - 1)]
         val moti = moods[Random.nextInt(moods.size - 1)]
-        val activity = Activity(title, text, lang, type, conf, moti, day, id = ObjectId())
+        val activity = Activity(title, text, lang, type,1f, conf, moti,  day, id = ObjectId())
         aLotOfActivities.add(activity)
         day = day.minusDays(Random.nextLong(0, 3))
     }

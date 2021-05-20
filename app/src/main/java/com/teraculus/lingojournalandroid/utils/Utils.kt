@@ -9,10 +9,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import com.teraculus.lingojournalandroid.model.Activity
-import com.teraculus.lingojournalandroid.model.ActivityType
-import com.teraculus.lingojournalandroid.model.ThemePreference
-import com.teraculus.lingojournalandroid.model.UserPreferences
+import com.teraculus.lingojournalandroid.model.*
 import com.teraculus.lingojournalandroid.ui.DarkColors
 import com.teraculus.lingojournalandroid.ui.LightColors
 import java.text.DateFormatSymbols
@@ -163,13 +160,13 @@ fun getMinutes(activity: Activity): Long {
 // https://stackoverflow.com/questions/53254475/localtime-difference-between-two-times
 fun getMinutes(start: LocalTime?, end: LocalTime?): Long {
     return if(start == null || end == null)
-        return 0
+        0
     else {
         var diff = ChronoUnit.MINUTES.between(start, end)
         if(diff < 0)
             diff += 1440
 
-        return diff
+        diff
     }
 }
 
@@ -212,4 +209,16 @@ fun initStatusBarColor(activity: android.app.Activity, preferences: UserPreferen
     SystemUiController(activity.window).setSystemBarsColor(
         color = colors.surface
     )
+}
+
+fun getActivityUnitValueString(type: ActivityType?, start: LocalTime?, end: LocalTime?, unitCount: Float): String {
+    type?.let {
+        return if(it.unit?.selector == UnitSelector.TimePicker) {
+            getDurationString(getMinutes(start, end))
+        } else {
+            "${unitCount.toInt()} ${it.unit?.unitSuffix}"
+        }
+    }
+
+    return ""
 }

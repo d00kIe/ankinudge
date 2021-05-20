@@ -6,12 +6,30 @@ import io.realm.kotlin.where
 import org.bson.types.ObjectId
 import java.util.*
 
+enum class UnitSelector() {
+    TimePicker(),
+    Count()
+}
+
+enum class MeasurementUnit(val id: String, val title: String, val unitSuffix: String, val selector: UnitSelector = UnitSelector.Count) {
+    Time("time", "Duration", "", UnitSelector.TimePicker),
+    Chapters("chapters", "Chapters", "chapters"),
+    Pages("pages", "Pages", "pages"),
+    Words("words", "Words", "words"),
+    Sessions("sessions", "Sessions", "session"),
+    Classes("classes", "Classes", "classes"),
+    Videos("videos", "Videos", "videos"),
+    Items("items", "Items", "items")
+
+}
+
 open class ActivityType() : RealmObject() {
     private var categoryEnum: String = ""
     var name: String = ""
     var id: ObjectId = ObjectId()
     var created: Date = Date()
     var lastUsed: Date? = null
+    var unitEnum: String = "time"
 
     var category: ActivityCategory?
         get() = ActivityCategory.values().firstOrNull { it.title == categoryEnum }
@@ -19,12 +37,19 @@ open class ActivityType() : RealmObject() {
             this.categoryEnum = value?.title ?: ""
         }
 
-    constructor(category: ActivityCategory?, name: String, created: Date = Date(), lastUsed: Date? = null, id: ObjectId = ObjectId()) : this() {
+    var unit: MeasurementUnit?
+        get() = MeasurementUnit.values().firstOrNull { it.id == unitEnum }
+        set(value) {
+            this.unitEnum = value?.id ?: ""
+        }
+
+    constructor(category: ActivityCategory?, name: String, created: Date = Date(), lastUsed: Date? = null, unit: MeasurementUnit = MeasurementUnit.Time, id: ObjectId = ObjectId()) : this() {
         this.category = category
         this.name = name
         this.id = id
         this.created = created
         this.lastUsed = lastUsed
+        this.unit = unit
     }
 
     companion object {
