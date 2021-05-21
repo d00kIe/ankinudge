@@ -148,7 +148,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
                 onClick = { showActivityTypeDialog = true })
             Spacer(modifier = Modifier.size(16.dp))
             Divider()
-            Spacer(modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.size(8.dp))
             OutlinedTextField(label = { Text("Note") },
                 maxLines = 5,
                 modifier = Modifier
@@ -157,17 +157,17 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
                 value = text.value.toString(),
                 onValueChange = { model.onTextChange(it) })
 
-            if(type?.unit?.selector == UnitSelector.TimePicker) {
-                Spacer(modifier = Modifier.size(16.dp))
-                DropDownTextField(
-                    label = { Text("Duration") },
-                    value = getDurationString(getMinutes(startTime.value, endTime.value)),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    onClick = { coroutineScope.launch { model.pickDuration() } }
-                )
-            } else if (type?.unit?.selector == UnitSelector.Count) {
+            Spacer(modifier = Modifier.size(16.dp))
+            DropDownTextField(
+                label = { Text("Duration") },
+                value = getDurationString(getMinutes(startTime.value, endTime.value)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                onClick = { coroutineScope.launch { model.pickDuration() } }
+            )
+
+            if (type?.unit?.selector == UnitSelector.Count) {
                 Spacer(modifier = Modifier.size(16.dp))
                 NumberField(
                     modifier = Modifier

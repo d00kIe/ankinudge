@@ -60,7 +60,7 @@ fun StatsContent(
             val tabs by rememberSaveable {
                 mutableStateOf(listOf(StatisticRange.DAY.title,
                     StatisticRange.MONTH.title,
-                    StatisticRange.ALL.title))
+                    StatisticRange.YEAR.title))
             }
 
             val elevation =
@@ -109,11 +109,12 @@ private fun InnerContent(
     val languageStats by model.languageStats.observeAsState()
     val languageDayStreak by model.languageDayStreak.observeAsState()
     val day by model.day.observeAsState()
+    val year by model.year.observeAsState()
     val languages by model.languages.observeAsState()
     val languageIndex by model.languageIndex.observeAsState()
 
     Column(modifier = modifier.verticalScroll(scrollState)) {
-        AnimatedVisibility(visible = tabIndex == 0) {
+        AnimatedVisibility(tabIndex == 0) {
             Selector(Modifier.fillMaxWidth(),
                 onNext = { model.setDay(day?.plusDays(1)!!) },
                 onPrev = { model.setDay(day?.minusDays(1)!!) },
@@ -125,9 +126,21 @@ private fun InnerContent(
                 )
             }
         }
-        if (tabIndex == 1) {
+        AnimatedVisibility(tabIndex == 1) {
             Column {
                 CalendarSwipeable(Modifier.fillMaxWidth(), model)
+            }
+        }
+        AnimatedVisibility(tabIndex == 2) {
+            Selector(Modifier.fillMaxWidth(),
+                onNext = { model.setYear(year?.plusYears(1)!!) },
+                onPrev = { model.setYear(year?.minusYears(1)!!) },
+                hasNext = true,
+                hasPrev = true) {
+                Text(modifier = Modifier.padding(16.dp),
+                    text = year?.value.toString(),
+                    style = MaterialTheme.typography.body1
+                )
             }
         }
         if (loading != true) {

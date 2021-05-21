@@ -174,7 +174,6 @@ fun toActivityTypeTitle(type: ActivityType?): String {
     return type?.let { "${type.category?.title}: ${type.name}" } ?: ""
 }
 
-
 @Composable
 fun ApplyTextStyle(
     textStyle: TextStyle,
@@ -211,14 +210,7 @@ fun initStatusBarColor(activity: android.app.Activity, preferences: UserPreferen
     )
 }
 
-fun getActivityUnitValueString(type: ActivityType?, start: LocalTime?, end: LocalTime?, unitCount: Float): String {
-    type?.let {
-        return if(it.unit?.selector == UnitSelector.TimePicker) {
-            getDurationString(getMinutes(start, end))
-        } else {
-            "${unitCount.toInt()} ${it.unit?.unitSuffix}"
-        }
-    }
 
-    return ""
+fun getMeasurementUnitValueString(unit: MeasurementUnit, unitCount: Float): String {
+    return "${unitCount.toInt()} ${unit.unitSuffix}"
 }

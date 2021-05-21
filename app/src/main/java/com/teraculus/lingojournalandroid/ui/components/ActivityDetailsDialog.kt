@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
+import com.teraculus.lingojournalandroid.model.MeasurementUnit
 import com.teraculus.lingojournalandroid.utils.*
 import com.teraculus.lingojournalandroid.viewmodel.ActivityDetailsViewModel
 
@@ -120,15 +121,29 @@ fun ActivityDetailsDialogContent(
                     Text(toTimeString(startTime))
                 }
             }
+
             Spacer(Modifier.size(16.dp))
             Row(Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically) {
-                Text(type?.unit?.title.toString(), style = MaterialTheme.typography.body2)
+                Text(MeasurementUnit.Time.title, style = MaterialTheme.typography.body2)
                 ApplyTextStyle(MaterialTheme.typography.caption, ContentAlpha.medium) {
-                    Text(getActivityUnitValueString(type, startTime, endTime, unitCount ?: 0f))
+                    Text(getDurationString(getMinutes(startTime, endTime)))
                 }
             }
+
+            type?.unit?.let { unit ->
+                Spacer(Modifier.size(16.dp))
+                Row(Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Text(unit.title, style = MaterialTheme.typography.body2)
+                    ApplyTextStyle(MaterialTheme.typography.caption, ContentAlpha.medium) {
+                        Text(getMeasurementUnitValueString(unit, unitCount ?: 0f))
+                    }
+                }
+            }
+
             Spacer(Modifier.size(16.dp))
             Row(Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,

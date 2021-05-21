@@ -10,13 +10,14 @@ import com.teraculus.lingojournalandroid.utils.getMinutes
 import io.realm.RealmResults
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.Year
 import java.time.YearMonth
 import kotlin.math.ceil
 
 
 // Ideas:
 // Language split
-// Activitie types split per category
+// Activity types split per category
 // Compared to previous day/month
 // Achieved level : Add additional button to add achieved language competency
 // Streak per activity category
@@ -24,7 +25,7 @@ import kotlin.math.ceil
 enum class StatisticRange(val title: String, val index: Int) {
     DAY("Day", 0),
     MONTH("Month", 1),
-    ALL("All time", 2)
+    YEAR("Year", 2)
 }
 
 class ActivityCategoryStat(val category: ActivityCategory?, activities: List<Activity>) {
@@ -207,6 +208,7 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
     val rangeIndex = Transformations.map(range) { it.index }
     val day = MutableLiveData(LocalDate.now())
     val month = MutableLiveData(YearMonth.now())
+    val year = MutableLiveData(Year.now())
 
     val stats = frozenActivities.transform(scope = viewModelScope) {
         if(it != null) {
@@ -268,7 +270,7 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
         when (idx) {
             0 -> setDay(day.value!!)
             1 -> setMonth(month.value!!)
-            2 -> setAllTime()
+            2 -> setYear(year.value!!)
         }
     }
 
@@ -287,9 +289,12 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
         activities.reset(repository.getActivities(from, to))
     }
 
-    fun setAllTime() {
-        range.value = StatisticRange.ALL
-        activities.reset(repository.getAllActivities())
+    fun setYear(yearVal: Year) {
+        range.value = StatisticRange.YEAR
+        year.value = yearVal
+        val from = LocalDate.of(yearVal.value, 1, 1)
+        val to = LocalDate.of(yearVal.value, 12, 31)
+        activities.reset(repository.getActivities(from, to))
     }
 }
 

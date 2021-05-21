@@ -22,17 +22,25 @@ import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.ui.home.ActivityItemViewModel
 import com.teraculus.lingojournalandroid.ui.home.ActivityItemViewModelFactory
-import com.teraculus.lingojournalandroid.utils.getActivityUnitValueString
+import com.teraculus.lingojournalandroid.utils.getDurationString
+import com.teraculus.lingojournalandroid.utils.getMeasurementUnitValueString
+import com.teraculus.lingojournalandroid.utils.getMinutes
 import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
 import java.time.LocalTime
 
 
 @ExperimentalMaterialApi
 @Composable
-fun ActivityRow(rawactivity: Activity, onClick: (id: String) -> Unit, model: ActivityItemViewModel = viewModel("activityRow${rawactivity.id}", ActivityItemViewModelFactory(rawactivity, LocalLifecycleOwner.current))) {
+fun ActivityRow(
+    rawactivity: Activity,
+    onClick: (id: String) -> Unit,
+    model: ActivityItemViewModel = viewModel("activityRow${rawactivity.id}",
+        ActivityItemViewModelFactory(rawactivity, LocalLifecycleOwner.current)),
+) {
     val snapshot by model.snapshot.observeAsState()
     snapshot?.let { activity ->
-        val title = if(activity.title.isEmpty()) toActivityTypeTitle(activity.type) else activity.title
+        val title =
+            if (activity.title.isEmpty()) toActivityTypeTitle(activity.type) else activity.title
         Card(
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier
@@ -59,15 +67,31 @@ fun ActivityRow(rawactivity: Activity, onClick: (id: String) -> Unit, model: Act
 }
 
 @Composable
-fun OverlineText(startTime: LocalTime?, endTime: LocalTime?, language: String?, type: ActivityType?, unitCount: Float?) {
-    val text = "${getActivityUnitValueString(type, startTime, endTime, unitCount ?: 0f)} · ${getLanguageDisplayName(language.orEmpty())} · ${ type?.name.orEmpty() }"
-    Text(modifier = Modifier.padding(bottom = 8.dp), text = text, style = MaterialTheme.typography.body2)
+fun OverlineText(
+    startTime: LocalTime?,
+    endTime: LocalTime?,
+    language: String?,
+    type: ActivityType?,
+    unitCount: Float?,
+) {
+    val values = listOf(
+        getDurationString(getMinutes(startTime, endTime)),
+        type?.unit?.let { unit -> getMeasurementUnitValueString(unit, unitCount ?: 0f) },
+        getLanguageDisplayName(language.orEmpty()),
+        type?.name)
+
+    Text(modifier = Modifier.padding(bottom = 8.dp),
+        text = values.filterNotNull().joinToString(separator = " · "),
+        style = MaterialTheme.typography.body2)
 }
 
 @Composable
 fun ActivityRowIcon(icon: Int?, color: Int?) {
-    if(icon != null && color != null)
-        Surface(elevation = 0.dp, modifier = Modifier.size(42.dp), shape = CircleShape, color = Color(color)) {
+    if (icon != null && color != null)
+        Surface(elevation = 0.dp,
+            modifier = Modifier.size(42.dp),
+            shape = CircleShape,
+            color = Color(color)) {
             Icon(painter = painterResource(id = icon), modifier = Modifier
                 .padding(10.dp), tint = MaterialTheme.colors.onPrimary, contentDescription = null)
         }
