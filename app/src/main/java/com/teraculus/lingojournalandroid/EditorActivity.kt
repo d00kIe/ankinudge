@@ -12,7 +12,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.ui.LingoTheme
-import com.teraculus.lingojournalandroid.ui.components.AddActivityDialogContent
+import com.teraculus.lingojournalandroid.ui.components.EditActivityContent
 import com.teraculus.lingojournalandroid.utils.LocalSysUiController
 import com.teraculus.lingojournalandroid.utils.SystemUiController
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
@@ -55,7 +55,7 @@ class EditorActivity : AppCompatActivity() {
             CompositionLocalProvider(LocalSysUiController provides systemUiController) {
                 LingoTheme {
                     val model : EditActivityViewModel = viewModel("editActivityViewModel", modelFactory)
-                    AddActivityDialogContent(onDismiss = { onBackPressed() }, model)
+                    EditActivityContent(onDismiss = { onBackPressed() }, model)
                 }
             }
         }

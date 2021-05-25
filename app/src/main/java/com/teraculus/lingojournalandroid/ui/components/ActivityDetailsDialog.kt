@@ -35,7 +35,7 @@ fun ActivityDetailsDialogContent(
     val categoryTitle by model.categoryTitle.observeAsState()
     val date by model.date.observeAsState()
     val startTime by model.startTime.observeAsState()
-    val endTime by model.endTime.observeAsState()
+    val duration by model.duration.observeAsState()
     val unitCount by model.unitCount.observeAsState()
     val confidence by model.confidence.observeAsState()
     val motivation by model.motivation.observeAsState()
@@ -128,7 +128,7 @@ fun ActivityDetailsDialogContent(
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(MeasurementUnit.Time.title, style = MaterialTheme.typography.body2)
                 ApplyTextStyle(MaterialTheme.typography.caption, ContentAlpha.medium) {
-                    Text(getDurationString(getMinutes(startTime, endTime)))
+                    Text(getDurationString(duration ?: 0))
                 }
             }
 

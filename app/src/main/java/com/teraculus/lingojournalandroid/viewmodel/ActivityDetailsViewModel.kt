@@ -15,7 +15,7 @@ class ActivityDetailsViewModel(id: String,
     val text = Transformations.map(activity) { it?.text }
     val date = Transformations.map(activity) { it?.date }
     val startTime = Transformations.map(activity) { it?.startTime }
-    val endTime = Transformations.map(activity) { it?.endTime }
+    val duration = Transformations.map(activity) { it?.duration }
     val unitCount = Transformations.map(activity) { it?.unitCount }
     val confidence = Transformations.map(activity) { it?.confidence }
     val motivation = Transformations.map(activity) { it?.motivation }

@@ -162,7 +162,7 @@ fun DayItem(
 }
 
 @Composable
-fun DayItemIndicator(show: Boolean, maxCount: Int?, count: Int, maxMinutes: Long?, minutes: Long)
+fun DayItemIndicator(show: Boolean, maxCount: Int?, count: Int, maxMinutes: Int?, minutes: Int)
 {
     if(show) {
         val secondaryColor = MaterialTheme.colors.secondary

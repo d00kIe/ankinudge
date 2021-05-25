@@ -6,7 +6,6 @@ import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.LiveRealmResults
 import com.teraculus.lingojournalandroid.model.transform
-import com.teraculus.lingojournalandroid.utils.getMinutes
 import io.realm.RealmResults
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -29,11 +28,11 @@ enum class StatisticRange(val title: String, val index: Int) {
 }
 
 class ActivityCategoryStat(val category: ActivityCategory?, activities: List<Activity>) {
-    val minutes: Long = activities.map { getMinutes(it) }.sum()
+    val minutes: Int = activities.map { it.duration }.sum()
     val count: Int = activities.size
     val confidence: Float = activities.map { it.confidence }.average().toFloat()
     val motivation: Float = activities.map { it.motivation }.average().toFloat()
-    val topTypes = activities.groupBy { it.type }.map { Pair(it.key, it.value.sumOf { a -> getMinutes(a) }) }.sortedBy { it.second }
+    val topTypes = activities.groupBy { it.type }.map { Pair(it.key, it.value.sumOf { a -> a.duration }) }.sortedBy { it.second }
 }
 
 open class LanguageStatData(
@@ -44,7 +43,7 @@ open class LanguageStatData(
     val motivationPerRangeStats: Map<String, Float>,
     val confidencePerRangeStats: Map<String, Float>,
 ) {
-    val allMinutes: Long =
+    val allMinutes: Int =
         if (categoryStats.isNotEmpty()) categoryStats.map { it.minutes }.sum() else 0
     val allCount: Int =
         if (categoryStats.isNotEmpty()) categoryStats.map { it.count }.sum() else 0
@@ -89,9 +88,9 @@ data class DayData(
     val thisMonth: Boolean,
     val today: Boolean,
     var hasActivities: Boolean,
-    val minutes: Long,
+    val minutes: Int,
     val count: Int,
-    val maxMinutes: Long?,
+    val maxMinutes: Int?,
     val maxCount: Int?,
 ) {
     override fun toString() : String {
@@ -122,7 +121,7 @@ fun getMonthDayData(month: Int, year: Int, activities: List<Activity>?): List<Da
 
     val thisMonth = today.monthValue == month && today.year == year
     val groupedByDate = activities.orEmpty().groupBy { it.date }
-    val groupedByDateMinutes = groupedByDate.mapValues { it.value.sumOf { it1 -> getMinutes(it1) } }
+    val groupedByDateMinutes = groupedByDate.mapValues { it.value.sumOf { it1 -> it1.duration } }
     val maxMinutes =
         groupedByDateMinutes.values.maxOrNull()
     val maxCount =
@@ -138,7 +137,7 @@ fun getMonthDayData(month: Int, year: Int, activities: List<Activity>?): List<Da
                 thisMonth = true,
                 today = thisMonth && today.dayOfMonth == i,
                 hasActivities = !dayActivities.isNullOrEmpty(),
-                minutes = groupedByDateMinutes[date] ?: 0L,
+                minutes = groupedByDateMinutes[date] ?: 0,
                 count = dayActivities.orEmpty().size,
                 maxMinutes = maxMinutes,
                 maxCount = maxCount))

@@ -92,9 +92,9 @@ class ActivityListViewModel(repository: Repository) : ViewModel() {
             true,
             day == LocalDate.now(),
             false,
-            0L,
             0,
-            0L,
+            0,
+            0,
             0)
     }
 

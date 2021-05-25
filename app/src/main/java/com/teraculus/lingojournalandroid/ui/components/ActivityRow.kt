@@ -24,9 +24,7 @@ import com.teraculus.lingojournalandroid.ui.home.ActivityItemViewModel
 import com.teraculus.lingojournalandroid.ui.home.ActivityItemViewModelFactory
 import com.teraculus.lingojournalandroid.utils.getDurationString
 import com.teraculus.lingojournalandroid.utils.getMeasurementUnitValueString
-import com.teraculus.lingojournalandroid.utils.getMinutes
 import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
-import java.time.LocalTime
 
 
 @ExperimentalMaterialApi
@@ -56,8 +54,8 @@ fun ActivityRow(
                 },
                 text = { Text(title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
                 secondaryText = {
-                    OverlineText(activity.startTime,
-                        activity.endTime,
+                    OverlineText(
+                        activity.duration,
                         activity.language,
                         activity.type,
                         activity.unitCount)
@@ -68,14 +66,13 @@ fun ActivityRow(
 
 @Composable
 fun OverlineText(
-    startTime: LocalTime?,
-    endTime: LocalTime?,
+    duration: Int?,
     language: String?,
     type: ActivityType?,
     unitCount: Float?,
 ) {
     val values = listOf(
-        getDurationString(getMinutes(startTime, endTime)),
+        getDurationString(duration ?: 0),
         type?.unit?.let { unit -> getMeasurementUnitValueString(unit, unitCount ?: 0f) },
         getLanguageDisplayName(language.orEmpty()),
         type?.name)

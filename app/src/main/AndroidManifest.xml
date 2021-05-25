@@ -53,6 +53,9 @@
             android:name=".SettingsActivity"
             android:exported="false" />
         <activity
+            android:name=".EditGoalActivity"
+            android:exported="false" />
+        <activity
             android:name=".StatsActivity"
             android:exported="true">
             <tools:validation testUrl="http://lingojournal.com/app/stats" />

@@ -32,10 +32,10 @@ open class Activity() :
     var confidence: Float = 100f
     var motivation: Float = 100f
     var lastChangeTs: Long = 0 // allows LiveData to update correctly if only "type" was changed, see LiveRealmObject::onActive
+    var duration: Int = 60 // duration in minutes
 
     @Required @Index private var _date: Date = asDate(LocalDate.now())
     @Required private var _startTime: String = toRealmTimeString(LocalTime.now().minusHours(1))
-    private var _endTime: String = toRealmTimeString(LocalTime.now())
 
     var date : LocalDate
         get() {
@@ -49,12 +49,6 @@ open class Activity() :
         }
         set(value) { _startTime = toRealmTimeString(value) }
 
-    var endTime : LocalTime
-        get() {
-            return parseRealmTimeString(_endTime)
-        }
-        set(value) { _endTime = toRealmTimeString(value) }
-
     constructor(
         title: String,
         text: String,
@@ -65,7 +59,7 @@ open class Activity() :
         motivation: Float = 100f,
         date: LocalDate = LocalDate.now(),
         startTime: LocalTime = LocalTime.now().minusHours(1),
-        endTime: LocalTime = LocalTime.now(),
+        duration: Int = 60,
         id: ObjectId = ObjectId(),
     ) : this() {
         this.id = id
@@ -75,7 +69,7 @@ open class Activity() :
         this.type = type
         this.date = date
         this.startTime = startTime
-        this.endTime = endTime
+        this.duration = duration
         this.unitCount = unitCount
         this.confidence = confidence
         this.motivation = motivation

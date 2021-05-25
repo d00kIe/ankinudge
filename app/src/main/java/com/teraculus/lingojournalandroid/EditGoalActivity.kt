@@ -11,31 +11,41 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import com.teraculus.lingojournalandroid.ui.LingoTheme
-import com.teraculus.lingojournalandroid.ui.goals.GoalsActivityContent
+import com.teraculus.lingojournalandroid.ui.goals.AddGoalActivityContent
 import com.teraculus.lingojournalandroid.utils.LocalSysUiController
 import com.teraculus.lingojournalandroid.utils.SystemUiController
 
-fun launchGoalsActivity(context: Context) {
-    context.startActivity(createGoalsActivityIntent(context))
+private const val KEY_ARG_EDITOR_GOAL_ID = "KEY_ARG_EDITOR_GOAL_ID"
+
+fun launchEditGoalActivity(context: Context, id: String? = null) {
+    context.startActivity(createEditGoalActivityIntent(context, id))
 }
 
-fun createGoalsActivityIntent(context: Context): Intent {
-    return Intent(context, GoalsActivity::class.java)
+fun createEditGoalActivityIntent(context: Context, id: String?): Intent {
+    val intent = Intent(context, EditGoalActivity::class.java)
+    intent.putExtra(KEY_ARG_EDITOR_GOAL_ID, id)
+    return intent;
 }
 
-class GoalsActivity : AppCompatActivity() {
+
+data class GoalEditorActivityArg(
+    val id: String?,
+)
+
+class EditGoalActivity : AppCompatActivity() {
     @ExperimentalMaterialApi
     @ExperimentalFoundationApi
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val args = getDetailsArgs(intent)
 
         PickerProvider.getPickerProvider().fragmentManagerProvider = { supportFragmentManager }
         setContent {
             val systemUiController = remember { SystemUiController(window) }
             CompositionLocalProvider(LocalSysUiController provides systemUiController) {
                 LingoTheme {
-                    GoalsActivityContent(onAddNewGoal = { launchEditGoalActivity(this) }, onDismiss = { onBackPressed() })
+                    AddGoalActivityContent(goalId = args.id, onDismiss = { onBackPressed() })
                 }
             }
         }
@@ -50,4 +60,9 @@ class GoalsActivity : AppCompatActivity() {
             super.onBackPressed()
         }
     }
+}
+
+private fun getDetailsArgs(intent: Intent): GoalEditorActivityArg {
+    val id = intent.getStringExtra(KEY_ARG_EDITOR_GOAL_ID)
+    return GoalEditorActivityArg(id)
 }

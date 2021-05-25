@@ -3,6 +3,8 @@ package com.teraculus.lingojournalandroid.data
 import androidx.lifecycle.LiveData
 import com.teraculus.lingojournalandroid.model.*
 import com.teraculus.lingojournalandroid.utils.asDate
+import com.teraculus.lingojournalandroid.utils.getMinutes
+import com.teraculus.lingojournalandroid.utils.parseRealmTimeString
 import com.teraculus.lingojournalandroid.utils.toRealmTimeString
 import io.realm.*
 import io.realm.kotlin.where
@@ -12,8 +14,14 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.util.*
 
+private fun getMinutesFromDynamicRealmObject(obj: DynamicRealmObject): Long {
+    val startTime = parseRealmTimeString(obj.getString("_startTime"))
+    val endTime = parseRealmTimeString(obj.getString("_endTime"))
+    return getMinutes(startTime, endTime)
+}
+
 class Repository {
-    private var realm: Realm? = null
+    var realm: Realm? = null
     private val activities: LiveRealmResults<Activity>
     private val types: LiveData<List<ActivityType>?>
     private val userPreferences: LiveData<UserPreferences>
@@ -84,8 +92,23 @@ class Repository {
 
                 schema.get("Activity")!!
                     .addField("unitCount", Float::class.java)
+                    .addField("duration", Int::class.java)
                     .transform { obj: DynamicRealmObject ->
                         obj.setFloat("unitCount", 1f)
+                        obj.setInt("duration", getMinutesFromDynamicRealmObject(obj).toInt())
+                    }
+                    .removeField("_endDate")
+
+                schema.get("ActivityGoal")!!
+                    .addField("_endDate", String::class.java)
+                    .addField("_effortUnit", String::class.java)
+                    .addField("durationGoal", Int::class.java)
+                    .addField("unitCountGoal", Float::class.java)
+                    .transform { obj: DynamicRealmObject ->
+                        obj.setNull("_endDate")
+                        obj.setString("_effortUnit", "time")
+                        obj.setLong("durationGoal", 60)
+                        obj.setFloat("unitCountGoal", 1f)
                     }
                 //version++
             }
@@ -152,7 +175,7 @@ class Repository {
         motivation: Float,
         date: LocalDate,
         startTime: LocalTime,
-        endTime: LocalTime,
+        duration: Int,
     ) {
         val activity = getActivity(id).value
         activity?.let {
@@ -166,7 +189,7 @@ class Repository {
                 activity.unitCount = unitCount
                 activity.date = date
                 activity.startTime = startTime
-                activity.endTime = endTime
+                activity.duration = duration
                 activity.lastChangeTs = Instant.now().toEpochMilli()
             }
             updateLastLanguagePreference(language)
@@ -225,8 +248,9 @@ class Repository {
             .findFirst())
     }
 
-    fun addActivityGoal(goal: ActivityGoal) {
-        realm!!.executeTransaction { tr -> tr.insert(goal) }
+    fun insertOrUpdateActivityGoal(goal: ActivityGoal) {
+        goal.lastChangeTs = Instant.now().toEpochMilli()
+        realm!!.executeTransaction { tr -> tr.insertOrUpdate(goal) }
     }
 
     fun removeActivityGoal(goalId: ObjectId) {
@@ -234,19 +258,6 @@ class Repository {
         goal?.let {
             realm!!.executeTransaction {
                 goal.deleteFromRealm()
-            }
-        }
-    }
-
-    fun updateActivityGoal(
-        goalId: ObjectId,
-        update: (goal: ActivityGoal) -> Unit,
-    ) {
-        realm!!.executeTransaction {
-            val goal = getActivityGoal(goalId.toString()).value
-            goal?.let {
-                update(it)
-                it.lastChangeTs = Instant.now().toEpochMilli()
             }
         }
     }

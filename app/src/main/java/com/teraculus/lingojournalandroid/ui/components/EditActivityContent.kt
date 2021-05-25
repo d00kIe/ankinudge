@@ -5,42 +5,41 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.CalendarToday
-import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.UnitSelector
-import com.teraculus.lingojournalandroid.utils.*
+import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
+import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
+import com.teraculus.lingojournalandroid.utils.toDateString
+import com.teraculus.lingojournalandroid.utils.toTimeString
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
 import kotlinx.coroutines.launch
 
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
-fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
+fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
     val title = model.title.observeAsState()
     val text = model.text.observeAsState()
     val date = model.date.observeAsState()
     val type by model.type.observeAsState()
     val language = model.language.observeAsState()
     val startTime = model.startTime.observeAsState()
-    val endTime = model.endTime.observeAsState()
+    val hours by model.hours.observeAsState()
+    val minutes by model.minutes.observeAsState()
     val unitCount by model.unitCount.observeAsState()
     val confidence by model.confidence.observeAsState()
     val motivation by model.motivation.observeAsState()
@@ -158,14 +157,36 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
                 onValueChange = { model.onTextChange(it) })
 
             Spacer(modifier = Modifier.size(16.dp))
-            DropDownTextField(
-                label = { Text("Duration") },
-                value = getDurationString(getMinutes(startTime.value, endTime.value)),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                onClick = { coroutineScope.launch { model.pickDuration() } }
-            )
+//            DropDownTextField(
+//                label = { Text("Duration") },
+//                value = getDurationString(getMinutes(startTime.value, endTime.value)),
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(horizontal = 16.dp),
+//                onClick = { coroutineScope.launch { model.pickDuration() } }
+//            )
+            Row(modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()) {
+                NumberField(
+                    modifier = Modifier.weight(0.5f),
+                    value = hours,
+                    onValueChange = {
+                        model.setHours(it)
+                    },
+                    label = "Hours",
+                    range = Range.create(0, 1000000))
+                Spacer(modifier = Modifier.size(16.dp))
+                NumberField(
+                    modifier = Modifier.weight(0.5f),
+                    value = minutes,
+                    onValueChange = {
+                        model.setMinutes(it)
+                    },
+                    label = "Minutes",
+                    range = Range.create(0, 59))
+            }
+
 
             if (type?.unit?.selector == UnitSelector.Count) {
                 Spacer(modifier = Modifier.size(16.dp))
@@ -174,7 +195,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth(),
                     value = unitCount?.toInt(),
-                    onValueChange = { value -> value?.let { model.onUnitCountChange(it.toFloat())} },
+                    onValueChange = { model.setUnitCount(it) },
                     label = type?.unit?.title,
                     range = Range.create(0, 1000000))
 
@@ -202,74 +223,7 @@ fun AddActivityDialogContent(onDismiss: () -> Unit, model: EditActivityViewModel
     }
 }
 
-@Composable
-fun NumberField(
-    modifier: Modifier = Modifier,
-    value: Int?,
-    onValueChange: (value: Int?) -> Unit,
-    range: Range<Int>?,
-    label: String?,
-) {
-    Row(modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween) {
-        Box(modifier = Modifier
-            .weight(1f)
-            .padding(top = 8.dp), contentAlignment = Alignment.Center) {
-            Button(
-                shape = CircleShape,
-                contentPadding = PaddingValues(0.dp),
-                modifier = Modifier
-                    .defaultMinSize(48.dp, 48.dp),
-                onClick = {
-                    val newVal = (value ?: 0) - 1
-                    if (range == null || range.contains(newVal)) {
-                        onValueChange(newVal)
-                    }
-                }) {
-                Icon(Icons.Rounded.Remove,
-                    contentDescription = null)
-            }
-        }
 
-        OutlinedTextField(value = value?.toString() ?: "",
-            label = { Text(label.orEmpty()) },
-            placeholder = { Text("0") },
-            modifier = Modifier.weight(3.0f),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            onValueChange = {
-                var f: Int? = null
-                if(it.isEmpty()) {
-                    onValueChange(f)
-                }
-                else {
-                    f = it.toIntOrNull()
-                    if (f != null && value != f && (range == null || range.contains(f))) {
-                        onValueChange(f)
-                    }
-                }
-            }
-        )
-        Box(modifier = Modifier
-            .weight(1f)
-            .padding(top = 8.dp), contentAlignment = Alignment.Center) {
-            Button(
-                shape = CircleShape,
-                contentPadding = PaddingValues(0.dp),
-                modifier = Modifier.defaultMinSize(48.dp, 48.dp),
-                onClick = {
-                    val newVal = (value ?: 0) + 1
-                    if (range == null || range.contains(newVal)) {
-                        onValueChange(newVal)
-                    }
-                }) {
-                Icon(Icons.Rounded.Add,
-                    contentDescription = null)
-            }
-        }
-    }
-
-}
 
 @Composable
 fun ActivityTypeIcon(category: ActivityCategory?) {

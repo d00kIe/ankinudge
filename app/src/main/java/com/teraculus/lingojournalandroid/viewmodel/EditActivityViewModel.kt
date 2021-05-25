@@ -8,7 +8,6 @@ import com.teraculus.lingojournalandroid.PickerProvider
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityType
-import com.teraculus.lingojournalandroid.utils.getMinutes
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -23,7 +22,9 @@ class EditActivityViewModel(
     private var preparedId: String? = null
     val date = MutableLiveData(LocalDate.now())
     val startTime = MutableLiveData(LocalTime.now().minusHours(1))
-    val endTime = MutableLiveData(LocalTime.now())
+    val duration = MutableLiveData(60)
+    val hours = Transformations.map(duration) { it / 60 }
+    val minutes = Transformations.map(duration) { it % 60 }
     val unitCount = MutableLiveData(1.0f)
     val title = MutableLiveData("")
     val text = MutableLiveData("")
@@ -49,7 +50,7 @@ class EditActivityViewModel(
             motivation.value = activity.motivation
             date.value = activity.date
             startTime.value = activity.startTime
-            endTime.value = activity.endTime
+            duration.value = activity.duration
             unitCount.value = activity.unitCount
         } else {
             val goal = goalId?.let { repository.getActivityGoal(it).value }
@@ -62,7 +63,7 @@ class EditActivityViewModel(
                 motivation.value = 50f
                 date.value = LocalDate.now()
                 startTime.value = LocalTime.now().minusHours(1)
-                endTime.value = LocalTime.now()
+                duration.value = 60
                 unitCount.value = 1f
             } else {
                 title.value = ""
@@ -73,7 +74,7 @@ class EditActivityViewModel(
                 motivation.value = 50f
                 date.value = LocalDate.now()
                 startTime.value = LocalTime.now().minusHours(1)
-                endTime.value = LocalTime.now()
+                duration.value = 60
                 unitCount.value = 1f
             }
         }
@@ -119,25 +120,26 @@ class EditActivityViewModel(
     }
 
     suspend fun pickStartTime() {
-        val minutes = getMinutes(startTime.value!!, endTime.value!!)
         pickerProvider.pickTime("Select start time", startTime.value!!) {
             startTime.value = it
-            setEndTimeFromDuration(minutes)
         }
     }
 
-    suspend fun pickDuration() {
-        if (startTime.value != null && endTime.value != null) {
-            val minutes = getMinutes(startTime.value!!, endTime.value!!)
-            val duration = LocalTime.of(0, 0).plusMinutes(minutes)
-            pickerProvider.pickDuration("Duration", duration) {
-                setEndTimeFromDuration(it.hour * 60L + it.minute)
-            }
-        }
+    private fun setDuration(minutes: Int?) {
+        if (duration.value != minutes)
+            duration.value = minutes
     }
 
-    private fun setEndTimeFromDuration(minutes: Long) {
-        endTime.value = LocalTime.from(startTime.value).plusMinutes(minutes)
+    fun setHours(h: Int) {
+        setDuration(h * 60 + (minutes.value ?: 0))
+    }
+
+    fun setMinutes(m: Int) {
+        setDuration((hours.value ?: 0) * 60 + m)
+    }
+
+    fun setUnitCount(value: Int) {
+        unitCount.value = value.toFloat()
     }
 
     private fun addNote() {
@@ -150,7 +152,7 @@ class EditActivityViewModel(
             motivation.value!!,
             date.value!!,
             startTime.value!!,
-            endTime.value!!))
+            duration.value!!))
     }
 
     private fun updateNote(id: String) {
@@ -165,7 +167,7 @@ class EditActivityViewModel(
             motivation.value!!,
             date.value!!,
             startTime.value!!,
-            endTime.value!!)
+            duration.value!!)
     }
 
     fun save() {

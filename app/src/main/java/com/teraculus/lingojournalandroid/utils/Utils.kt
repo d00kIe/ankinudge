@@ -8,8 +8,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.teraculus.lingojournalandroid.model.*
+import com.teraculus.lingojournalandroid.model.ActivityType
+import com.teraculus.lingojournalandroid.model.MeasurementUnit
+import com.teraculus.lingojournalandroid.model.ThemePreference
+import com.teraculus.lingojournalandroid.model.UserPreferences
 import com.teraculus.lingojournalandroid.ui.DarkColors
 import com.teraculus.lingojournalandroid.ui.LightColors
 import java.text.DateFormatSymbols
@@ -126,14 +130,14 @@ fun getMonthForInt(num: Int): String {
     return month
 }
 
-fun getDurationString(minutes: Long): String {
+fun getDurationString(minutes: Int): String {
     val hours = minutes / 60
     val min = minutes % 60
 
     return when {
-        (hours > 0L && min > 0L) -> "${hours}h ${min}m"
-        (hours == 0L && min > 0L) -> "${min}m"
-        (hours > 0L && min == 0L) -> "${hours}h"
+        (hours > 0 && min > 0) -> "${hours}h ${min}m"
+        (hours == 0 && min > 0) -> "${min}m"
+        (hours > 0 && min == 0) -> "${hours}h"
         else -> "0m"
     }
 }
@@ -153,10 +157,10 @@ fun <R, T : R> LiveData<T>.observeWithDelegate(initial: R, delegate: (T) -> Unit
     return state
 }
 
-fun getMinutes(activity: Activity): Long {
-    return getMinutes(activity.startTime, activity.endTime)
-}
-
+//fun getMinutes(activity: Activity): Long {
+//    return getMinutes(activity.startTime, activity.endTime)
+//}
+//
 // https://stackoverflow.com/questions/53254475/localtime-difference-between-two-times
 fun getMinutes(start: LocalTime?, end: LocalTime?): Long {
     return if(start == null || end == null)
@@ -213,4 +217,11 @@ fun initStatusBarColor(activity: android.app.Activity, preferences: UserPreferen
 
 fun getMeasurementUnitValueString(unit: MeasurementUnit, unitCount: Float): String {
     return "${unitCount.toInt()} ${unit.unitSuffix}"
+}
+
+fun <T> MutableLiveData<T>.mutation(actions: (T) -> Unit) {
+    this.value?.let {
+        actions(it)
+        this.value = this.value
+    }
 }
