@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.UnitSelector
-import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
+import com.teraculus.lingojournalandroid.utils.getDurationString
 import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
 import com.teraculus.lingojournalandroid.utils.toDateString
 import com.teraculus.lingojournalandroid.utils.toTimeString
@@ -38,6 +38,7 @@ fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
     val type by model.type.observeAsState()
     val language = model.language.observeAsState()
     val startTime = model.startTime.observeAsState()
+    val duration by model.duration.observeAsState()
     val hours by model.hours.observeAsState()
     val minutes by model.minutes.observeAsState()
     val unitCount by model.unitCount.observeAsState()
@@ -46,6 +47,7 @@ fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
     val preferences by model.preferences.observeAsState()
     val typeGroups = model.groupedTypes.observeAsState()
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
+    var showDurationPicker by rememberSaveable { mutableStateOf(false) }
     var showActivityTypeDialog by rememberSaveable { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
@@ -59,6 +61,17 @@ fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
             },
             onDismissRequest = { showLanguageDialog = false },
             preferences = preferences)
+    }
+
+    if(showDurationPicker) {
+        DurationPicker(onDismissRequest = { showDurationPicker = false },
+            hours = hours,
+            minutes = minutes,
+            onChange = { h, m ->
+                model.setHours(h ?: 0)
+                model.setMinutes(m ?: 0)
+                showDurationPicker = false
+            })
     }
 
     if (showActivityTypeDialog) {
@@ -157,36 +170,14 @@ fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
                 onValueChange = { model.onTextChange(it) })
 
             Spacer(modifier = Modifier.size(16.dp))
-//            DropDownTextField(
-//                label = { Text("Duration") },
-//                value = getDurationString(getMinutes(startTime.value, endTime.value)),
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(horizontal = 16.dp),
-//                onClick = { coroutineScope.launch { model.pickDuration() } }
-//            )
-            Row(modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth()) {
-                NumberField(
-                    modifier = Modifier.weight(0.5f),
-                    value = hours,
-                    onValueChange = {
-                        model.setHours(it)
-                    },
-                    label = "Hours",
-                    range = Range.create(0, 1000000))
-                Spacer(modifier = Modifier.size(16.dp))
-                NumberField(
-                    modifier = Modifier.weight(0.5f),
-                    value = minutes,
-                    onValueChange = {
-                        model.setMinutes(it)
-                    },
-                    label = "Minutes",
-                    range = Range.create(0, 59))
-            }
-
+            DropDownTextField(
+                label = { Text("Duration") },
+                value = getDurationString(duration ?: 0),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                onClick = { showDurationPicker = true }
+            )
 
             if (type?.unit?.selector == UnitSelector.Count) {
                 Spacer(modifier = Modifier.size(16.dp))
@@ -202,18 +193,14 @@ fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
             }
 
             Spacer(modifier = Modifier.size(16.dp))
-            ApplyTextStyle(MaterialTheme.typography.caption, ContentAlpha.medium) {
-                Text("Confidence", modifier = Modifier.padding(horizontal = 16.dp))
-            }
+            Label("Confidence")
             Spacer(modifier = Modifier.size(8.dp))
             SentimentIcons(value = confidence,
                 onSentimentChange = { model.onConfidenceChange(it) },
                 color = MaterialTheme.colors.secondary,
                 size = 36.dp)
             Spacer(modifier = Modifier.size(16.dp))
-            ApplyTextStyle(MaterialTheme.typography.caption, ContentAlpha.medium) {
-                Text("Motivation", modifier = Modifier.padding(horizontal = 16.dp))
-            }
+            Label("Motivation")
             Spacer(modifier = Modifier.size(8.dp))
             SentimentIcons(value = motivation,
                 onSentimentChange = { model.onMotivationChange(it) },
