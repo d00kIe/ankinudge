@@ -188,7 +188,7 @@ fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
                     value = unitCount?.toInt(),
                     onValueChange = { model.setUnitCount(it) },
                     label = type?.unit?.title,
-                    range = Range.create(0, 1000000))
+                    range = Range.create(0, 50000))
 
             }
 

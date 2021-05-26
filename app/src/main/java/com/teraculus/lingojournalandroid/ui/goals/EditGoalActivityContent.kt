@@ -1,5 +1,6 @@
 package com.teraculus.lingojournalandroid.ui.goals
 
+import android.util.Range
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ScrollState
@@ -18,8 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
+import com.teraculus.lingojournalandroid.model.EffortUnit
 import com.teraculus.lingojournalandroid.model.GoalType
+import com.teraculus.lingojournalandroid.model.MeasurementUnit
 import com.teraculus.lingojournalandroid.ui.components.*
+import com.teraculus.lingojournalandroid.utils.getDurationString
 import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
 import com.teraculus.lingojournalandroid.utils.toDateString
 import com.teraculus.lingojournalandroid.viewmodel.EditGoalViewModel
@@ -75,10 +79,15 @@ fun AddGoalFields(model: EditGoalViewModel, scrollState: ScrollState) {
     val weekDays by model.weekDays.observeAsState()
     val startDate by model.startDate.observeAsState()
     val endDate by model.endDate.observeAsState()
+    val effortUnit by model.effortUnit.observeAsState()
+    val durationGoal by model.durationGoal.observeAsState()
+    val hoursGoal by model.hoursGoal.observeAsState()
+    val minutesGoal by model.minutesGoal.observeAsState()
+    val unitCountGoal by model.unitCountGoal.observeAsState()
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
+    var showDurationPicker by rememberSaveable { mutableStateOf(false) }
     var showActivityTypeDialog by rememberSaveable { mutableStateOf(false) }
 
-    val coroutineScope = rememberCoroutineScope()
 
     if (showLanguageDialog) {
         LanguageSelectDialog(
@@ -104,6 +113,16 @@ fun AddGoalFields(model: EditGoalViewModel, scrollState: ScrollState) {
     }
 
 
+    if(showDurationPicker) {
+        DurationPicker(onDismissRequest = { showDurationPicker = false },
+            hours = hoursGoal,
+            minutes = minutesGoal,
+            onChange = { h, m ->
+                model.setDurationGoal(h, m)
+                showDurationPicker = false
+            })
+    }
+
     Column(Modifier
         .fillMaxSize()
         .padding(horizontal = 8.dp)
@@ -123,6 +142,8 @@ fun AddGoalFields(model: EditGoalViewModel, scrollState: ScrollState) {
             leadingIcon = { ActivityTypeIcon(activityType?.category) },
             value = toActivityTypeTitle(activityType),
             onClick = { showActivityTypeDialog = true })
+        Spacer(modifier = Modifier.size(16.dp))
+        Divider()
         Spacer(modifier = Modifier.size(16.dp))
         Label(text = "Goal type")
         Row(modifier = Modifier.padding(horizontal = 8.dp)) {
@@ -147,6 +168,7 @@ fun AddGoalFields(model: EditGoalViewModel, scrollState: ScrollState) {
                     Label(text = "Week days")
                     Spacer(modifier = Modifier.size(8.dp))
                     WeekDaysSelector(weekDays = days, onSelect = { model.toggleWeekDay(it) })
+                    Spacer(modifier = Modifier.size(8.dp))
                 }
             }
         }
@@ -170,6 +192,59 @@ fun AddGoalFields(model: EditGoalViewModel, scrollState: ScrollState) {
                     leadingIcon = { Icon(Icons.Rounded.EventAvailable, contentDescription = null) },
                     value = toDateString(endDate),
                     onClick = { model.pickEndDate() })
+            }
+        }
+
+        Spacer(modifier = Modifier.size(16.dp))
+        Divider()
+        Spacer(modifier = Modifier.size(16.dp))
+        Label(text = "Total effort")
+        activityType?.unit?.let { unit ->
+            AnimatedVisibility(visible = unit != MeasurementUnit.Time ) {
+                Column {
+                    Row(modifier = Modifier.padding(horizontal = 8.dp)) {
+                        ToggleButton(onClick = { model.setEffortUnit(EffortUnit.Time) },
+                            selected = effortUnit == EffortUnit.Time,
+                            modifier = Modifier.padding(8.dp),
+                            highlighted = true) {
+                            Text("Duration")
+                        }
+                        ToggleButton(onClick = { model.setEffortUnit(EffortUnit.Unit) },
+                            selected = effortUnit == EffortUnit.Unit,
+                            modifier = Modifier.padding(8.dp),
+                            highlighted = true) {
+                            Text(activityType?.unit?.title.toString())
+                        }
+                    }
+                }
+            }
+        }
+
+        AnimatedVisibility(visible = effortUnit == EffortUnit.Time) {
+            Column() {
+                Spacer(modifier = Modifier.size(16.dp))
+                DropDownTextField(
+                    label = { Text("Duration") },
+                    value = getDurationString(durationGoal ?: 0),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    onClick = { showDurationPicker = true }
+                )
+            }
+        }
+
+        AnimatedVisibility(visible = effortUnit == EffortUnit.Unit) {
+            Column() {
+                Spacer(modifier = Modifier.size(16.dp))
+                NumberField(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(),
+                    value = unitCountGoal?.toInt(),
+                    onValueChange = { model.setUnitCountGoal(it.toFloat()) },
+                    label = activityType?.unit?.title,
+                    range = Range.create(0, 50000))
             }
         }
     }

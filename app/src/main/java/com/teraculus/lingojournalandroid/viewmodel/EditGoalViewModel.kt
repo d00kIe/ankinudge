@@ -6,10 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.teraculus.lingojournalandroid.PickerProvider
 import com.teraculus.lingojournalandroid.data.Repository
-import com.teraculus.lingojournalandroid.model.ActivityGoal
-import com.teraculus.lingojournalandroid.model.ActivityType
-import com.teraculus.lingojournalandroid.model.EffortUnit
-import com.teraculus.lingojournalandroid.model.GoalType
+import com.teraculus.lingojournalandroid.model.*
 import com.teraculus.lingojournalandroid.utils.mutation
 import org.bson.types.ObjectId
 import java.time.LocalDate
@@ -45,6 +42,8 @@ class EditGoalViewModel(
     val endDate = Transformations.map(goal) { it.endDate }
     val effortUnit = Transformations.map(goal) { it.effortUnit }
     val durationGoal = Transformations.map(goal) { it.durationGoal }
+    val hoursGoal = Transformations.map(durationGoal) { it?.div(60) }
+    val minutesGoal = Transformations.map(durationGoal) { it?.rem(60) }
     val unitCountGoal = Transformations.map(goal) { it.unitCountGoal }
     val weekDays = Transformations.map(goal) { it.weekDays.toIntArray() }
 
@@ -67,12 +66,22 @@ class EditGoalViewModel(
     fun setActivityType(type: ActivityType) {
         goal.mutation {
             it.activityType = type
+            // reset effort type to Time if the measurement unit is also Time
+            if(effortUnit.value == EffortUnit.Unit && type.unit == MeasurementUnit.Time) {
+                it.effortUnit = EffortUnit.Time
+            }
         }
     }
 
     fun setEffortUnit(unit: EffortUnit) {
         goal.mutation {
             it.effortUnit = unit
+        }
+    }
+
+    fun setDurationGoal(hours: Int?, minutes: Int?) {
+        goal.mutation {
+            it.durationGoal = (hours ?: 0) * 60 + (minutes ?: 0)
         }
     }
 
