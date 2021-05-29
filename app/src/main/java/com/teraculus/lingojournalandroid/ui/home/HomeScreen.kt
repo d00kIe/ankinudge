@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddTask
@@ -15,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
@@ -51,7 +49,6 @@ fun ActivityList(
 ) {
     val groups by model.grouped.observeAsState()
     val todayGoals by model.todayGoals.observeAsState()
-    val todayGoalsLeft by model.todayGoalsLeft.observeAsState()
     val goalsAchievedString by model.goalsAchievedString.observeAsState()
     val hasGoals by model.hasGoals.observeAsState()
 
@@ -86,20 +83,8 @@ fun ActivityList(
                     }
 
                 }
-                if(todayGoalsLeft.isNullOrEmpty()) {
-                    Card(
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        elevation = 1.dp) {
-                            Text("Bravo, all goals achieved!",
-                                modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                                textAlign = TextAlign.Center)
-                        }
-                }
             }
-            items(todayGoalsLeft.orEmpty()) { goal ->
+            items(todayGoals.orEmpty()) { goal ->
                 FeedGoalRow(goal, onClick = onGoalClick)
             }
         }

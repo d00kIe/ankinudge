@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.rounded.CalendarToday
 import androidx.compose.material.icons.rounded.EventAvailable
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -38,6 +39,7 @@ fun AddGoalActivityContent(
         EditGoalViewModelFactory(goalId)),
 ) {
     val scrollState = rememberScrollState()
+    var expandedMenu by remember { mutableStateOf(false)}
 
     Scaffold(
         topBar = {
@@ -57,7 +59,19 @@ fun AddGoalActivityContent(
                     TextButton(onClick = { model.save(); onDismiss(); }) {
                         Text(text = "Save")
                     }
-
+                    if(!goalId.isNullOrEmpty()) {
+                        IconButton(onClick = { expandedMenu = true }) {
+                            Icon(Icons.Rounded.MoreVert, contentDescription = null)
+                        }
+                        DropdownMenu(
+                            expanded = expandedMenu,
+                            onDismissRequest = { expandedMenu = false }
+                        ) {
+                            DropdownMenuItem(onClick = { model.delete(); }) {
+                                Text("Delete")
+                            }
+                        }
+                    }
                 }
             )
         }
@@ -142,10 +156,12 @@ fun AddGoalFields(model: EditGoalViewModel, scrollState: ScrollState) {
             leadingIcon = { ActivityTypeIcon(activityType?.category) },
             value = toActivityTypeTitle(activityType),
             onClick = { showActivityTypeDialog = true })
-        Spacer(modifier = Modifier.size(16.dp))
+
+        Spacer(modifier = Modifier.size(24.dp))
+        Text(text = "Goal type", modifier = Modifier.padding(horizontal = 16.dp), style = MaterialTheme.typography.subtitle2)
+        Spacer(modifier = Modifier.size(8.dp))
         Divider()
-        Spacer(modifier = Modifier.size(16.dp))
-        Label(text = "Goal type")
+        Spacer(modifier = Modifier.size(8.dp))
         Row(modifier = Modifier.padding(horizontal = 8.dp)) {
             ToggleButton(onClick = { model.setGoalType(GoalType.Daily) },
                 selected = type == GoalType.Daily,
@@ -195,10 +211,11 @@ fun AddGoalFields(model: EditGoalViewModel, scrollState: ScrollState) {
             }
         }
 
-        Spacer(modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.size(24.dp))
+        Text(text = "Effort goal", modifier = Modifier.padding(horizontal = 16.dp), style = MaterialTheme.typography.subtitle2)
+        Spacer(modifier = Modifier.size(8.dp))
         Divider()
-        Spacer(modifier = Modifier.size(16.dp))
-        Label(text = "Total effort")
+        Spacer(modifier = Modifier.size(8.dp))
         activityType?.unit?.let { unit ->
             AnimatedVisibility(visible = unit != MeasurementUnit.Time ) {
                 Column {

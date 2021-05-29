@@ -14,9 +14,9 @@ import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 
-enum class GoalType(val id: String) {
-    Daily("daily"),
-    LongTerm("longterm")
+enum class GoalType(val id: String, val title: String) {
+    Daily("daily", "Daily"),
+    LongTerm("longterm", "Long-term")
 }
 
 enum class EffortUnit(val id: String) {

@@ -54,7 +54,7 @@ fun ActivityRow(
                 },
                 text = { Text(title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
                 secondaryText = {
-                    OverlineText(
+                    SecondaryText(
                         activity.duration,
                         activity.language,
                         activity.type,
@@ -65,7 +65,7 @@ fun ActivityRow(
 }
 
 @Composable
-fun OverlineText(
+private fun SecondaryText(
     duration: Int?,
     language: String?,
     type: ActivityType?,

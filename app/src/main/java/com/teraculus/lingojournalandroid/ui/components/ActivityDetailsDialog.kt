@@ -133,13 +133,15 @@ fun ActivityDetailsDialogContent(
             }
 
             type?.unit?.let { unit ->
-                Spacer(Modifier.size(16.dp))
-                Row(Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Text(unit.title, style = MaterialTheme.typography.body2)
-                    ApplyTextStyle(MaterialTheme.typography.caption, ContentAlpha.medium) {
-                        Text(getMeasurementUnitValueString(unit, unitCount ?: 0f))
+                if(unit != MeasurementUnit.Time) {
+                    Spacer(Modifier.size(16.dp))
+                    Row(Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Text(unit.title, style = MaterialTheme.typography.body2)
+                        ApplyTextStyle(MaterialTheme.typography.caption, ContentAlpha.medium) {
+                            Text(getMeasurementUnitValueString(unit, unitCount ?: 0f).orEmpty())
+                        }
                     }
                 }
             }

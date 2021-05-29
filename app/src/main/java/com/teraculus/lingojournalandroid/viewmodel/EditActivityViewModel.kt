@@ -100,11 +100,6 @@ class EditActivityViewModel(
             language.value = value // language code
     }
 
-    fun onUnitCountChange(value: Float) {
-        if (unitCount.value != value)
-            unitCount.value = value
-    }
-
     fun onConfidenceChange(value: Float) {
         if (confidence.value != value)
             confidence.value = value

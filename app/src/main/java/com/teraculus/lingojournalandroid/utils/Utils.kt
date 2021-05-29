@@ -215,8 +215,11 @@ fun initStatusBarColor(activity: android.app.Activity, preferences: UserPreferen
 }
 
 
-fun getMeasurementUnitValueString(unit: MeasurementUnit, unitCount: Float): String {
-    return "${unitCount.toInt()} ${unit.unitSuffix}"
+fun getMeasurementUnitValueString(unit: MeasurementUnit, unitCount: Float): String? {
+    return if(unit == MeasurementUnit.Time)
+        null
+    else
+        "${unitCount.toInt()} ${unit.unitSuffix}"
 }
 
 fun <T> MutableLiveData<T>.mutation(actions: (T) -> Unit) {
