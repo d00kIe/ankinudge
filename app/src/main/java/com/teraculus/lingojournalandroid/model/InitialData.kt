@@ -7,8 +7,8 @@ import kotlin.random.Random
 
 fun activityTypeData(): List<ActivityType> {
     return  listOf(
-        ActivityType(ActivityCategory.READING, "Book"),
-        ActivityType(ActivityCategory.READING, "Newspaper"),
+        ActivityType(ActivityCategory.READING, "Book", unit = MeasurementUnit.Pages),
+        ActivityType(ActivityCategory.READING, "Newspaper",),
         ActivityType(ActivityCategory.READING, "Homework"),
         ActivityType(ActivityCategory.WRITING, "Email"),
         ActivityType(ActivityCategory.WRITING, "Diary"),
@@ -17,15 +17,15 @@ fun activityTypeData(): List<ActivityType> {
         ActivityType(ActivityCategory.LISTENING, "Audio book"),
         ActivityType(ActivityCategory.LISTENING, "Music"),
         ActivityType(ActivityCategory.LISTENING, "Radio"),
-        ActivityType(ActivityCategory.LISTENING, "YouTube"),
+        ActivityType(ActivityCategory.LISTENING, "YouTube", unit = MeasurementUnit.Videos),
         ActivityType(ActivityCategory.LISTENING, "TV"),
         ActivityType(ActivityCategory.LISTENING, "Movie"),
         ActivityType(ActivityCategory.SPEAKING, "With Friends"),
         ActivityType(ActivityCategory.SPEAKING, "On the phone"),
         ActivityType(ActivityCategory.LEARNING, "Grammar"),
-        ActivityType(ActivityCategory.LEARNING, "Vocabulary"),
+        ActivityType(ActivityCategory.LEARNING, "Vocabulary", unit = MeasurementUnit.Words),
         ActivityType(ActivityCategory.LEARNING, "Pronunciation"),
-        ActivityType(ActivityCategory.OTHER, "App - Anki"),
+        ActivityType(ActivityCategory.OTHER, "App - Anki", unit = MeasurementUnit.Words),
         ActivityType(ActivityCategory.OTHER, "Exam"),
         ActivityType(ActivityCategory.OTHER, "Certificate"),
     )
@@ -69,7 +69,7 @@ private fun generateRandomData(
         val type = activityTypes[Random.nextInt(activityTypes.size - 1)]
         val conf = moods[Random.nextInt(moods.size - 1)]
         val moti = moods[Random.nextInt(moods.size - 1)]
-        val activity = Activity(title, text, lang, type,1f, conf, moti,  day, id = ObjectId())
+        val activity = Activity(title, text, lang, type,Random.nextInt(1,10).toFloat(), conf, moti,  day, id = ObjectId(), duration = Random.nextInt(5, 120))
         aLotOfActivities.add(activity)
         day = day.minusDays(Random.nextLong(0, 3))
     }

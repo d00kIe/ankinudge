@@ -1,6 +1,5 @@
 package com.teraculus.lingojournalandroid.ui.goals
 
-import android.content.Context
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,8 +12,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.rounded.AddCircle
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,144 +25,19 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.*
-import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
-import com.teraculus.lingojournalandroid.launchEditGoalActivity
-import com.teraculus.lingojournalandroid.model.*
+import com.teraculus.lingojournalandroid.model.ActivityGoal
+import com.teraculus.lingojournalandroid.model.EffortUnit
 import com.teraculus.lingojournalandroid.utils.getDurationString
 import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
-import io.realm.RealmResults
-import org.bson.types.ObjectId
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.format.TextStyle
-import java.util.*
-
-class GoalsViewModel(val repository: Repository = Repository.getRepository()) : ViewModel() {
-    private val goals = repository.getActivityGoals()
-    val frozen = Transformations.map(goals) {
-        (it as RealmResults<ActivityGoal>).freeze().sortedByDescending { g -> g.id.timestamp }
-    }
-    val preferences = repository.getUserPreferences()
-    val types = repository.getTypes()
-    val lastAddedId = MutableLiveData<ObjectId>(null)
-}
-
-class GoalItemViewModel(
-    private val frozenGoal: ActivityGoal,
-    owner: LifecycleOwner,
-    val repository: Repository = Repository.getRepository(),
-) : ViewModel() {
-    private val goal = Repository.getRepository().getActivityGoal(frozenGoal.id.toString())
-    val snapshot =
-        MutableLiveData<ActivityGoal>(if (goal.value?.isValid == true) goal.value!!.freeze<ActivityGoal>() else null)
-
-    val activities = Transformations.switchMap(snapshot) {
-        it?.let { g ->
-            if(g.type == GoalType.Daily) {
-                val today = LocalDate.now();
-                return@switchMap LiveRealmResults(repository.getActivities(today))
-            } else {
-                return@switchMap LiveRealmResults(repository.getActivities(g.date, g.endDate ?: LocalDate.MAX))
-            }
-        }
-    }
-
-    private val frozenActivities = Transformations.map(activities) {
-        it?.let { a ->
-            return@map (a as RealmResults<Activity>).freeze()
-        }
-    }
-
-    val progress = MediatorLiveData<Float>().apply {
-        fun update() {
-            var res = 0f
-            snapshot.value?.let { g ->
-                val activities = frozenActivities.value.orEmpty()
-                res = if(g.effortUnit == EffortUnit.Time) {
-                    activities.filter { match(it, g) }.sumOf { a -> a.duration }.toFloat()
-                } else {
-                    activities.filter { match(it, g) }.sumOf { a -> a.unitCount.toDouble() }.toFloat()
-                }
-            }
-            value = res
-        }
-
-        addSource(snapshot) { update() }
-        addSource(frozenActivities) { update() }
-
-        update()
-    }
-
-
-    val progressPercent = MediatorLiveData<Float>().apply {
-        fun update() {
-            var res = 0f
-            snapshot.value?.let { g ->
-                res = if(g.effortUnit == EffortUnit.Time) {
-                    100f / (g.durationGoal?.toFloat() ?: 1f) * (progress.value ?: 0f)
-                } else {
-                    100f / (g.unitCountGoal ?: 1f) * (progress.value ?: 0f)
-                }
-            }
-            value = res
-        }
-
-        addSource(snapshot) { update() }
-        addSource(progress) { update() }
-
-        update()
-    }
-
-    val goalWeekDaysString = Transformations.map(snapshot) {
-        it?.weekDays?.sorted()?.map { d -> DayOfWeek.of(d) }
-            ?.joinToString(truncated = ",") { d ->
-                d.getDisplayName(TextStyle.SHORT,
-                    Locale.getDefault())
-            }
-    }
-
-    init {
-        goal.observe(
-            owner,
-            Observer {
-                snapshot.value = if (it?.isValid == true) it.freeze() else null
-            }
-        )
-    }
-
-    private fun match(activity: Activity, goal: ActivityGoal) : Boolean {
-        return with(activity)
-        {
-            return language == goal.language && type?.id == goal.activityType?.id
-        }
-    }
-
-    fun edit(context: Context) {
-        launchEditGoalActivity(context, frozenGoal.id.toString())
-    }
-}
-
-class GoalItemViewModelFactory(
-    private val rawGoal: ActivityGoal,
-    private val owner: LifecycleOwner,
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(GoalItemViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return GoalItemViewModel(rawGoal, owner) as T
-        }
-
-        throw IllegalArgumentException("Unknown view model class")
-    }
-}
+import com.teraculus.lingojournalandroid.viewmodel.GoalItemViewModel
+import com.teraculus.lingojournalandroid.viewmodel.GoalItemViewModelFactory
+import com.teraculus.lingojournalandroid.viewmodel.GoalsActivityViewModel
 
 @Composable
 fun GoalsActivityContent(
-    model: GoalsViewModel = viewModel("goalsViewModel"),
+    model: GoalsActivityViewModel = viewModel("goalsViewModel"),
     onDismiss: () -> Unit,
     onAddNewGoal: () -> Unit,
 ) {

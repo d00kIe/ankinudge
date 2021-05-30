@@ -1,13 +1,11 @@
 package com.teraculus.lingojournalandroid.viewmodel
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import com.teraculus.lingojournalandroid.PickerProvider
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.*
 import com.teraculus.lingojournalandroid.utils.mutation
+import kotlinx.coroutines.launch
 import org.bson.types.ObjectId
 import java.time.LocalDate
 
@@ -132,8 +130,11 @@ class EditGoalViewModel(
     }
 
     fun save() {
-        goal.value?.let {
-            repository.insertOrUpdateActivityGoal(it)
+        // because I need to make sure the focus is cleared from the number input
+        viewModelScope.launch {
+            goal.value?.let {
+                repository.insertOrUpdateActivityGoal(it)
+            }
         }
     }
 

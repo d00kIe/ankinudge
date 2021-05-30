@@ -16,10 +16,6 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
 <!--        <item name="android:navigationBarColor">@android:color/transparent</item>-->
 
-        <item name="chart_gridColor">#33666666</item>
-        <item name="chart_grid">horizontal</item>
-        <item name="chart_gridStrokeWidth">1dp</item>
-        <item name="chart_spacing">2dp</item>
     </style>
 
     <style name="Theme.DialogFullScreen" parent="@style/ThemeOverlay.MaterialComponents.Dialog.Alert">

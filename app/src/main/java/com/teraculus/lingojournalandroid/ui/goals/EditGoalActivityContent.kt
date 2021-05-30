@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
@@ -45,6 +46,7 @@ fun AddGoalActivityContent(
         topBar = {
             val elevation =
                 if (MaterialTheme.colors.isLight && (scrollState.value > 0)) AppBarDefaults.TopAppBarElevation else 0.dp
+            val focusManager = LocalFocusManager.current
             TopAppBar(
                 title = { Text(text = "New Goal") },
                 backgroundColor = MaterialTheme.colors.background,
@@ -56,7 +58,7 @@ fun AddGoalActivityContent(
                 },
                 actions = {
                     // RowScope here, so these icons will be placed horizontally
-                    TextButton(onClick = { model.save(); onDismiss(); }) {
+                    TextButton(onClick = { focusManager.clearFocus(); model.save(); onDismiss(); }) {
                         Text(text = "Save")
                     }
                     if(!goalId.isNullOrEmpty()) {
@@ -67,7 +69,7 @@ fun AddGoalActivityContent(
                             expanded = expandedMenu,
                             onDismissRequest = { expandedMenu = false }
                         ) {
-                            DropdownMenuItem(onClick = { model.delete(); }) {
+                            DropdownMenuItem(onClick = { model.delete(); onDismiss(); }) {
                                 Text("Delete")
                             }
                         }
