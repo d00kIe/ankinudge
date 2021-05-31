@@ -72,7 +72,7 @@ fun LongTermGoalProgressChartPreview2() {
 
 @Composable
 fun MonthlyLongTermGoalProgressChart(
-    color: Color = MaterialTheme.colors.primary,
+    color: Color = MaterialTheme.colors.secondary,
     month: YearMonth,
     values: Map<Int, Float>) {
     LongTermGoalProgressChart(
@@ -87,7 +87,7 @@ fun MonthlyLongTermGoalProgressChart(
 
 @Composable
 fun YearlyLongTermGoalProgressChart(
-    color: Color = MaterialTheme.colors.primary,
+    color: Color = MaterialTheme.colors.secondary,
     values: Map<Month, Float>) {
     LongTermGoalProgressChart(
         color = color,
@@ -157,6 +157,7 @@ fun LongTermGoalProgressChart(
 
                 view.legend.isEnabled = false
                 view.description.isEnabled = false
+                view.setTouchEnabled(false)
 
                 view.data = LineData(dataset)
                 view.invalidate()
@@ -192,7 +193,7 @@ fun MonthlyDailyGoalProgressChart(
 
 @Composable
 fun DailyGoalProgressChart(
-    color: Color = MaterialTheme.colors.primary,
+    color: Color = MaterialTheme.colors.secondary,
     height: Dp = 120.dp,
     xRange: Range<Float> = Range(1f, 100f),
     yRange: Range<Float> = Range(0f, 100f),
@@ -241,6 +242,7 @@ fun DailyGoalProgressChart(
 
                 view.legend.isEnabled = false
                 view.description.isEnabled = false
+                view.setTouchEnabled(false)
 
                 view.data = BarData(dataset)
                 view.invalidate()

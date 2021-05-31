@@ -21,19 +21,25 @@ import com.teraculus.lingojournalandroid.ui.goals.FeedGoalRow
 import com.teraculus.lingojournalandroid.ui.stats.StatsCard
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.toDayStringOrToday
+import com.teraculus.lingojournalandroid.viewmodel.ActivityListViewModel
+import com.teraculus.lingojournalandroid.viewmodel.ActivityListViewModelFactory
+import com.teraculus.lingojournalandroid.viewmodel.GoalsListViewModel
+import com.teraculus.lingojournalandroid.viewmodel.GoalsListViewModelFactory
 
 @ExperimentalMaterialApi
 @Composable
 fun HomeScreen(
     model: ActivityListViewModel = viewModel("activityListViewModel",
         ActivityListViewModelFactory()),
+    goalModel: GoalsListViewModel = viewModel("goalsListViewModel",
+        GoalsListViewModelFactory()),
     onItemClick: (id: String) -> Unit,
     onOpenStats: () -> Unit,
     scrollState: LazyListState,
     onGoalClick: (goalId: String) -> Unit,
     onOpenGoals: () -> Unit
 ) {
-    ActivityList(model = model, onItemClick, onOpenStats, scrollState, onGoalClick = onGoalClick, onOpenGoals = onOpenGoals)
+    ActivityList(model, goalModel, onItemClick, onOpenStats, scrollState, onGoalClick, onOpenGoals)
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -41,6 +47,7 @@ fun HomeScreen(
 @Composable
 fun ActivityList(
     model: ActivityListViewModel,
+    goalModel: GoalsListViewModel,
     onItemClick: (id: String) -> Unit,
     onOpenStats: () -> Unit,
     scrollState: LazyListState,
@@ -48,9 +55,8 @@ fun ActivityList(
     onOpenGoals: () -> Unit,
 ) {
     val groups by model.grouped.observeAsState()
-    val todayGoals by model.todayGoals.observeAsState()
-    val goalsAchievedString by model.goalsAchievedString.observeAsState()
-    val hasGoals by model.hasGoals.observeAsState()
+    val todayGoals by goalModel.todayGoals.observeAsState()
+    val hasGoals by goalModel.hasGoals.observeAsState()
 
     LazyColumn(state = scrollState) {
         item {
@@ -77,9 +83,10 @@ fun ActivityList(
         if(!todayGoals.isNullOrEmpty()) {
             item {
                 ApplyTextStyle(textStyle = MaterialTheme.typography.body2, contentAlpha = ContentAlpha.medium) {
-                    Row(modifier = Modifier.fillMaxWidth().padding(top=16.dp, start = 16.dp, end = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp, start = 16.dp, end = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(text = "Goals")
-                        Text(text = "$goalsAchievedString achieved")
                     }
 
                 }
@@ -88,6 +95,7 @@ fun ActivityList(
                 FeedGoalRow(goal, onClick = onGoalClick)
             }
         }
+
         if (groups != null && groups.orEmpty().isNotEmpty()) {
             groups.orEmpty().forEach { (date, items) ->
                 item {

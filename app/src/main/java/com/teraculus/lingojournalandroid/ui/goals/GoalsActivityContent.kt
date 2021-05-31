@@ -229,7 +229,7 @@ private fun WelcomingScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Daily goals help you stay motivated and practice every day. Click on the green button to create your first goal!",
+            Text(text = "Daily goals help you stay motivated and practice every atDate. Click on the green button to create your first goal!",
                 style = MaterialTheme.typography.subtitle1,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center)

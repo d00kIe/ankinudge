@@ -1,23 +1,45 @@
-package com.teraculus.lingojournalandroid.ui.home
+package com.teraculus.lingojournalandroid.viewmodel
 
 import androidx.lifecycle.*
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityGoal
+import com.teraculus.lingojournalandroid.model.GoalType
 import com.teraculus.lingojournalandroid.model.transform
-import com.teraculus.lingojournalandroid.viewmodel.DayData
-import com.teraculus.lingojournalandroid.viewmodel.streakFromDate
 import io.realm.RealmResults
 import java.time.LocalDate
 
 class LanguageDayData(val language: String, val data: List<DayData>)
 
+class GoalsListViewModel(repository: Repository, day: LocalDate) : ViewModel() {
+    private val goals = repository.getActivityGoals()
+    private val frozenGoals = Transformations.map(goals) { (it as RealmResults<ActivityGoal>).freeze().sortedByDescending { g -> g.id.timestamp } }
+    val todayGoals = Transformations.map(frozenGoals) { it.filter { g -> goalFilter(g, day) } }
+    val hasGoals = Transformations.map(todayGoals) { it.isNotEmpty() }
+
+    private fun goalFilter(
+        g: ActivityGoal,
+        day: LocalDate,
+    ) = if (g.type == GoalType.Daily)
+        g.active && g.weekDays.contains(day.dayOfWeek.value)
+    else
+         g.active && g.date <= day && (g.endDate == null || g.endDate!! >= day)
+}
+
+class GoalsListViewModelFactory(val day: LocalDate = LocalDate.now()) : ViewModelProvider.Factory {
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(GoalsListViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return GoalsListViewModel(Repository.getRepository(), day) as T
+        }
+
+        throw IllegalArgumentException("Unknown view model class")
+    }
+}
+
 class ActivityListViewModel(repository: Repository) : ViewModel() {
     private val activities = repository.getActivities()
-    private val goals = repository.getActivityGoals()
-    val frozenGoals = Transformations.map(goals) { (it as RealmResults<ActivityGoal>).freeze().sortedByDescending { g -> g.id.timestamp } }
-    val hasGoals = Transformations.map(frozenGoals) { it.isNotEmpty() }
-    val frozen = Transformations.map(activities) { (it as RealmResults<Activity>).freeze() }
+    private val frozen = Transformations.map(activities) { (it as RealmResults<Activity>).freeze() }
     var grouped = Transformations.map(frozen) {
         it?.groupBy { it1 -> it1.date }.orEmpty()
             .mapValues { it2 -> it2.value.sortedByDescending { a -> a.startTime } }
@@ -27,41 +49,6 @@ class ActivityListViewModel(repository: Repository) : ViewModel() {
     var streaks = frozen.transform(scope = viewModelScope) { act ->
         act.orEmpty().groupBy { it.language }
             .mapValues { langact -> streakFromDate(langact.value, LocalDate.now(), true).size }
-    }
-
-    private val todayActivities = Transformations.map(grouped) { it[LocalDate.now()] }
-    val todayGoals = Transformations.map(frozenGoals) {
-        val today = LocalDate.now();
-        it.filter { g -> g.active && g.weekDays.contains(today.dayOfWeek.value) }
-    }
-
-    val todayGoalsLeft = MediatorLiveData<List<ActivityGoal>>().apply {
-        fun update() {
-            val todaysActivities = todayActivities.value.orEmpty()
-            value = todayGoals.value.orEmpty().filter { g -> todaysActivities.none { a -> a.language == g.language && a.type?.id == g.activityType?.id }
-            }
-        }
-
-        addSource(todayActivities) { update() }
-        addSource(todayGoals) { update() }
-
-        update()
-    }
-
-    val goalsAchievedString = MediatorLiveData<String>().apply {
-        fun update() {
-            val allSize = todayGoals.value.orEmpty().size
-            val doneSize = allSize - todayGoalsLeft.value.orEmpty().size
-            if(allSize == 0)
-                value = "/"
-            else
-                value = "$doneSize / $allSize"
-        }
-
-        addSource(todayGoalsLeft) { update() }
-        addSource(todayGoals) { update() }
-
-        update()
     }
 
     private fun getGroupedLanguageDayData(activities: List<Activity>?): List<LanguageDayData> {
@@ -118,7 +105,6 @@ class ActivityListViewModelFactory : ViewModelProvider.Factory {
         throw IllegalArgumentException("Unknown view model class")
     }
 }
-
 
 class ActivityItemViewModel(frozenActivity: Activity, owner: LifecycleOwner) : ViewModel() {
     val activity = Repository.getRepository().getActivity(frozenActivity.id.toString())

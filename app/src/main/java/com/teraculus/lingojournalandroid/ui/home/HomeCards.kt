@@ -6,7 +6,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.*
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Circle
+import androidx.compose.material.icons.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -21,8 +24,9 @@ import com.teraculus.lingojournalandroid.ui.stats.Constants
 import com.teraculus.lingojournalandroid.ui.stats.StatsCard
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.toWeekDayString
+import com.teraculus.lingojournalandroid.viewmodel.ActivityListViewModel
 import com.teraculus.lingojournalandroid.viewmodel.DayData
-import kotlinx.coroutines.delay
+import com.teraculus.lingojournalandroid.viewmodel.LanguageDayData
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 

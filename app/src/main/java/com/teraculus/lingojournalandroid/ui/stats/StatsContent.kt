@@ -16,18 +16,22 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
+import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.ui.calendar.CalendarSwipeable
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
 import com.teraculus.lingojournalandroid.ui.components.ToggleButton
+import com.teraculus.lingojournalandroid.ui.goals.YearlyLongTermGoalProgressChart
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.toDayString
 import com.teraculus.lingojournalandroid.viewmodel.DayLanguageStreakData
 import com.teraculus.lingojournalandroid.viewmodel.LanguageStatData
 import com.teraculus.lingojournalandroid.viewmodel.StatisticRange
 import com.teraculus.lingojournalandroid.viewmodel.StatisticsViewModel
+import java.time.Month
 
 @OptIn(ExperimentalPagerApi::class)
 @ExperimentalMaterialApi
@@ -43,19 +47,6 @@ fun StatsContent(
     val scrollState = rememberScrollState()
     Scaffold(
         topBar = {
-//            TopAppBar(
-//                title = {
-//                    Text("Stats", style = MaterialTheme.typography.h6)
-//                },
-//                navigationIcon = {
-//                    IconButton(onClick = onDismiss) {
-//                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
-//                    }
-//                },
-//                backgroundColor = MaterialTheme.colors.background,
-//                elevation = 0.dp,
-//            )
-
             val tabIndex by model.rangeIndex.observeAsState(1)
             val tabs by rememberSaveable {
                 mutableStateOf(listOf(StatisticRange.DAY.title,
@@ -149,6 +140,20 @@ private fun InnerContent(
                     Column {
                         Spacer(modifier = Modifier.size(8.dp))
                         LanguageBar(languages.orEmpty(), languageIndex) { l -> model.setLanguage(l) }
+
+                        if(tabIndex == 2) {
+                            StatsCard {
+                                Box(modifier.padding(16.dp)) {
+                                    YearlyLongTermGoalProgressChart(
+                                        Color(ActivityCategory.SPEAKING.color),
+                                        values = mapOf(Month.JANUARY to 1f,
+                                            Month.FEBRUARY to 25f,
+                                            Month.DECEMBER to 50f),
+                                    )
+                                }
+                            }
+                        }
+
                         LanguageStatContent(languageStats!!, tabIndex == 1)
                         AnimatedVisibility(visible = tabIndex == 0 && languageDayStreak != null) {
                             Column {

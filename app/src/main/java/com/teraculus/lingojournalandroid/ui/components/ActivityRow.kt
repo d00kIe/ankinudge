@@ -20,11 +20,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityType
-import com.teraculus.lingojournalandroid.ui.home.ActivityItemViewModel
-import com.teraculus.lingojournalandroid.ui.home.ActivityItemViewModelFactory
 import com.teraculus.lingojournalandroid.utils.getDurationString
 import com.teraculus.lingojournalandroid.utils.getMeasurementUnitValueString
 import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
+import com.teraculus.lingojournalandroid.viewmodel.ActivityItemViewModel
+import com.teraculus.lingojournalandroid.viewmodel.ActivityItemViewModelFactory
 
 
 @ExperimentalMaterialApi
