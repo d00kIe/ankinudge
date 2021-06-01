@@ -1,5 +1,6 @@
 package com.teraculus.lingojournalandroid.ui.stats
 
+import android.util.Range
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,19 +9,28 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.KeyboardArrowRight
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.ui.components.SentimentIcon
+import com.teraculus.lingojournalandroid.ui.goals.MonthlyDailyGoalProgressChart
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.getDurationString
+import com.teraculus.lingojournalandroid.viewmodel.AverageDailyGoalsProgressViewModel
 import com.teraculus.lingojournalandroid.viewmodel.DayLanguageStreakData
 import com.teraculus.lingojournalandroid.viewmodel.LanguageStatData
+import java.time.YearMonth
 
 class Constants {
     companion object {
@@ -249,13 +259,15 @@ fun DayStreak(stats: DayLanguageStreakData) {
 
 @Composable
 fun TopActivityTypes(stats: LanguageStatData) {
-    if(stats.topActivityTypes.isNotEmpty()) {
+    if (stats.topActivityTypes.isNotEmpty()) {
         val factor = 1f / stats.topActivityTypeMinutes
-        StatsHeader(text="Top activities")
+        StatsHeader(text = "Top activities")
         StatsCard {
-            Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)) {
                 stats.topActivityTypes.forEachIndexed { idx, it ->
-                    if(idx != 0)
+                    if (idx != 0)
                         Spacer(Modifier.height(16.dp))
                     it.first?.let { at ->
                         Row(modifier = Modifier.fillMaxWidth(),
@@ -265,7 +277,11 @@ fun TopActivityTypes(stats: LanguageStatData) {
                             StatsHeader(text = getDurationString(it.second),
                                 modifier = Modifier.padding(bottom = 8.dp))
                         }
-                        LinearProgressIndicator(progress = factor * it.second, color=Color(at.category?.color ?: android.graphics.Color.GRAY), modifier = Modifier.fillMaxWidth().height(8.dp))
+                        LinearProgressIndicator(progress = factor * it.second,
+                            color = Color(at.category?.color ?: android.graphics.Color.GRAY),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(8.dp))
                     }
                 }
             }
@@ -292,3 +308,17 @@ fun StatsHeader(modifier: Modifier = Modifier.padding(start = 16.dp, top = 8.dp)
 // Remove average mood
 // Longest streak ?
 
+@Composable
+fun DailyGoalsProgressChart(
+    lang: String,
+    month: YearMonth,
+    model: AverageDailyGoalsProgressViewModel = viewModel("averageDailyGoalsProgress_${lang}_${month.toString()}",
+        AverageDailyGoalsProgressViewModel.Factory(Range.create(month.atDay(1), month.atEndOfMonth()), lang, LocalLifecycleOwner.current)),
+) {
+    val values by model.perDayGoals.observeAsState()
+    StatsCard() {
+        Box(modifier = Modifier.padding(16.dp)) {
+            MonthlyDailyGoalProgressChart(month=month, values = values.orEmpty().mapKeys { it.key.dayOfMonth })
+        }
+    }
+}

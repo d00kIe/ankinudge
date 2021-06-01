@@ -23,6 +23,7 @@ import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.ui.calendar.CalendarSwipeable
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
+import com.teraculus.lingojournalandroid.ui.components.Label
 import com.teraculus.lingojournalandroid.ui.components.ToggleButton
 import com.teraculus.lingojournalandroid.ui.goals.YearlyLongTermGoalProgressChart
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
@@ -100,9 +101,11 @@ private fun InnerContent(
     val languageStats by model.languageStats.observeAsState()
     val languageDayStreak by model.languageDayStreak.observeAsState()
     val day by model.day.observeAsState()
+    val month by model.month.observeAsState()
     val year by model.year.observeAsState()
     val languages by model.languages.observeAsState()
     val languageIndex by model.languageIndex.observeAsState()
+    val selectedLanguage by model.selectedLanguage.observeAsState()
 
     Column(modifier = modifier.verticalScroll(scrollState)) {
         AnimatedVisibility(tabIndex == 0) {
@@ -154,14 +157,15 @@ private fun InnerContent(
                             }
                         }
 
+                        if(tabIndex == 1) {
+                            month?.let { DailyGoalsProgressChart(selectedLanguage.toString(), it) }
+                        }
+
                         LanguageStatContent(languageStats!!, tabIndex == 1)
                         AnimatedVisibility(visible = tabIndex == 0 && languageDayStreak != null) {
                             Column {
-                                ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
-                                    contentAlpha = ContentAlpha.medium) {
-                                    Text(text = "Streak this day",
+                                Label(text = "Streak this day",
                                         modifier = Modifier.padding(start = 16.dp, top = 8.dp))
-                                }
                                 languageDayStreak?.let { DayStreakContent(it) }
                             }
                         }

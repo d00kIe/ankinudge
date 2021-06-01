@@ -20,12 +20,216 @@ private fun getMinutesFromDynamicRealmObject(obj: DynamicRealmObject): Long {
     return getMinutes(startTime, endTime)
 }
 
+class PreferencesRepo(val repo: Repository) {
+    private val maxRecentLangSize = 3
+    private val userPreferences: LiveData<UserPreferences>
+
+    init {
+        // user preferences
+        userPreferences = UserPreferences.createOrQuery(repo.realm!!)
+    }
+
+    fun all(): LiveData<UserPreferences> {
+        return userPreferences
+    }
+
+    fun updateLastLanguage(language: String) {
+        repo.realm!!.executeTransaction {
+            userPreferences.value?.languages?.let { languages ->
+                if (languages.find { it == language } == null) {
+                    languages.add(0, language)
+                } else {
+                    languages.remove(language)
+                    languages.add(0, language)
+                }
+
+                if (languages.size > maxRecentLangSize)
+                    languages.removeAll(languages.takeLast(languages.size - maxRecentLangSize))
+            }
+        }
+    }
+
+    fun updateTheme(theme: String) {
+        repo.realm!!.executeTransaction {
+            userPreferences.value?.theme = theme
+        }
+    }
+
+    fun updateReminderActive(active: Boolean) {
+        repo.realm!!.executeTransaction {
+            userPreferences.value?.reminderActive = active
+        }
+    }
+
+    fun updateReminder(time: LocalTime) {
+        repo.realm!!.executeTransaction {
+            userPreferences.value?.reminder = time
+        }
+    }
+}
+
+class ActivityTypeRepo(val repo: Repository) {
+    private val types: LiveData<List<ActivityType>?>
+
+    init {
+        // types
+        types = ActivityType.createOrQuery(repo.realm!!)
+    }
+
+    fun add(type: ActivityType) {
+        repo.realm!!.executeTransaction { tr -> tr.insert(type) }
+    }
+
+    fun all(): LiveData<List<ActivityType>?> {
+        return types
+    }
+}
+
+class ActivityRepo(val repo: Repository) {
+    private val activities: LiveRealmResults<Activity>
+
+    init {
+        // dummy activities
+        activities = Activity.createOrQuery(repo.realm!!, repo.types.all().value)
+    }
+
+    fun add(activity: Activity) {
+        repo.realm!!.executeTransaction { tr -> tr.insert(activity) }
+        repo.preferences.updateLastLanguage(activity.language)
+    }
+
+    fun remove(activity: Activity) {
+        repo.realm!!.executeTransaction {
+            activity.deleteFromRealm()
+        }
+    }
+
+    fun get(id: String): LiveRealmObject<Activity?> {
+        return LiveRealmObject(repo.realm!!.where<Activity>().equalTo("id", ObjectId(id)).findFirst())
+    }
+
+    private fun tryAddLanguageQuery(query: RealmQuery<Activity>, language: String? = null): RealmQuery<Activity> {
+        return if(language?.isNotEmpty() == true) {
+            query.equalTo("language", language)
+        } else {
+            query
+        }
+    }
+
+    fun allLive(): LiveRealmResults<Activity> {
+        return activities
+    }
+
+    fun all(language: String? = null): RealmResults<Activity>? {
+        return tryAddLanguageQuery(repo.realm!!.where(), language).findAll()
+    }
+
+    fun all(date: LocalDate, language: String? = null): RealmResults<Activity>? {
+        return tryAddLanguageQuery(repo.realm!!.where<Activity>().equalTo("_date", asDate(date)), language).findAllAsync()
+    }
+
+    fun allLive(date: LocalDate, language: String? = null): LiveRealmResults<Activity> {
+        return LiveRealmResults(all(date, language))
+    }
+
+    fun all(from: LocalDate, to: LocalDate, language: String? = null): RealmResults<Activity>? {
+        return repo.realm!!.where<Activity>().between("_date", asDate(from), asDate(to)).findAllAsync()
+    }
+
+    fun allLive(from: LocalDate, to: LocalDate, language: String? = null): LiveRealmResults<Activity> {
+        return LiveRealmResults(all(from, to, language))
+    }
+
+    fun allUntil(date: LocalDate, language: String? = null): RealmResults<Activity>? {
+        return tryAddLanguageQuery(repo.realm!!.where<Activity>().lessThanOrEqualTo("_date", asDate(date)), language).findAllAsync()
+    }
+
+    fun allUntilLive(date: LocalDate, language: String? = null): LiveRealmResults<Activity> {
+        return LiveRealmResults(allUntil(date, language))
+    }
+
+    fun update(
+        id: String,
+        title: String,
+        text: String,
+        language: String,
+        type: ActivityType?,
+        unitCount: Float,
+        confidence: Float,
+        motivation: Float,
+        date: LocalDate,
+        startTime: LocalTime,
+        duration: Int,
+    ) {
+        val activity = get(id).value
+        activity?.let {
+            repo.realm!!.executeTransaction {
+                activity.title = title
+                activity.text = text
+                activity.language = language
+                activity.type = type
+                activity.confidence = confidence
+                activity.motivation = motivation
+                activity.unitCount = unitCount
+                activity.date = date
+                activity.startTime = startTime
+                activity.duration = duration
+                activity.lastChangeTs = Instant.now().toEpochMilli()
+            }
+            repo.preferences.updateLastLanguage(language)
+        }
+    }
+}
+
+class ActivityGoalRepo(val repo: Repository) {
+    private val goals: LiveRealmResults<ActivityGoal> = ActivityGoal.query(repo.realm!!)
+
+    private fun tryAddLanguageQuery(query: RealmQuery<ActivityGoal>, language: String? = null): RealmQuery<ActivityGoal> {
+        return if(language?.isNotEmpty() == true) {
+            query.equalTo("language", language)
+        } else {
+            query
+        }
+    }
+
+    fun all(): LiveRealmResults<ActivityGoal> {
+        return goals
+    }
+
+    fun allDaily(language: String? = null): LiveRealmResults<ActivityGoal> {
+        return LiveRealmResults(tryAddLanguageQuery(repo.realm!!.where<ActivityGoal>().equalTo("goalType", "daily"), language).findAll())
+    }
+
+    fun allLongTerm(language: String? = null): LiveRealmResults<ActivityGoal> {
+        return LiveRealmResults(tryAddLanguageQuery(repo.realm!!.where<ActivityGoal>().equalTo("goalType", "longterm"), language).findAll())
+    }
+
+    fun get(id: String): LiveRealmObject<ActivityGoal?> {
+        return LiveRealmObject(repo.realm!!.where<ActivityGoal>().equalTo("id", ObjectId(id))
+            .findFirst())
+    }
+
+    fun insertOrUpdate(goal: ActivityGoal) {
+        goal.lastChangeTs = Instant.now().toEpochMilli()
+        repo.realm!!.executeTransaction { tr -> tr.insertOrUpdate(goal) }
+    }
+
+    fun remove(goalId: ObjectId) {
+        val goal = get(goalId.toString()).value
+        goal?.let {
+            repo.realm!!.executeTransaction {
+                goal.deleteFromRealm()
+            }
+        }
+    }
+}
+
 class Repository {
     var realm: Realm? = null
-    private val activities: LiveRealmResults<Activity>
-    private val types: LiveData<List<ActivityType>?>
-    private val userPreferences: LiveData<UserPreferences>
-    private val goals: LiveRealmResults<ActivityGoal>
+    val activities: ActivityRepo
+    val types: ActivityTypeRepo
+    val preferences: PreferencesRepo
+    val goals: ActivityGoalRepo
 
     init {
         initializeRealm()
@@ -33,16 +237,16 @@ class Repository {
         //realm!!.executeTransaction { realm!!.deleteAll() }
 
         // user preferences
-        userPreferences = UserPreferences.createOrQuery(realm!!)
+        preferences = PreferencesRepo(this)
 
         // types
-        types = ActivityType.createOrQuery(realm!!)
+        types = ActivityTypeRepo(this)
 
-        // dummy activities
-        activities = Activity.createOrQuery(realm!!, types.value)
+        // activities - should be initialized after "types"!
+        activities = ActivityRepo(this)
 
         // goals
-        goals = ActivityGoal.query(realm!!)
+        goals = ActivityGoalRepo(this)
     }
 
     private fun initializeRealm() {
@@ -123,143 +327,6 @@ class Repository {
 
         Realm.setDefaultConfiguration(config)
         realm = Realm.getDefaultInstance()
-    }
-
-    fun addActivity(activity: Activity) {
-        realm!!.executeTransaction { tr -> tr.insert(activity) }
-        updateLastLanguagePreference(activity.language)
-    }
-
-    fun addActivityType(type: ActivityType) {
-        realm!!.executeTransaction { tr -> tr.insert(type) }
-    }
-
-    fun removeActivity(activity: Activity) {
-        realm!!.executeTransaction {
-            activity.deleteFromRealm()
-        }
-    }
-
-    fun getActivity(id: String): LiveRealmObject<Activity?> {
-        return LiveRealmObject(realm!!.where<Activity>().equalTo("id", ObjectId(id)).findFirst())
-    }
-
-    fun getActivities(): LiveRealmResults<Activity> {
-        return activities
-    }
-
-    fun getAllActivities(): RealmResults<Activity>? {
-        return realm!!.where<Activity>().findAll()
-    }
-
-    fun getActivities(date: LocalDate): RealmResults<Activity>? {
-        return realm!!.where<Activity>().equalTo("_date", asDate(date)).findAllAsync()
-    }
-
-    fun getActivitiesFromBeginningTo(date: LocalDate): RealmResults<Activity>? {
-        return realm!!.where<Activity>().lessThanOrEqualTo("_date", asDate(date)).findAllAsync()
-    }
-
-    fun getActivities(from: LocalDate, to: LocalDate): RealmResults<Activity>? {
-        return realm!!.where<Activity>().between("_date", asDate(from), asDate(to)).findAllAsync()
-    }
-
-    fun updateActivity(
-        id: String,
-        title: String,
-        text: String,
-        language: String,
-        type: ActivityType?,
-        unitCount: Float,
-        confidence: Float,
-        motivation: Float,
-        date: LocalDate,
-        startTime: LocalTime,
-        duration: Int,
-    ) {
-        val activity = getActivity(id).value
-        activity?.let {
-            realm!!.executeTransaction {
-                activity.title = title
-                activity.text = text
-                activity.language = language
-                activity.type = type
-                activity.confidence = confidence
-                activity.motivation = motivation
-                activity.unitCount = unitCount
-                activity.date = date
-                activity.startTime = startTime
-                activity.duration = duration
-                activity.lastChangeTs = Instant.now().toEpochMilli()
-            }
-            updateLastLanguagePreference(language)
-        }
-    }
-
-    fun getTypes(): LiveData<List<ActivityType>?> {
-        return types
-    }
-
-    fun getUserPreferences(): LiveData<UserPreferences> {
-        return userPreferences
-    }
-
-    private val maxRecentLangSize = 3
-    private fun updateLastLanguagePreference(language: String) {
-        realm!!.executeTransaction {
-            userPreferences.value?.languages?.let { languages ->
-                if (languages.find { it == language } == null) {
-                    languages.add(0, language)
-                } else {
-                    languages.remove(language)
-                    languages.add(0, language)
-                }
-
-                if (languages.size > maxRecentLangSize)
-                    languages.removeAll(languages.takeLast(languages.size - maxRecentLangSize))
-            }
-        }
-    }
-
-    fun updateThemePreference(theme: String) {
-        realm!!.executeTransaction {
-            userPreferences.value?.theme = theme
-        }
-    }
-
-    fun updateReminderActivePreference(active: Boolean) {
-        realm!!.executeTransaction {
-            userPreferences.value?.reminderActive = active
-        }
-    }
-
-    fun updateReminderPreference(time: LocalTime) {
-        realm!!.executeTransaction {
-            userPreferences.value?.reminder = time
-        }
-    }
-
-    fun getActivityGoals(): LiveRealmResults<ActivityGoal> {
-        return goals
-    }
-
-    fun getActivityGoal(id: String): LiveRealmObject<ActivityGoal?> {
-        return LiveRealmObject(realm!!.where<ActivityGoal>().equalTo("id", ObjectId(id))
-            .findFirst())
-    }
-
-    fun insertOrUpdateActivityGoal(goal: ActivityGoal) {
-        goal.lastChangeTs = Instant.now().toEpochMilli()
-        realm!!.executeTransaction { tr -> tr.insertOrUpdate(goal) }
-    }
-
-    fun removeActivityGoal(goalId: ObjectId) {
-        val goal = getActivityGoal(goalId.toString()).value
-        goal?.let {
-            realm!!.executeTransaction {
-                goal.deleteFromRealm()
-            }
-        }
     }
 
     companion object {

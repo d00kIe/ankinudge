@@ -10,7 +10,7 @@ import com.teraculus.lingojournalandroid.model.Activity
 class ActivityDetailsViewModel(id: String,
     private val repository: Repository
 ) : ViewModel() {
-    val activity : LiveData<Activity?> = repository.getActivity(id)
+    val activity : LiveData<Activity?> = repository.activities.get(id)
     val title = Transformations.map(activity) { it?.title }
     val text = Transformations.map(activity) { it?.text }
     val date = Transformations.map(activity) { it?.date }
@@ -27,7 +27,7 @@ class ActivityDetailsViewModel(id: String,
 
 
     fun delete() {
-        activity.value?.let { repository.removeActivity(it) }
+        activity.value?.let { repository.activities.remove(it) }
     }
 }
 

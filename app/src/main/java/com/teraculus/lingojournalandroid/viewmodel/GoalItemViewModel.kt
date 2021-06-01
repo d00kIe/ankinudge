@@ -17,7 +17,7 @@ class GoalItemViewModel(
     owner: LifecycleOwner,
     val repository: Repository = Repository.getRepository(),
 ) : ViewModel() {
-    private val goal = Repository.getRepository().getActivityGoal(frozenGoal.id.toString())
+    private val goal = Repository.getRepository().goals.get(frozenGoal.id.toString())
     val snapshot =
         MutableLiveData<ActivityGoal>(if (goal.value?.isValid == true) goal.value!!.freeze<ActivityGoal>() else null)
 
@@ -25,9 +25,9 @@ class GoalItemViewModel(
         it?.let { g ->
             if(g.type == GoalType.Daily) {
                 val today = LocalDate.now();
-                return@switchMap LiveRealmResults(repository.getActivities(today))
+                return@switchMap LiveRealmResults(repository.activities.all(today))
             } else {
-                return@switchMap LiveRealmResults(repository.getActivities(g.date, g.endDate ?: LocalDate.MAX))
+                return@switchMap LiveRealmResults(repository.activities.all(g.date, g.endDate ?: LocalDate.MAX))
             }
         }
     }

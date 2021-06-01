@@ -16,12 +16,12 @@ class EditGoalViewModel(
     val picker: PickerProvider = PickerProvider.getPickerProvider(),
 ) : ViewModel() {
     private val goal: MutableLiveData<ActivityGoal>
-    val preferences = repository.getUserPreferences()
-    val types = repository.getTypes()
+    val preferences = repository.preferences.all()
+    val types = repository.types.all()
     val groupedTypes = Transformations.map(types) { it.orEmpty().groupBy { it1 -> it1.category } }
 
     init {
-        val found = if(goalId.isNullOrEmpty()) null else repository.getActivityGoal(goalId.toString()).value
+        val found = if(goalId.isNullOrEmpty()) null else repository.goals.get(goalId.toString()).value
         goal = if(found != null) {
             MutableLiveData(repository.realm?.copyFromRealm(found))
         } else {
@@ -58,7 +58,7 @@ class EditGoalViewModel(
     }
 
     fun addActivityType(it: ActivityType) {
-        repository.addActivityType(it)
+        repository.types.add(it)
     }
 
     fun setActivityType(type: ActivityType) {
@@ -133,13 +133,13 @@ class EditGoalViewModel(
         // because I need to make sure the focus is cleared from the number input
         viewModelScope.launch {
             goal.value?.let {
-                repository.insertOrUpdateActivityGoal(it)
+                repository.goals.insertOrUpdate(it)
             }
         }
     }
 
     fun delete() {
-        goalId?.let { repository.removeActivityGoal(ObjectId(it)) }
+        goalId?.let { repository.goals.remove(ObjectId(it)) }
     }
 
 }

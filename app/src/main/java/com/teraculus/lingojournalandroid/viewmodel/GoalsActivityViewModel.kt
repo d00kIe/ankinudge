@@ -8,10 +8,10 @@ import io.realm.RealmResults
 
 
 class GoalsActivityViewModel(val repository: Repository = Repository.getRepository()) : ViewModel() {
-    private val goals = repository.getActivityGoals()
+    private val goals = repository.goals.all()
     val frozen = Transformations.map(goals) {
         (it as RealmResults<ActivityGoal>).freeze().sortedByDescending { g -> g.id.timestamp }
     }
-    val preferences = repository.getUserPreferences()
-    val types = repository.getTypes()
+    val preferences = repository.preferences.all()
+    val types = repository.types.all()
 }

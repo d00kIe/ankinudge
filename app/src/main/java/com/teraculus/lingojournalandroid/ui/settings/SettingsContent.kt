@@ -34,7 +34,7 @@ import java.time.LocalTime
 
 
 class SettingsViewModel(val repository: Repository = Repository.getRepository()) : ViewModel() {
-    private val preferences = repository.getUserPreferences()
+    private val preferences = repository.preferences.all()
     val theme = Transformations.map(preferences) { it?.theme ?: ThemePreference.SYSTEM }
     val themeOptions = listOf(ThemePreference.DARK, ThemePreference.LIGHT, ThemePreference.SYSTEM)
     val reminderActive = Transformations.map(preferences) { it.reminderActive }
@@ -42,7 +42,7 @@ class SettingsViewModel(val repository: Repository = Repository.getRepository())
 
     fun setTheme(theme: String) {
         if(themeOptions.contains(theme)) {
-            repository.updateThemePreference(theme)
+            repository.preferences.updateTheme(theme)
         }
     }
 
@@ -51,7 +51,7 @@ class SettingsViewModel(val repository: Repository = Repository.getRepository())
             cancelScheduledNotification(ctx)
         else
             reminder.value?.let { scheduleNotification(ctx, it.hour, it.minute) }
-        repository.updateReminderActivePreference(value)
+        repository.preferences.updateReminderActive(value)
 
     }
 
@@ -60,7 +60,7 @@ class SettingsViewModel(val repository: Repository = Repository.getRepository())
         ) {
             if(reminderActive.value == true)
                 scheduleNotification(ctx, it.hour, it.minute)
-            repository.updateReminderPreference(it)
+            repository.preferences.updateReminder(it)
         }
 
     }

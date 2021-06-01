@@ -7,7 +7,6 @@ import androidx.compose.material.Card
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -28,7 +27,6 @@ import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.random.Random
 
 class PercentValueFormatter : ValueFormatter() {
     override fun getFormattedValue(value: Float): String {
@@ -119,50 +117,48 @@ fun LongTermGoalProgressChart(
         entries.add(Entry(data.key, data.value))
     }
 
-    key(Random.nextInt()) {
-        AndroidView(::LineChart, modifier = Modifier
-            .fillMaxWidth()
-            .height(height),
-            update = { view ->
-                val dataset = LineDataSet(entries, "")
-                dataset.color = color.toArgb()
-                dataset.setCircleColor(color.toArgb())
-                dataset.setDrawCircles(false)
-                dataset.setDrawCircleHole(false)
-                dataset.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
-                dataset.fillColor = color.toArgb()
-                dataset.fillAlpha = (255 * alpha).toInt()
-                dataset.setDrawFilled(true)
-                dataset.setDrawValues(false)
+    AndroidView(::LineChart, modifier = Modifier
+        .fillMaxWidth()
+        .height(height),
+        update = { view ->
+            val dataset = LineDataSet(entries, "")
+            dataset.color = color.toArgb()
+            dataset.setCircleColor(color.toArgb())
+            dataset.setDrawCircles(false)
+            dataset.setDrawCircleHole(false)
+            dataset.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+            dataset.fillColor = color.toArgb()
+            dataset.fillAlpha = (255 * alpha).toInt()
+            dataset.setDrawFilled(true)
+            dataset.setDrawValues(false)
 
-                val xAxis = view.xAxis
-                xAxis.axisMinimum = xRange.lower
-                xAxis.axisMaximum = xRange.upper
-                //xAxis.granularity = 100f
-                xAxis.textColor = textColor.toArgb()
-                xAxis.gridColor = gridColor.toArgb()
-                xAxis.position = XAxis.XAxisPosition.BOTTOM
-                xAxis.valueFormatter = xValueFormatter
+            val xAxis = view.xAxis
+            xAxis.axisMinimum = xRange.lower
+            xAxis.axisMaximum = xRange.upper
+            //xAxis.granularity = 100f
+            xAxis.textColor = textColor.toArgb()
+            xAxis.gridColor = gridColor.toArgb()
+            xAxis.position = XAxis.XAxisPosition.BOTTOM
+            xAxis.valueFormatter = xValueFormatter
 
-                val yAxis = view.axisLeft
-                yAxis.axisMinimum = yRange.lower
-                yAxis.axisMaximum = yRange.upper
-                //yAxis.granularity = 100f
-                yAxis.textColor = textColor.toArgb()
-                yAxis.gridColor = gridColor.toArgb()
-                yAxis.valueFormatter = yValueFormatter
+            val yAxis = view.axisLeft
+            yAxis.axisMinimum = yRange.lower
+            yAxis.axisMaximum = yRange.upper
+            //yAxis.granularity = 100f
+            yAxis.textColor = textColor.toArgb()
+            yAxis.gridColor = gridColor.toArgb()
+            yAxis.valueFormatter = yValueFormatter
 
-                val yRightAxis = view.axisRight
-                yRightAxis.isEnabled = false
+            val yRightAxis = view.axisRight
+            yRightAxis.isEnabled = false
 
-                view.legend.isEnabled = false
-                view.description.isEnabled = false
-                view.setTouchEnabled(false)
+            view.legend.isEnabled = false
+            view.description.isEnabled = false
+            view.setTouchEnabled(false)
 
-                view.data = LineData(dataset)
-                view.invalidate()
-            })
-    }
+            view.data = LineData(dataset)
+            view.invalidate()
+        })
 }
 
 @Preview
@@ -211,41 +207,39 @@ fun DailyGoalProgressChart(
         entries.add(BarEntry(data.key, data.value))
     }
 
-    key(Random.nextInt()) {
-        AndroidView(::BarChart, modifier = Modifier
-            .fillMaxWidth()
-            .height(height),
-            update = { view ->
-                val dataset = BarDataSet(entries, "")
-                dataset.color = color.toArgb()
-                dataset.setDrawValues(false)
+    AndroidView(::BarChart, modifier = Modifier
+        .fillMaxWidth()
+        .height(height),
+        update = { view ->
+            val dataset = BarDataSet(entries, "")
+            dataset.color = color.toArgb()
+            dataset.setDrawValues(false)
 
-                val xAxis = view.xAxis
-                xAxis.axisMinimum = xRange.lower
-                xAxis.axisMaximum = xRange.upper
-                //xAxis.granularity = 100f
-                xAxis.textColor = textColor.toArgb()
-                xAxis.gridColor = gridColor.toArgb()
-                xAxis.position = XAxis.XAxisPosition.BOTTOM
-                xAxis.valueFormatter = xValueFormatter
+            val xAxis = view.xAxis
+            xAxis.axisMinimum = xRange.lower
+            xAxis.axisMaximum = xRange.upper
+            //xAxis.granularity = 100f
+            xAxis.textColor = textColor.toArgb()
+            xAxis.gridColor = gridColor.toArgb()
+            xAxis.position = XAxis.XAxisPosition.BOTTOM
+            xAxis.valueFormatter = xValueFormatter
 
-                val yAxis = view.axisLeft
-                yAxis.axisMinimum = yRange.lower
-                yAxis.axisMaximum = yRange.upper
-                //yAxis.granularity = 100f
-                yAxis.textColor = textColor.toArgb()
-                yAxis.gridColor = gridColor.toArgb()
-                yAxis.valueFormatter = yValueFormatter
+            val yAxis = view.axisLeft
+            yAxis.axisMinimum = yRange.lower
+            yAxis.axisMaximum = yRange.upper
+            //yAxis.granularity = 100f
+            yAxis.textColor = textColor.toArgb()
+            yAxis.gridColor = gridColor.toArgb()
+            yAxis.valueFormatter = yValueFormatter
 
-                val yRightAxis = view.axisRight
-                yRightAxis.isEnabled = false
+            val yRightAxis = view.axisRight
+            yRightAxis.isEnabled = false
 
-                view.legend.isEnabled = false
-                view.description.isEnabled = false
-                view.setTouchEnabled(false)
+            view.legend.isEnabled = false
+            view.description.isEnabled = false
+            view.setTouchEnabled(false)
 
-                view.data = BarData(dataset)
-                view.invalidate()
-            })
-    }
+            view.data = BarData(dataset)
+            view.invalidate()
+        })
 }

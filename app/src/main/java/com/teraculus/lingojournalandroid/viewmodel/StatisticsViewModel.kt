@@ -181,7 +181,7 @@ class MonthItemViewModel(val repository: Repository = Repository.getRepository()
     init {
         val from = LocalDate.of(yearMonth.year, yearMonth.month, 1)
         val to = from.withDayOfMonth(yearMonth.lengthOfMonth())
-        activities.reset(repository.getActivities(from, to))
+        activities.reset(repository.activities.all(from, to))
     }
 }
 
@@ -234,6 +234,17 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
         update()
     }
 
+    val selectedLanguage = MediatorLiveData<String>().apply {
+        fun update() {
+            value = languageIndex.value?.let { languages.value?.getOrElse(it, { "" }) }
+        }
+
+        addSource(languageIndex) { update() }
+        addSource(languages) { update() }
+
+        update()
+    }
+
     val languageStats = Transformations.map(languageIndex) { langIdx ->
         if(langIdx >= stats.value.orEmpty().size) {
             LanguageStatData.empty()
@@ -276,8 +287,8 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
     fun setDay(date: LocalDate) {
         range.value = StatisticRange.DAY
         day.value = date
-        activities.reset(repository.getActivities(date))
-        activitiesFromBeginning.reset(repository.getActivitiesFromBeginningTo(date))
+        activities.reset(repository.activities.all(date))
+        activitiesFromBeginning.reset(repository.activities.allUntil(date))
     }
 
     fun setMonth(yearMonth: YearMonth) {
@@ -285,7 +296,7 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
         month.value = yearMonth
         val from = LocalDate.of(yearMonth.year, yearMonth.month, 1)
         val to = from.withDayOfMonth(yearMonth.lengthOfMonth())
-        activities.reset(repository.getActivities(from, to))
+        activities.reset(repository.activities.all(from, to))
     }
 
     fun setYear(yearVal: Year) {
@@ -293,7 +304,7 @@ class StatisticsViewModel(val repository: Repository) : ViewModel() {
         year.value = yearVal
         val from = LocalDate.of(yearVal.value, 1, 1)
         val to = LocalDate.of(yearVal.value, 12, 31)
-        activities.reset(repository.getActivities(from, to))
+        activities.reset(repository.activities.all(from, to))
     }
 }
 

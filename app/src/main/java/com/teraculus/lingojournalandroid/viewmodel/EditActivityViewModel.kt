@@ -17,7 +17,7 @@ class EditActivityViewModel(
     id: String?,
     goalId: String?,
 ) : ViewModel() {
-    val types = repository.getTypes()
+    val types = repository.types.all()
     val groupedTypes = Transformations.map(types) { it.orEmpty().groupBy { it1 -> it1.category } }
     private var preparedId: String? = null
     val date = MutableLiveData(LocalDate.now())
@@ -32,14 +32,14 @@ class EditActivityViewModel(
     val type = MutableLiveData(types.value!!.first())
     val confidence = MutableLiveData(75f)
     val motivation = MutableLiveData(75f)
-    val preferences = repository.getUserPreferences()
+    val preferences = repository.preferences.all()
 
     init {
         prepareActivity(id, goalId)
     }
 
     private fun prepareActivity(id: String?, goalId: String?) {
-        val activity = id?.let { repository.getActivity(it).value }
+        val activity = id?.let { repository.activities.get(it).value }
         if (activity != null) {
             preparedId = id
             title.value = activity.title
@@ -53,7 +53,7 @@ class EditActivityViewModel(
             duration.value = activity.duration
             unitCount.value = activity.unitCount
         } else {
-            val goal = goalId?.let { repository.getActivityGoal(it).value }
+            val goal = goalId?.let { repository.goals.get(it).value }
             if(goal == null) {
                 title.value = ""
                 text.value = ""
@@ -138,7 +138,7 @@ class EditActivityViewModel(
     }
 
     private fun addNote() {
-        repository.addActivity(Activity(title.value!!,
+        repository.activities.add(Activity(title.value!!,
             text.value!!,
             language.value!!,
             type.value!!,
@@ -152,7 +152,7 @@ class EditActivityViewModel(
 
     private fun updateNote(id: String) {
 
-        repository.updateActivity(id,
+        repository.activities.update(id,
             title.value!!,
             text.value!!,
             language.value!!,
@@ -174,7 +174,7 @@ class EditActivityViewModel(
     }
 
     fun addActivityType(it: ActivityType) {
-        repository.addActivityType(it)
+        repository.types.add(it)
     }
 }
 

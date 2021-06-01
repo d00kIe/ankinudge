@@ -12,7 +12,7 @@ import java.time.LocalDate
 class LanguageDayData(val language: String, val data: List<DayData>)
 
 class GoalsListViewModel(repository: Repository, day: LocalDate) : ViewModel() {
-    private val goals = repository.getActivityGoals()
+    private val goals = repository.goals.all()
     private val frozenGoals = Transformations.map(goals) { (it as RealmResults<ActivityGoal>).freeze().sortedByDescending { g -> g.id.timestamp } }
     val todayGoals = Transformations.map(frozenGoals) { it.filter { g -> goalFilter(g, day) } }
     val hasGoals = Transformations.map(todayGoals) { it.isNotEmpty() }
@@ -38,7 +38,7 @@ class GoalsListViewModelFactory(val day: LocalDate = LocalDate.now()) : ViewMode
 }
 
 class ActivityListViewModel(repository: Repository) : ViewModel() {
-    private val activities = repository.getActivities()
+    private val activities = repository.activities.allLive()
     private val frozen = Transformations.map(activities) { (it as RealmResults<Activity>).freeze() }
     var grouped = Transformations.map(frozen) {
         it?.groupBy { it1 -> it1.date }.orEmpty()
@@ -107,7 +107,7 @@ class ActivityListViewModelFactory : ViewModelProvider.Factory {
 }
 
 class ActivityItemViewModel(frozenActivity: Activity, owner: LifecycleOwner) : ViewModel() {
-    val activity = Repository.getRepository().getActivity(frozenActivity.id.toString())
+    val activity = Repository.getRepository().activities.get(frozenActivity.id.toString())
     val snapshot =
         MutableLiveData<Activity>(if (activity.value?.isValid == true) activity.value!!.freeze<Activity>() else null)
 
