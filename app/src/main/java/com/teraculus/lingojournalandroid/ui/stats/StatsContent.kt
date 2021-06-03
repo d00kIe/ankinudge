@@ -16,23 +16,18 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
-import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.ui.calendar.CalendarSwipeable
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
 import com.teraculus.lingojournalandroid.ui.components.Label
 import com.teraculus.lingojournalandroid.ui.components.ToggleButton
-import com.teraculus.lingojournalandroid.ui.goals.YearlyLongTermGoalProgressChart
-import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.toDayString
 import com.teraculus.lingojournalandroid.viewmodel.DayLanguageStreakData
 import com.teraculus.lingojournalandroid.viewmodel.LanguageStatData
 import com.teraculus.lingojournalandroid.viewmodel.StatisticRange
 import com.teraculus.lingojournalandroid.viewmodel.StatisticsViewModel
-import java.time.Month
 
 @OptIn(ExperimentalPagerApi::class)
 @ExperimentalMaterialApi
@@ -145,23 +140,20 @@ private fun InnerContent(
                         LanguageBar(languages.orEmpty(), languageIndex) { l -> model.setLanguage(l) }
 
                         if(tabIndex == 2) {
-                            StatsCard {
-                                Box(modifier.padding(16.dp)) {
-                                    YearlyLongTermGoalProgressChart(
-                                        Color(ActivityCategory.SPEAKING.color),
-                                        values = mapOf(Month.JANUARY to 1f,
-                                            Month.FEBRUARY to 25f,
-                                            Month.DECEMBER to 50f),
-                                    )
-                                }
+                            year?.let {
+                                LongTermGoalsProgressCharts(lang = selectedLanguage.toString(), year = it)
                             }
                         }
 
                         if(tabIndex == 1) {
-                            month?.let { DailyGoalsProgressChart(selectedLanguage.toString(), it) }
+                            month?.let {
+                                Label(text = "Daily goals progress",
+                                    modifier = Modifier.padding(start = 16.dp, top = 8.dp))
+                                DailyGoalsProgressChart(selectedLanguage.toString(), it)
+                            }
                         }
 
-                        LanguageStatContent(languageStats!!, tabIndex == 1)
+                        LanguageStatContent(languageStats!!)
                         AnimatedVisibility(visible = tabIndex == 0 && languageDayStreak != null) {
                             Column {
                                 Label(text = "Streak this day",
@@ -171,22 +163,16 @@ private fun InnerContent(
                         }
                     }
                     if (tabIndex == 0) {
-                        ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
-                            contentAlpha = ContentAlpha.medium) {
-                            Text(text = "Activities",
-                                modifier = Modifier.padding(start = 16.dp, top = 8.dp))
-                        }
+                        Label(text = "Activities",
+                            modifier = Modifier.padding(start = 16.dp, top = 8.dp))
                         ActivitiesForTheDay(model = model,
                             onItemClick = onItemClick,
                             language = languageStats!!.language)
                     }
                 } else {
                     Column {
-                        ApplyTextStyle(textStyle = MaterialTheme.typography.caption,
-                            contentAlpha = ContentAlpha.medium) {
-                            Text(text = "No activities for this period",
-                                modifier = Modifier.padding(16.dp))
-                        }
+                        Label(text = "No activities for this period",
+                            modifier = Modifier.padding(16.dp))
                         LanguageStatContent(it = LanguageStatData.empty())
                     }
                 }
@@ -232,12 +218,9 @@ private fun DayStreakContent(it: DayLanguageStreakData) {
 }
 
 @Composable
-private fun LanguageStatContent(it: LanguageStatData, showChart: Boolean = true) {
+private fun LanguageStatContent(it: LanguageStatData) {
     DonutCard(stats = it)
     TopActivityTypes(stats = it)
-//    if(showChart)
-//        SentimentChartsCard(stats = it)
-//    else
     SentimentStatsCard(stats = it)
 }
 

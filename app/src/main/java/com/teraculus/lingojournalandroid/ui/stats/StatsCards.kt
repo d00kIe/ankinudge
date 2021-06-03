@@ -18,18 +18,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teraculus.lingojournalandroid.model.ActivityGoal
 import com.teraculus.lingojournalandroid.ui.components.SentimentIcon
 import com.teraculus.lingojournalandroid.ui.goals.MonthlyDailyGoalProgressChart
+import com.teraculus.lingojournalandroid.ui.goals.YearlyLongTermGoalProgressChart
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.getDurationString
-import com.teraculus.lingojournalandroid.viewmodel.AverageDailyGoalsProgressViewModel
-import com.teraculus.lingojournalandroid.viewmodel.DayLanguageStreakData
-import com.teraculus.lingojournalandroid.viewmodel.LanguageStatData
+import com.teraculus.lingojournalandroid.viewmodel.*
+import java.time.LocalDate
+import java.time.Year
 import java.time.YearMonth
 
 class Constants {
@@ -313,12 +315,52 @@ fun DailyGoalsProgressChart(
     lang: String,
     month: YearMonth,
     model: AverageDailyGoalsProgressViewModel = viewModel("averageDailyGoalsProgress_${lang}_${month.toString()}",
-        AverageDailyGoalsProgressViewModel.Factory(Range.create(month.atDay(1), month.atEndOfMonth()), lang, LocalLifecycleOwner.current)),
+        AverageDailyGoalsProgressViewModel.Factory(Range.create(month.atDay(1),
+            month.atEndOfMonth()), lang)),
 ) {
     val values by model.perDayGoals.observeAsState()
     StatsCard() {
         Box(modifier = Modifier.padding(16.dp)) {
-            MonthlyDailyGoalProgressChart(month=month, values = values.orEmpty().mapKeys { it.key.dayOfMonth })
+            MonthlyDailyGoalProgressChart(month = month,
+                values = values.orEmpty().mapKeys { it.key.dayOfMonth })
+        }
+    }
+}
+
+@Composable
+fun LongTermGoalsProgressCharts(
+    lang: String,
+    year: Year,
+    goalsModel: LongTermGoalsInRangeViewModel = viewModel("longTermGoalsIn${lang}${year}",
+        LongTermGoalsInRangeViewModel.Factory(Range.create(year.atDay(1),
+            year.atDay(year.length())), lang)),
+) {
+    val goals by goalsModel.goals.observeAsState()
+
+    Column() {
+        goals?.forEach { goal ->
+            LongTermGoalProgressChart(lang = lang, goal = goal, range = Range.create(year.atDay(1),
+                year.atDay(year.length())), modifier = Modifier.padding(vertical = 8.dp))
+        }
+    }
+}
+
+@Composable
+fun LongTermGoalProgressChart(
+    lang: String,
+    goal: ActivityGoal,
+    range: Range<LocalDate>,
+    modifier: Modifier = Modifier,
+    model: LongTermGoalProgressViewModel = viewModel("longTermGoalProgress${lang}_${goal.id}_${range}",
+        LongTermGoalProgressViewModel.Factory(range, lang, goal)),
+) {
+    val perMonth by model.perMonthGoals.observeAsState()
+    StatsCard(modifier = modifier) {
+        Box(Modifier.padding(16.dp)) {
+            YearlyLongTermGoalProgressChart(
+                Color(goal.activityType?.category?.color ?: Color.Gray.toArgb()),
+                values = perMonth.orEmpty().mapKeys { it.key.month },
+            )
         }
     }
 }

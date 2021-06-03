@@ -7,6 +7,7 @@ import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.*
 import io.realm.RealmResults
 import java.time.LocalDate
+import java.time.YearMonth
 import java.util.*
 
 // Daily - I want to see for a certain atDate the progress of each daily goal
@@ -142,7 +143,6 @@ class GoalProgressOnDateViewModel(
 class AverageDailyGoalsProgressViewModel(
     private val range: Range<LocalDate>,
     val lang: String,
-    private val owner: LifecycleOwner,
     val repository: Repository = Repository.getRepository(),
 ) : ViewModel() {
     private val language = MutableLiveData(lang)
@@ -189,13 +189,80 @@ class AverageDailyGoalsProgressViewModel(
 
     class Factory(
         private val range: Range<LocalDate>,
-        val lang: String,
-        private val owner: LifecycleOwner,
+        val lang: String
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(AverageDailyGoalsProgressViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return AverageDailyGoalsProgressViewModel(range, lang, owner) as T
+                return AverageDailyGoalsProgressViewModel(range, lang) as T
+            }
+
+            throw IllegalArgumentException("Unknown view model class")
+        }
+    }
+}
+
+class LongTermGoalsInRangeViewModel(repository: Repository, range: Range<LocalDate>, val language: String) : ViewModel() {
+    val goals = repository.goals.allLongTerm(range, language)
+    //val goals = Transformations.map(_goals) { (it as RealmResults<ActivityGoal>).freeze() }
+
+    class Factory(private val range: Range<LocalDate>, private val language: String) : ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(LongTermGoalsInRangeViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return LongTermGoalsInRangeViewModel(Repository.getRepository(), range, language) as T
+            }
+
+            throw IllegalArgumentException("Unknown view model class")
+        }
+    }
+}
+
+// Calculates composite goal progress at a certain date range
+class LongTermGoalProgressViewModel(
+    private val range: Range<LocalDate>,
+    val lang: String,
+    val goal: ActivityGoal,
+    val repository: Repository = Repository.getRepository(),
+) : ViewModel() {
+    private val language = MutableLiveData(lang)
+    private val realRange = range.extend(goal.date, range.upper)
+    private val yearMonthRange = Range.create(YearMonth.of(range.lower.year, range.lower.month), YearMonth.of(range.upper.year, range.upper.month))
+    private val activities = Transformations.switchMap(language) { l -> repository.activities.allLive(realRange.lower, realRange.upper, l) }
+    private val frozenActivities = Transformations.map(activities) { (it as RealmResults<Activity>).freeze() }
+    private val perDayActivities = Transformations.map(frozenActivities) { it?.filter { a -> match(a, goal) }.orEmpty().groupBy { a -> a.date } }
+    private val perMonthActivities = Transformations.map(frozenActivities) { it?.filter { a -> match(a, goal) }.orEmpty().groupBy { a -> YearMonth.of(a.date.year, a.date.month) } }
+    val perDayGoals = Transformations.map(perDayActivities) { it.orEmpty().filterKeys { d -> range.contains(d) }.mapValues { entry -> getProgress(goal, entry.value) } }
+    val perMonthGoals = Transformations.map(perMonthActivities) { it.orEmpty().filterKeys { m -> yearMonthRange.contains(m) }.mapValues { entry -> getProgress(goal, entry.value) } }
+
+    private fun getProgress(goal: ActivityGoal, activities: List<Activity>) : Float {
+        return if(goal.effortUnit == EffortUnit.Time) {
+            val progress = activities.sumOf { a -> a.duration }.toFloat()
+            (100.0 / (goal.durationGoal?.toFloat() ?: 1f) * progress).toFloat()
+        } else {
+            val progress = activities.sumOf { a -> a.unitCount.toDouble() }.toFloat()
+            (100.0 / (goal.unitCountGoal ?: 1f) * progress).toFloat()
+        }
+    }
+
+    fun setLanguage(lang: String) {
+        language.value = lang
+    }
+
+    private fun match(activity: Activity, goal: ActivityGoal) : Boolean = with(activity)
+    {
+        return language == goal.language && type?.id == goal.activityType?.id
+    }
+
+    class Factory(
+        private val range: Range<LocalDate>,
+        val lang: String,
+        private val goal: ActivityGoal,
+    ) : ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(LongTermGoalProgressViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return LongTermGoalProgressViewModel(range, lang, goal) as T
             }
 
             throw IllegalArgumentException("Unknown view model class")

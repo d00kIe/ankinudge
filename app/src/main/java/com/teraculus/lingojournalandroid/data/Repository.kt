@@ -1,5 +1,6 @@
 package com.teraculus.lingojournalandroid.data
 
+import android.util.Range
 import androidx.lifecycle.LiveData
 import com.teraculus.lingojournalandroid.model.*
 import com.teraculus.lingojournalandroid.utils.asDate
@@ -202,6 +203,13 @@ class ActivityGoalRepo(val repo: Repository) {
 
     fun allLongTerm(language: String? = null): LiveRealmResults<ActivityGoal> {
         return LiveRealmResults(tryAddLanguageQuery(repo.realm!!.where<ActivityGoal>().equalTo("goalType", "longterm"), language).findAll())
+    }
+
+    fun allLongTerm(range: Range<LocalDate>, language: String? = null): LiveRealmResults<ActivityGoal> {
+        return LiveRealmResults(tryAddLanguageQuery(repo.realm!!.where<ActivityGoal>()
+            .equalTo("goalType", "longterm")
+            .greaterThanOrEqualTo("_date", asDate(range.lower))
+            .lessThanOrEqualTo("_endDate", asDate(range.upper)), language).findAll())
     }
 
     fun get(id: String): LiveRealmObject<ActivityGoal?> {
