@@ -48,7 +48,7 @@ fun AddGoalActivityContent(
                 if (MaterialTheme.colors.isLight && (scrollState.value > 0)) AppBarDefaults.TopAppBarElevation else 0.dp
             val focusManager = LocalFocusManager.current
             TopAppBar(
-                title = { Text(text = "New Goal") },
+                title = { Text(text = if(goalId.isNullOrEmpty()) "New goal" else "Edit goal") },
                 backgroundColor = MaterialTheme.colors.background,
                 elevation = elevation,
                 navigationIcon = {

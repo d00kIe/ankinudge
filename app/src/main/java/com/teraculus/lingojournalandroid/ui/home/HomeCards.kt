@@ -2,7 +2,6 @@ package com.teraculus.lingojournalandroid.ui.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -37,9 +36,8 @@ fun HomeStatsCard(openStatsActivity: () -> Unit, model: ActivityListViewModel) {
     val streaks by model.streaks.observeAsState()
     val lastSevenDays by model.lastSevenDayData.observeAsState()
     val scope = rememberCoroutineScope()
-    StatsCard(modifier = Modifier
-        .padding(16.dp)
-        .clickable { scope.launch { openStatsActivity() } }) {
+    StatsCard(onClick = { scope.launch { openStatsActivity() } },
+            modifier = Modifier.padding(16.dp)) {
         Column {
             ListItem(
                 text={ Text("Your activities")},

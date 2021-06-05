@@ -3,7 +3,6 @@ package com.teraculus.lingojournalandroid.ui.goals
 import android.util.Range
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material.Card
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -20,8 +19,7 @@ import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.DefaultAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
-import com.teraculus.lingojournalandroid.model.ActivityCategory
-import com.teraculus.lingojournalandroid.ui.DarkColors
+import java.time.LocalDate
 import java.time.Month
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -42,38 +40,22 @@ class MonthValueFormatter : ValueFormatter() {
 
 class DayValueFormatter(val month: YearMonth) : ValueFormatter() {
     override fun getFormattedValue(value: Float): String {
-        return "${month.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())} ${value.toInt()} "
+        return "${month.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())} ${value.toInt()}"
     }
 }
 
-@Preview()
-@Composable
-fun LongTermGoalProgressChartPreview() {
-    Card() {
-        YearlyLongTermGoalProgressChart(Color(ActivityCategory.SPEAKING.color),
-            values = mapOf(Month.JANUARY to 1f, Month.FEBRUARY to 25f, Month.DECEMBER to 50f),)
-    }
-}
-
-@Preview()
-@Composable
-fun LongTermGoalProgressChartPreview2() {
-    MaterialTheme(colors = DarkColors) {
-        Card() {
-            MonthlyLongTermGoalProgressChart(
-                Color(ActivityCategory.SPEAKING.color),
-                month = YearMonth.of(2021, 12),
-                values = mapOf(1 to 1f, 2 to 20f, 29 to 80f))
-        }
+class DayOfWeekFormatter(val firstDate: LocalDate) : ValueFormatter() {
+    override fun getFormattedValue(value: Float): String {
+        return firstDate.plusDays(value.toLong()).dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
     }
 }
 
 @Composable
-fun MonthlyLongTermGoalProgressChart(
+fun ProgressLineChart(
     color: Color = MaterialTheme.colors.secondary,
     month: YearMonth,
     values: Map<Int, Float>) {
-    LongTermGoalProgressChart(
+    ProgressLineChart(
         color = color,
         values = values.mapKeys { e -> e.key.toFloat() },
         yRange = Range(0f, 100f),
@@ -84,10 +66,10 @@ fun MonthlyLongTermGoalProgressChart(
 }
 
 @Composable
-fun YearlyLongTermGoalProgressChart(
+fun ProgressLineChart(
     color: Color = MaterialTheme.colors.secondary,
     values: Map<Month, Float>) {
-    LongTermGoalProgressChart(
+    ProgressLineChart(
         color = color,
         values = values.mapKeys { e -> e.key.value.toFloat() },
         yRange = Range(0f, 100f),
@@ -98,9 +80,41 @@ fun YearlyLongTermGoalProgressChart(
 }
 
 @Composable
-fun LongTermGoalProgressChart(
+fun ProgressBarChart(
     color: Color = MaterialTheme.colors.secondary,
-    height: Dp = 120.dp,
+    month: YearMonth,
+    values: Map<Int, Float>) {
+    ProgressBarChart(
+        color = color,
+        values = values.mapKeys { e -> e.value },
+        yRange = Range(0f, 100f),
+        xRange = Range(1f, month.lengthOfMonth().toFloat()),
+        yValueFormatter = PercentValueFormatter(),
+        xValueFormatter = DayValueFormatter(month)
+    )
+}
+
+
+@Composable
+fun ProgressBarChart(
+    color: Color = MaterialTheme.colors.secondary,
+    values: Map<Int, Float>,
+    firstDate: LocalDate = LocalDate.now().minusDays(6),
+    dayCount: Int = 7) {
+    ProgressBarChart(
+        color = color,
+        values = values.mapKeys { e -> e.key.toFloat() },
+        yRange = Range(0f, 100f),
+        xRange = Range(0f, dayCount.minus(1).toFloat()),
+        yValueFormatter = PercentValueFormatter(),
+        xValueFormatter = DayOfWeekFormatter(firstDate)
+    )
+}
+
+@Composable
+fun ProgressLineChart(
+    color: Color = MaterialTheme.colors.secondary,
+    height: Dp = 90.dp,
     xRange: Range<Float> = Range(1f, 100f),
     yRange: Range<Float> = Range(0f, 100f),
     xValueFormatter: ValueFormatter = DefaultAxisValueFormatter(0),
@@ -109,10 +123,11 @@ fun LongTermGoalProgressChart(
 ) {
     val alpha = ContentAlpha.medium
     val textColor = MaterialTheme.colors.onSurface
-    val gridColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
+    val gridColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled)
 
     val entries: MutableList<Entry> = ArrayList()
-    for (data in values) {
+    val sorted = values.toSortedMap()
+    for (data in sorted) {
         // turn your data into Entry objects
         entries.add(Entry(data.key, data.value))
     }
@@ -133,64 +148,48 @@ fun LongTermGoalProgressChart(
             dataset.setDrawValues(false)
 
             val xAxis = view.xAxis
-            xAxis.axisMinimum = xRange.lower
-            xAxis.axisMaximum = xRange.upper
+            xAxis.axisMinimum = xRange.lower - 0.5f //to compensate cut-in-half bar
+            xAxis.axisMaximum = xRange.upper + 0.5f //to compensate cut-in-half bar
             //xAxis.granularity = 100f
             xAxis.textColor = textColor.toArgb()
             xAxis.gridColor = gridColor.toArgb()
             xAxis.position = XAxis.XAxisPosition.BOTTOM
+            xAxis.axisLineColor = gridColor.toArgb()
             xAxis.valueFormatter = xValueFormatter
+            xAxis.setDrawGridLines(false)
 
-            val yAxis = view.axisLeft
+            val yAxis = view.axisRight
             yAxis.axisMinimum = yRange.lower
             yAxis.axisMaximum = yRange.upper
-            //yAxis.granularity = 100f
+            yAxis.granularity = 100f
             yAxis.textColor = textColor.toArgb()
             yAxis.gridColor = gridColor.toArgb()
+            yAxis.axisLineColor = gridColor.toArgb()
             yAxis.valueFormatter = yValueFormatter
+            yAxis.setDrawGridLines(true)
+            yAxis.setDrawAxisLine(false)
 
-            val yRightAxis = view.axisRight
-            yRightAxis.isEnabled = false
+            val yOtherAxis = view.axisLeft
+            yOtherAxis.isEnabled = false
 
             view.legend.isEnabled = false
             view.description.isEnabled = false
             view.setTouchEnabled(false)
+            view.setNoDataText("No activities")
+            view.setNoDataTextColor(textColor.toArgb())
+            view.minOffset = 0f
+            view.extraBottomOffset = 15f
+            view.extraTopOffset = 15f
 
             view.data = LineData(dataset)
             view.invalidate()
         })
 }
 
-@Preview
 @Composable
-fun DailyGoalProgressChart() {
-    MonthlyDailyGoalProgressChart(
-        month = YearMonth.of(2021, 12),
-        values = mapOf(1 to 1f, 2 to 20f, 29 to 80f))
-}
-
-
-@Composable
-fun MonthlyDailyGoalProgressChart(
+fun ProgressBarChart(
     color: Color = MaterialTheme.colors.secondary,
-    month: YearMonth,
-    values: Map<Int, Float>) {
-    Card() {
-        DailyGoalProgressChart(
-            color = color,
-            values = values.mapKeys { e -> e.key.toFloat() },
-            yRange = Range(0f, 100f),
-            xRange = Range(1f, month.lengthOfMonth().toFloat()),
-            yValueFormatter = PercentValueFormatter(),
-            xValueFormatter = DayValueFormatter(month)
-        )
-    }
-}
-
-@Composable
-fun DailyGoalProgressChart(
-    color: Color = MaterialTheme.colors.secondary,
-    height: Dp = 120.dp,
+    height: Dp = 90.dp,
     xRange: Range<Float> = Range(1f, 100f),
     yRange: Range<Float> = Range(0f, 100f),
     xValueFormatter: ValueFormatter = DefaultAxisValueFormatter(0),
@@ -199,7 +198,7 @@ fun DailyGoalProgressChart(
 ) {
     val alpha = ContentAlpha.medium
     val textColor = MaterialTheme.colors.onSurface
-    val gridColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
+    val gridColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled)
 
     val entries: MutableList<BarEntry> = ArrayList()
     for (data in values) {
@@ -207,7 +206,8 @@ fun DailyGoalProgressChart(
         entries.add(BarEntry(data.key, data.value))
     }
 
-    AndroidView(::BarChart, modifier = Modifier
+    AndroidView(::BarChart,
+        modifier = Modifier
         .fillMaxWidth()
         .height(height),
         update = { view ->
@@ -216,30 +216,73 @@ fun DailyGoalProgressChart(
             dataset.setDrawValues(false)
 
             val xAxis = view.xAxis
-            xAxis.axisMinimum = xRange.lower
-            xAxis.axisMaximum = xRange.upper
+            xAxis.axisMinimum = xRange.lower - 0.5f //to compensate cut-in-half bar
+            xAxis.axisMaximum = xRange.upper + 0.5f //to compensate cut-in-half bar
             //xAxis.granularity = 100f
             xAxis.textColor = textColor.toArgb()
             xAxis.gridColor = gridColor.toArgb()
             xAxis.position = XAxis.XAxisPosition.BOTTOM
+            xAxis.axisLineColor = gridColor.toArgb()
             xAxis.valueFormatter = xValueFormatter
+            xAxis.setDrawGridLines(false)
 
-            val yAxis = view.axisLeft
+            val yAxis = view.axisRight
             yAxis.axisMinimum = yRange.lower
             yAxis.axisMaximum = yRange.upper
-            //yAxis.granularity = 100f
+            yAxis.granularity = 100f
             yAxis.textColor = textColor.toArgb()
             yAxis.gridColor = gridColor.toArgb()
+            yAxis.axisLineColor = gridColor.toArgb()
             yAxis.valueFormatter = yValueFormatter
+            yAxis.setDrawGridLines(true)
+            yAxis.setDrawAxisLine(false)
 
-            val yRightAxis = view.axisRight
-            yRightAxis.isEnabled = false
+            val yOtherAxis = view.axisLeft
+            yOtherAxis.isEnabled = false
 
             view.legend.isEnabled = false
             view.description.isEnabled = false
             view.setTouchEnabled(false)
 
             view.data = BarData(dataset)
+            view.data.barWidth = 0.3f
+            view.setNoDataText("No activities")
+            view.setNoDataTextColor(textColor.toArgb())
+            view.setFitBars(true)
+            view.minOffset = 0f
+            view.extraBottomOffset = 15f
+            view.extraTopOffset = 15f
             view.invalidate()
         })
 }
+
+
+@Preview
+@Composable
+private fun ProgressBarChart() {
+    ProgressBarChart(
+        month = YearMonth.of(2021, 12),
+        values = mapOf(1 to 1f, 2 to 20f, 29 to 80f))
+}
+
+//@Preview()
+//@Composable
+//private fun LongTermGoalProgressChartPreview() {
+//    Card() {
+//        ProgressLineChart(Color(ActivityCategory.SPEAKING.color),
+//            values = mapOf(Month.JANUARY to 1f, Month.FEBRUARY to 25f, Month.DECEMBER to 50f),)
+//    }
+//}
+//
+//@Preview()
+//@Composable
+//private fun LongTermGoalProgressChartPreview2() {
+//    MaterialTheme(colors = DarkColors) {
+//        Card() {
+//            ProgressLineChart(
+//                Color(ActivityCategory.SPEAKING.color),
+//                month = YearMonth.of(2021, 12),
+//                values = mapOf(1 to 1f, 2 to 20f, 29 to 80f))
+//        }
+//    }
+//}

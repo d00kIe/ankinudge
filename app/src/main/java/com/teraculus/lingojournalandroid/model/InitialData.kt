@@ -36,7 +36,7 @@ fun activityData(activityTypes: List<ActivityType>): List<Activity> {
     var aLotOfActivities = mutableListOf<Activity>()
 
     //if(BuildConfig.DEBUG) {
-        generateRandomData(activityTypes, aLotOfActivities)
+    //    generateRandomData(activityTypes, aLotOfActivities)
     //}
 
     return aLotOfActivities

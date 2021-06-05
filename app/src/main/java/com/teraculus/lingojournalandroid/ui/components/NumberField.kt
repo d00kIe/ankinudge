@@ -10,7 +10,6 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -34,7 +33,7 @@ fun NumberField(
         textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
         label = { Text(label.orEmpty()) },
         modifier = modifier.onFocusChanged {
-            if(it != FocusState.Active) {
+            if(!it.isFocused) {
                 if(focused) {
                     val new = textValue.toIntOrNull()
                     val current = value ?: 0

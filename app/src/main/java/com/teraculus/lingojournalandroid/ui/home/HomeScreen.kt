@@ -1,7 +1,6 @@
 package com.teraculus.lingojournalandroid.ui.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -66,8 +65,8 @@ fun ActivityList(
         if(hasGoals == false && groups.orEmpty().size < 3) {
             item {
                 StatsCard(modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .clickable { onOpenGoals() }) {
+                    .padding(horizontal = 16.dp),
+                    onClick = { onOpenGoals() }) {
                     ListItem(
                         icon = { Icon(Icons.Rounded.AddTask, contentDescription = null) },
                         text = { Text("Set daily goals") },

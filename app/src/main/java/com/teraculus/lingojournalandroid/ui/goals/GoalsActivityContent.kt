@@ -1,5 +1,6 @@
 package com.teraculus.lingojournalandroid.ui.goals
 
+import android.util.Range
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -29,11 +30,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.ActivityGoal
 import com.teraculus.lingojournalandroid.model.EffortUnit
+import com.teraculus.lingojournalandroid.model.GoalType
 import com.teraculus.lingojournalandroid.utils.getDurationString
 import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
-import com.teraculus.lingojournalandroid.viewmodel.GoalItemViewModel
-import com.teraculus.lingojournalandroid.viewmodel.GoalItemViewModelFactory
-import com.teraculus.lingojournalandroid.viewmodel.GoalsActivityViewModel
+import com.teraculus.lingojournalandroid.viewmodel.*
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.temporal.ChronoUnit
 
 @Composable
 fun GoalsActivityContent(
@@ -91,16 +94,14 @@ fun GoalRow(
 ) {
     val snapshot by model.snapshot.observeAsState()
     snapshot?.let { goal ->
-        val cardColor = remember(goal) { goal.activityType?.category?.color?.let { it1 -> Color(it1) } }
-        val goalWeekDaysString by model.goalWeekDaysString.observeAsState()
         val progress = model.progress.observeAsState()
         val progressPercent = model.progressPercent.observeAsState()
         val context = LocalContext.current
 
         Card(modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable { model.edit(context) },
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+            onClick = { model.edit(context) },
             elevation = 2.dp,
             shape = RoundedCornerShape(16.dp)
         )
@@ -115,8 +116,9 @@ fun GoalRow(
                             overflow = TextOverflow.Ellipsis)
                     },
                     secondaryText = {
-                        SecondaryText(goal, goalWeekDaysString, cardColor, progress.value, progressPercent.value)
+                        SecondaryText(goal, progress.value, progressPercent.value)
                     },
+                    //trailing= { Icon(Icons.Rounded.KeyboardArrowRight, contentDescription = null) }
                 )
 
                 Row(modifier = Modifier
@@ -134,13 +136,14 @@ fun GoalRow(
 @Composable
 private fun SecondaryText(
     goal: ActivityGoal,
-    goalWeekDaysString: String?,
-    cardColor: Color?,
     progress: Float?,
-    progressPercent: Float?
+    progressPercent: Float?,
+    progressBar: Boolean = false
 ) {
     val type = remember(goal) { goal.activityType }
     val language = remember(goal) { goal.language }
+    val goalType = remember(goal) { goal.type }
+    val cardColor = remember(goal) { goal.activityType?.category?.color?.let { it1 -> Color(it1) }  }
 
     //val dueBy = if(goal.type == GoalType.Daily) goalWeekDaysString.orEmpty() else "Due by ${toDayStringOrToday(goal.endDate)}"
     val progressInt = (progress?:0f).toInt()
@@ -152,17 +155,51 @@ private fun SecondaryText(
         progressString,
         getLanguageDisplayName(language))
 
-    Column() {
+    Column {
         Text(modifier = Modifier.padding(bottom = 8.dp),
             text = values.filterNotNull().joinToString(separator = " · "),
             style = MaterialTheme.typography.body2)
-        Surface(shape = RoundedCornerShape(4.dp)) {
-            LinearProgressIndicator(
-                progress = (progressPercent ?: 0f ) / 100f,
-                color = cardColor ?: MaterialTheme.colors.surface,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp))
+        when {
+            progressBar -> {
+                Surface(shape = RoundedCornerShape(4.dp)) {
+                    LinearProgressIndicator(
+                        progress = (progressPercent ?: 0f) / 100f,
+                        color = cardColor ?: MaterialTheme.colors.surface,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp))
+                }
+            }
+            goalType == GoalType.Daily -> {
+                val model: RangeGoalProgressViewModel = viewModel("dailyViewModel${goal.id}", RangeGoalProgressViewModel.Factory(
+                    Range.create(LocalDate.now().minusDays(7), LocalDate.now()), goal.id.toString()))
+                val perDayMap by model.perDayGoals.observeAsState()
+                val firstDate = remember { LocalDate.now().minusDays(6) }
+                val values = remember(perDayMap) { perDayMap.orEmpty().mapKeys { ChronoUnit.DAYS.between(firstDate, it.key).toInt() } }
+
+                ProgressBarChart(
+                    color = cardColor ?: MaterialTheme.colors.primary,
+                    firstDate = firstDate,
+                    values = values)
+            }
+            goalType == GoalType.LongTerm -> {
+                val month = remember { YearMonth.now() }
+                val range = remember {
+                    Range.create(month.atDay(1), month.atEndOfMonth())
+                }
+                val model: AccumulatingRangeGoalProgressViewModel = viewModel("accumulatingDailyViewModel${goal.id}", AccumulatingRangeGoalProgressViewModel.Factory(
+                    range, goal.id.toString()))
+                val perDay by model.perDayGoals.observeAsState()
+                ProgressLineChart(
+                    color = cardColor ?: MaterialTheme.colors.primary,
+                    month = YearMonth.now(),
+                    values = perDay.orEmpty().mapKeys { it.key.dayOfMonth }
+                )
+
+            }
+            else -> {
+
+            }
         }
     }
 }
@@ -201,7 +238,7 @@ fun FeedGoalRow(
                             overflow = TextOverflow.Ellipsis)
                     },
                     secondaryText = {
-                        SecondaryText(goal, goalWeekDaysString, cardColor, progress.value, progressPercent.value)
+                        SecondaryText(goal, progress.value, progressPercent.value, true)
                     },
                     trailing = {
                         Box(Modifier.fillMaxHeight(), Alignment.Center) {

@@ -138,22 +138,9 @@ private fun InnerContent(
                     Column {
                         Spacer(modifier = Modifier.size(8.dp))
                         LanguageBar(languages.orEmpty(), languageIndex) { l -> model.setLanguage(l) }
-
-                        if(tabIndex == 2) {
-                            year?.let {
-                                LongTermGoalsProgressCharts(lang = selectedLanguage.toString(), year = it)
-                            }
-                        }
-
-                        if(tabIndex == 1) {
-                            month?.let {
-                                Label(text = "Daily goals progress",
-                                    modifier = Modifier.padding(start = 16.dp, top = 8.dp))
-                                DailyGoalsProgressChart(selectedLanguage.toString(), it)
-                            }
-                        }
-
-                        LanguageStatContent(languageStats!!)
+                        DonutCard(stats = languageStats!!)
+                        TopActivityTypes(stats = languageStats!!)
+                        SentimentStatsCard(stats = languageStats!!)
                         AnimatedVisibility(visible = tabIndex == 0 && languageDayStreak != null) {
                             Column {
                                 Label(text = "Streak this day",
@@ -219,9 +206,6 @@ private fun DayStreakContent(it: DayLanguageStreakData) {
 
 @Composable
 private fun LanguageStatContent(it: LanguageStatData) {
-    DonutCard(stats = it)
-    TopActivityTypes(stats = it)
-    SentimentStatsCard(stats = it)
 }
 
 @ExperimentalMaterialApi

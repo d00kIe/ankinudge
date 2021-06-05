@@ -206,10 +206,20 @@ class ActivityGoalRepo(val repo: Repository) {
     }
 
     fun allLongTerm(range: Range<LocalDate>, language: String? = null): LiveRealmResults<ActivityGoal> {
-        return LiveRealmResults(tryAddLanguageQuery(repo.realm!!.where<ActivityGoal>()
-            .equalTo("goalType", "longterm")
-            .greaterThanOrEqualTo("_date", asDate(range.lower))
-            .lessThanOrEqualTo("_endDate", asDate(range.upper)), language).findAll())
+        val query = repo.realm!!.where<ActivityGoal>().apply {
+            equalTo("goalType", "longterm")
+            language?.let { equalTo("language", language) }
+
+            val date = asDate(range.lower)
+            val endDate = asDate(range.upper)
+            beginGroup()
+            between("_date", date, endDate)
+            or()
+            between("_endDate",date, endDate)
+            endGroup()
+        }
+
+        return LiveRealmResults(query.findAll())
     }
 
     fun get(id: String): LiveRealmObject<ActivityGoal?> {

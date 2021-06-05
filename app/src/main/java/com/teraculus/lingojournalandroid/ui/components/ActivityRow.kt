@@ -1,6 +1,5 @@
 package com.teraculus.lingojournalandroid.ui.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,6 +39,7 @@ fun ActivityRow(
         val title =
             if (activity.title.isEmpty()) toActivityTypeTitle(activity.type) else activity.title
         Card(
+            onClick = { onClick(activity.id.toString()) },
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -47,7 +47,6 @@ fun ActivityRow(
             elevation = 2.dp)
         {
             ListItem(
-                modifier = Modifier.clickable(onClick = { onClick(activity.id.toString()) }),
                 icon = {
                     ActivityRowIcon(activity.type?.category?.icon,
                         activity.type?.category?.color)

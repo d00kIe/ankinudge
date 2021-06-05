@@ -6,7 +6,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 
@@ -28,7 +27,7 @@ fun DropDownTextField(label: @Composable () -> Unit,
         modifier = modifier
             .onFocusChanged(
                 onFocusChanged = {
-                    if (it == FocusState.Active) {
+                    if (it.isFocused) {
                         onClick()
                         focusManager.clearFocus()
                     }
