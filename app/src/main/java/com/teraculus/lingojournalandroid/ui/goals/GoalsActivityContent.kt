@@ -11,8 +11,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.TaskAlt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -138,7 +138,6 @@ private fun SecondaryText(
     val type = remember(goal) { goal.activityType }
     val language = remember(goal) { goal.language }
 
-    //val dueBy = if(goal.type == GoalType.Daily) goalWeekDaysString.orEmpty() else "Due by ${toDayStringOrToday(goal.endDate)}"
     val progressInt = (progress?:0f).toInt()
     val durationGoal = goal.durationGoal ?: 0
     val unitCountGoal = (goal.unitCountGoal ?: 0f).toInt()
@@ -198,64 +197,18 @@ private fun GoalChart(
     }
 }
 
-
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
-@Composable
-fun FeedGoalRow(
-    rawGoal: ActivityGoal,
-    model: GoalItemViewModel = viewModel("goalRow${rawGoal.id}",
-        GoalItemViewModelFactory(rawGoal, LocalLifecycleOwner.current)),
-    onClick: (goalId: String) -> Unit,
-) {
-    val snapshot by model.snapshot.observeAsState()
-    snapshot?.let { goal ->
-        val cardColor = remember(goal) { goal.activityType?.category?.color?.let { it1 -> Color(it1) } }
-        val progress by model.progress.observeAsState()
-        val progressPercent by model.progressPercent.observeAsState()
-        Column() {
-            ListItem(
-                modifier = Modifier.height(IntrinsicSize.Min),
-                overlineText = { Text("${goal.type.title} goal")
-                },
-                text = {
-                    Text(toActivityTypeTitle(goal.activityType),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis)
-                },
-                secondaryText = {
-                    Column() {
-                        SecondaryText(goal, progress, progressPercent)
-                        Surface(shape = RoundedCornerShape(4.dp)) {
-                            LinearProgressIndicator(
-                                progress = (progressPercent ?: 0f) / 100f,
-                                color = cardColor ?: MaterialTheme.colors.surface,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(8.dp))
-                        }
-                    }
-
-                },
-                trailing = {
-                    Box(Modifier.fillMaxHeight(), Alignment.Center) {
-                        IconButton(onClick = { onClick(goal.id.toString()) }) {
-                            Icon(Icons.Rounded.AddCircle, contentDescription = null, tint = cardColor ?: MaterialTheme.colors.onSurface, modifier = Modifier.size(42.dp))
-                        }
-                    }
-                }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-}
-
 @Composable
 private fun WelcomingScreen() {
     Box(modifier = Modifier
         .fillMaxSize()
         .padding(bottom = 128.dp),
         contentAlignment = Alignment.Center) {
-        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp)) {
+        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(Icons.Rounded.TaskAlt,
+                contentDescription = null,
+                tint = MaterialTheme.colors.secondary,
+                modifier = Modifier.size(142.dp))
+            Spacer(modifier = Modifier.size(16.dp))
             Text(text = "Set goals!",
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.fillMaxWidth(),

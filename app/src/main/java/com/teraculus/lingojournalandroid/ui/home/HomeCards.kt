@@ -36,7 +36,8 @@ fun HomeStatsCard(openStatsActivity: () -> Unit, model: ActivityListViewModel) {
     val streaks by model.streaks.observeAsState()
     val lastSevenDays by model.lastSevenDayData.observeAsState()
     val scope = rememberCoroutineScope()
-    StatsCard(onClick = { scope.launch { openStatsActivity() } },
+    StatsCard(
+        onClick = { scope.launch { openStatsActivity() } },
             modifier = Modifier.padding(16.dp)) {
         Column {
             ListItem(

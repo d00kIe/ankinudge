@@ -2,6 +2,7 @@ package com.teraculus.lingojournalandroid.ui
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
@@ -15,9 +16,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teraculus.lingojournalandroid.R
 import com.teraculus.lingojournalandroid.ui.home.HomeScreen
 import com.teraculus.lingojournalandroid.viewmodel.MainViewModel
 
@@ -86,7 +89,12 @@ private fun WelcomingScreen() {
         .fillMaxSize()
         .padding(bottom = 128.dp),
         contentAlignment = Alignment.Center) {
-        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp)) {
+        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Image(
+                painterResource(id = R.drawable.ic_welcome_icon),
+                contentDescription = null,
+                modifier = Modifier.size(142.dp))
+            Spacer(modifier = Modifier.size(16.dp))
             Text(text = "Welcome, language learner!",
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.fillMaxWidth(),

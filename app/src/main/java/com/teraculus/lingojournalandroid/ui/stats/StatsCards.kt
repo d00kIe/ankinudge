@@ -79,18 +79,20 @@ fun TextStatsItem(
 @Composable
 fun StatsCard(
     onClick: () -> Unit = {},
+    backgroundColor: Color = MaterialTheme.colors.surface,
     modifier: Modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
     content: @Composable () -> Unit,
 ) {
-    Card(modifier = modifier, elevation = 2.dp, onClick = onClick,  content = content)
+    Card(modifier = modifier, backgroundColor= backgroundColor, elevation = 2.dp, onClick = onClick,  content = content)
 }
 
 @Composable
 fun StatsCard(
+    backgroundColor: Color = MaterialTheme.colors.surface,
     modifier: Modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
     content: @Composable () -> Unit,
 ) {
-    Card(modifier = modifier, elevation = 2.dp, content = content)
+    Card(modifier = modifier, backgroundColor= backgroundColor, elevation = 2.dp, content = content)
 }
 
 @Composable
