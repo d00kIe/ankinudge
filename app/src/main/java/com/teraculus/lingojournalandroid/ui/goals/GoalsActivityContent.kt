@@ -2,7 +2,6 @@ package com.teraculus.lingojournalandroid.ui.goals
 
 import android.util.Range
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -213,47 +212,39 @@ fun FeedGoalRow(
         val cardColor = remember(goal) { goal.activityType?.category?.color?.let { it1 -> Color(it1) } }
         val progress by model.progress.observeAsState()
         val progressPercent by model.progressPercent.observeAsState()
-
-        Card(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable { onClick(goal.id.toString()) },
-            elevation = 2.dp,
-            shape = RoundedCornerShape(16.dp)
-        )
-        {
-            Column() {
-                ListItem(
-                    modifier = Modifier.height(IntrinsicSize.Min),
-                    overlineText = { Text("${goal.type.title} goal")
-                    },
-                    text = {
-                        Text(toActivityTypeTitle(goal.activityType),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis)
-                    },
-                    secondaryText = {
+        Column() {
+            ListItem(
+                modifier = Modifier.height(IntrinsicSize.Min),
+                overlineText = { Text("${goal.type.title} goal")
+                },
+                text = {
+                    Text(toActivityTypeTitle(goal.activityType),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis)
+                },
+                secondaryText = {
+                    Column() {
                         SecondaryText(goal, progress, progressPercent)
-                    },
-                    trailing = {
-                        Box(Modifier.fillMaxHeight(), Alignment.Center) {
-                            IconButton(onClick = { onClick(goal.id.toString()) }) {
-                                Icon(Icons.Rounded.AddCircle, contentDescription = null, tint = cardColor ?: MaterialTheme.colors.onSurface, modifier = Modifier.size(42.dp))
-                            }
+                        Surface(shape = RoundedCornerShape(4.dp)) {
+                            LinearProgressIndicator(
+                                progress = (progressPercent ?: 0f) / 100f,
+                                color = cardColor ?: MaterialTheme.colors.surface,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(8.dp))
                         }
                     }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Surface(shape = RoundedCornerShape(4.dp), modifier = Modifier.padding(horizontal = 16.dp)) {
-                    LinearProgressIndicator(
-                        progress = (progressPercent ?: 0f) / 100f,
-                        color = cardColor ?: MaterialTheme.colors.surface,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(8.dp))
+
+                },
+                trailing = {
+                    Box(Modifier.fillMaxHeight(), Alignment.Center) {
+                        IconButton(onClick = { onClick(goal.id.toString()) }) {
+                            Icon(Icons.Rounded.AddCircle, contentDescription = null, tint = cardColor ?: MaterialTheme.colors.onSurface, modifier = Modifier.size(42.dp))
+                        }
+                    }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -265,12 +256,12 @@ private fun WelcomingScreen() {
         .padding(bottom = 128.dp),
         contentAlignment = Alignment.Center) {
         Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp)) {
-            Text(text = "Set daily goals!",
+            Text(text = "Set goals!",
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Daily goals help you stay motivated and practice every atDate. Click on the green button to create your first goal!",
+            Text(text = "Setting goals gives your learning direction, boosts your motivation and self-confidence. Click on the green button to create your first goal!",
                 style = MaterialTheme.typography.subtitle1,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center)

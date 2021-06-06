@@ -15,7 +15,7 @@ class GoalsListViewModel(repository: Repository, day: LocalDate) : ViewModel() {
     private val goals = repository.goals.all()
     private val frozenGoals = Transformations.map(goals) { (it as RealmResults<ActivityGoal>).freeze().sortedByDescending { g -> g.id.timestamp } }
     val todayGoals = Transformations.map(frozenGoals) { it.filter { g -> goalFilter(g, day) } }
-    val hasGoals = Transformations.map(todayGoals) { it.isNotEmpty() }
+    val hasGoals = Transformations.map(frozenGoals) { it.isNotEmpty() }
 
     private fun goalFilter(
         g: ActivityGoal,
@@ -38,17 +38,19 @@ class GoalsListViewModelFactory(val day: LocalDate = LocalDate.now()) : ViewMode
 }
 
 class ActivityListViewModel(repository: Repository) : ViewModel() {
-    private val activities = repository.activities.allLive()
+    private val activities = repository.activities.allUntilLive(LocalDate.now()) // do not take future activities as this can break streaks
     private val frozen = Transformations.map(activities) { (it as RealmResults<Activity>).freeze() }
     var grouped = Transformations.map(frozen) {
         it?.groupBy { it1 -> it1.date }.orEmpty()
             .mapValues { it2 -> it2.value.sortedByDescending { a -> a.startTime } }
     }
+
     var lastSevenDayData =
         frozen.transform(scope = viewModelScope) { getGroupedLanguageDayData(it) }
+
     var streaks = frozen.transform(scope = viewModelScope) { act ->
         act.orEmpty().groupBy { it.language }
-            .mapValues { langact -> streakFromDate(langact.value, LocalDate.now(), true).size }
+            .mapValues { lang -> streakFromDate(lang.value, LocalDate.now(), true).size }
     }
 
     private fun getGroupedLanguageDayData(activities: List<Activity>?): List<LanguageDayData> {

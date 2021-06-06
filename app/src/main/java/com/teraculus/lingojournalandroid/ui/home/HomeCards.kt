@@ -42,7 +42,11 @@ fun HomeStatsCard(openStatsActivity: () -> Unit, model: ActivityListViewModel) {
             ListItem(
                 text={ Text("Your activities")},
                 secondaryText={Text("Streak and last 7 days", style=MaterialTheme.typography.body2)},
-                trailing= { Icon(Icons.Rounded.KeyboardArrowRight, contentDescription = null) }
+                trailing= {
+                    IconButton(onClick = { openStatsActivity() }) {
+                        Icon(Icons.Rounded.KeyboardArrowRight, contentDescription = null)
+                    }
+                }
             )
             AnimatedVisibility(!lastSevenDays.isNullOrEmpty()) {
                 Column(modifier = Modifier.padding(16.dp)) {

@@ -105,11 +105,8 @@ fun MonthItem(
                                 .weight(1f / 7)
                                 .height(44.dp)
                             val day = dataItems.orEmpty()[itemIdx]
-                            if (day.thisMonth) {
-                                mod = mod.clickable { onClick(day) }
-                            }
                             key(day.toString()) {
-                                DayItem(day, modifier = mod)
+                                DayItem(day, modifier = mod, onClick = { if(day.thisMonth)  { onClick(it) }})
                             }
                         }
                     }
@@ -143,13 +140,14 @@ private fun MonthHeader(modifier: Modifier = Modifier, month: String, year: Stri
 fun DayItem(
     data: DayData,
     modifier: Modifier = Modifier,
+    onClick: (data: DayData) -> Unit
 ) {
 
-    Box(modifier = modifier
+    Box(modifier = modifier.clickable { onClick(data) }
     ) {
         if (data.thisMonth) {
             Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                DayItemIndicator(data.hasActivities, data.maxCount, data.count, data.maxMinutes, data.minutes)
+                DayItemIndicator(data.hasActivities, data.maxCount, data.count, data.maxMinutes, data.minutes, onClick = { onClick(data) })
                 Text(data.day.toString(),
                     style = MaterialTheme.typography.caption,
                     color = if (data.hasActivities) MaterialTheme.colors.onSecondary else Color.Unspecified,
@@ -161,8 +159,16 @@ fun DayItem(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun DayItemIndicator(show: Boolean, maxCount: Int?, count: Int, maxMinutes: Int?, minutes: Int)
+fun DayItemIndicator(
+    show: Boolean,
+    maxCount: Int?,
+    count: Int,
+    maxMinutes: Int?,
+    minutes: Int,
+    onClick: () -> Unit
+)
 {
     if(show) {
         val secondaryColor = MaterialTheme.colors.secondary
@@ -175,6 +181,7 @@ fun DayItemIndicator(show: Boolean, maxCount: Int?, count: Int, maxMinutes: Int?
 
         Surface(shape = CircleShape,
             modifier = Modifier.size(circleSize),
+            onClick = onClick,
             elevation = 0.dp,
             color = circleColor) {}
     }

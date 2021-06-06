@@ -367,6 +367,7 @@ private fun mapToStats(items: List<Activity>, month: YearMonth?): List<LanguageS
 fun streakFromDate(items: List<Activity>, date: LocalDate, relaxed: Boolean = false): Map<LocalDate,List<Activity>> {
     var lastDate = date
     val inStreak = mutableListOf<Activity>()
+    val dates = items.map { it.date }.sortedDescending()
     for (a in items.sortedByDescending { it.date }) {
         if((relaxed && a.date == date.minusDays(1))
             || date == a.date

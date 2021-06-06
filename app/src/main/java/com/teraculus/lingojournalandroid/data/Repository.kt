@@ -142,7 +142,7 @@ class ActivityRepo(val repo: Repository) {
     }
 
     fun allUntil(date: LocalDate, language: String? = null): RealmResults<Activity>? {
-        return tryAddLanguageQuery(repo.realm!!.where<Activity>().lessThanOrEqualTo("_date", asDate(date)), language).findAllAsync()
+        return tryAddLanguageQuery(repo.realm!!.where<Activity>().lessThanOrEqualTo("_date", asDate(date)).sort("_date", Sort.DESCENDING), language).findAllAsync()
     }
 
     fun allUntilLive(date: LocalDate, language: String? = null): LiveRealmResults<Activity> {
