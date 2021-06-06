@@ -3,6 +3,7 @@ package com.teraculus.lingojournalandroid.ui.goals
 import android.util.Range
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.Card
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -16,9 +17,12 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.DefaultAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.teraculus.lingojournalandroid.model.ActivityCategory
+import com.teraculus.lingojournalandroid.ui.DarkColors
 import java.time.LocalDate
 import java.time.Month
 import java.time.YearMonth
@@ -44,6 +48,13 @@ class DayValueFormatter(val month: YearMonth) : ValueFormatter() {
     }
 }
 
+class DayValueFromDateFormatter(val firstDate: LocalDate) : ValueFormatter() {
+    override fun getFormattedValue(value: Float): String {
+        val date = firstDate.plusDays(value.toLong())
+        return "${date.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())} ${date.dayOfMonth}"
+    }
+}
+
 class DayOfWeekFormatter(val firstDate: LocalDate) : ValueFormatter() {
     override fun getFormattedValue(value: Float): String {
         return firstDate.plusDays(value.toLong()).dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
@@ -62,6 +73,23 @@ fun ProgressLineChart(
         xRange = Range(1f, month.lengthOfMonth().toFloat()),
         yValueFormatter = PercentValueFormatter(),
         xValueFormatter = DayValueFormatter(month)
+    )
+}
+
+
+@Composable
+fun ProgressLineChart(
+    color: Color = MaterialTheme.colors.secondary,
+    firstDate: LocalDate = LocalDate.now().minusDays(29),
+    dayCount: Int = 30,
+    values: Map<Int, Float>) {
+    ProgressLineChart(
+        color = color,
+        values = values.mapKeys { e -> e.key.toFloat() },
+        yRange = Range(0f, 100f),
+        xRange = Range(0f, dayCount.minus(1).toFloat()),
+        yValueFormatter = PercentValueFormatter(),
+        xValueFormatter = DayValueFromDateFormatter(firstDate)
     )
 }
 
@@ -120,6 +148,7 @@ fun ProgressLineChart(
     xValueFormatter: ValueFormatter = DefaultAxisValueFormatter(0),
     yValueFormatter: ValueFormatter = DefaultAxisValueFormatter(0),
     values: Map<Float, Float>,
+    fillWithLastValue: Boolean = true
 ) {
     val alpha = ContentAlpha.medium
     val textColor = MaterialTheme.colors.onSurface
@@ -130,6 +159,11 @@ fun ProgressLineChart(
     for (data in sorted) {
         // turn your data into Entry objects
         entries.add(Entry(data.key, data.value))
+    }
+
+    // if the last chart entry is not set, use the last possible value
+    if(fillWithLastValue && entries.isNotEmpty() && !sorted.containsKey(xRange.upper)) {
+        entries.add(Entry(xRange.upper, entries.last().y))
     }
 
     AndroidView(::LineChart, modifier = Modifier
@@ -146,10 +180,11 @@ fun ProgressLineChart(
             dataset.fillAlpha = (255 * alpha).toInt()
             dataset.setDrawFilled(true)
             dataset.setDrawValues(false)
+            dataset.axisDependency = YAxis.AxisDependency.RIGHT
 
             val xAxis = view.xAxis
-            xAxis.axisMinimum = xRange.lower - 0.5f //to compensate cut-in-half bar
-            xAxis.axisMaximum = xRange.upper + 0.5f //to compensate cut-in-half bar
+            xAxis.axisMinimum = xRange.lower
+            xAxis.axisMaximum = xRange.upper
             //xAxis.granularity = 100f
             xAxis.textColor = textColor.toArgb()
             xAxis.gridColor = gridColor.toArgb()
@@ -214,6 +249,7 @@ fun ProgressBarChart(
             val dataset = BarDataSet(entries, "")
             dataset.color = color.toArgb()
             dataset.setDrawValues(false)
+            dataset.axisDependency = YAxis.AxisDependency.RIGHT
 
             val xAxis = view.xAxis
             xAxis.axisMinimum = xRange.lower - 0.5f //to compensate cut-in-half bar
@@ -245,7 +281,7 @@ fun ProgressBarChart(
             view.setTouchEnabled(false)
 
             view.data = BarData(dataset)
-            view.data.barWidth = 0.3f
+            view.data.barWidth = 0.5f
             view.setNoDataText("No activities")
             view.setNoDataTextColor(textColor.toArgb())
             view.setFitBars(true)
@@ -257,13 +293,13 @@ fun ProgressBarChart(
 }
 
 
-@Preview
-@Composable
-private fun ProgressBarChart() {
-    ProgressBarChart(
-        month = YearMonth.of(2021, 12),
-        values = mapOf(1 to 1f, 2 to 20f, 29 to 80f))
-}
+//@Preview
+//@Composable
+//private fun ProgressBarChart() {
+//    ProgressBarChart(
+//        month = YearMonth.of(2021, 12),
+//        values = mapOf(1 to 1f, 2 to 20f, 29 to 80f))
+//}
 
 //@Preview()
 //@Composable
@@ -274,15 +310,15 @@ private fun ProgressBarChart() {
 //    }
 //}
 //
-//@Preview()
-//@Composable
-//private fun LongTermGoalProgressChartPreview2() {
-//    MaterialTheme(colors = DarkColors) {
-//        Card() {
-//            ProgressLineChart(
-//                Color(ActivityCategory.SPEAKING.color),
-//                month = YearMonth.of(2021, 12),
-//                values = mapOf(1 to 1f, 2 to 20f, 29 to 80f))
-//        }
-//    }
-//}
+@Preview()
+@Composable
+private fun LongTermGoalProgressChartPreview2() {
+    MaterialTheme(colors = DarkColors) {
+        Card() {
+            ProgressLineChart(
+                Color(ActivityCategory.SPEAKING.color),
+                month = YearMonth.of(2021, 12),
+                values = mapOf(1 to 1f, 4 to 4f, 5 to 55f))
+        }
+    }
+}
