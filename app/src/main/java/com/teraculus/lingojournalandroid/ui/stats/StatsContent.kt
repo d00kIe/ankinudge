@@ -16,6 +16,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
@@ -59,7 +60,7 @@ fun StatsContent(
                 }
                 TabRow(
                     selectedTabIndex = tabIndex,
-                    backgroundColor = MaterialTheme.colors.surface,
+                    backgroundColor = Color.Transparent,
                     divider = {},
                     modifier = Modifier.padding(end = 48.dp)
                 ) {
@@ -178,7 +179,7 @@ private fun LanguageBar(
 ) {
     ScrollableTabRow(
         selectedTabIndex = languageIndex ?: 0,
-        backgroundColor = MaterialTheme.colors.surface,
+        backgroundColor = Color.Transparent,
         modifier = Modifier.fillMaxWidth(),
         edgePadding = 8.dp,
         divider = {},

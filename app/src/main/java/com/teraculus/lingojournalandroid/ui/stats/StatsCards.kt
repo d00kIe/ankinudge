@@ -4,6 +4,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
@@ -83,7 +84,7 @@ fun StatsCard(
     modifier: Modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
     content: @Composable () -> Unit,
 ) {
-    Card(modifier = modifier, backgroundColor= backgroundColor, elevation = 2.dp, onClick = onClick,  content = content)
+    Card(modifier = modifier, backgroundColor= backgroundColor, elevation = 2.dp, shape = RoundedCornerShape(16.dp), onClick = onClick,  content = content)
 }
 
 @Composable
@@ -92,7 +93,7 @@ fun StatsCard(
     modifier: Modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
     content: @Composable () -> Unit,
 ) {
-    Card(modifier = modifier, backgroundColor= backgroundColor, elevation = 2.dp, content = content)
+    Card(modifier = modifier, backgroundColor= backgroundColor, elevation = 2.dp, shape = RoundedCornerShape(16.dp), content = content)
 }
 
 @Composable

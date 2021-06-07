@@ -40,7 +40,8 @@ val LightColors = lightColors(
     secondary = Secondary,
     secondaryVariant = SecondaryVariant,
     onPrimary = OnPrimary,
-    onSecondary = OnSecondary
+    onSecondary = OnSecondary,
+    background = Color(0xFFFBFBFC)
 )
 
 class LingoThemeViewModel(val repository: Repository = Repository.getRepository()) : ViewModel() {
@@ -71,7 +72,7 @@ fun LingoTheme(
     val sysUiController = LocalSysUiController.current
     SideEffect {
         sysUiController.setSystemBarsColor(
-            color = colors.surface
+            color = colors.background
         )
     }
 

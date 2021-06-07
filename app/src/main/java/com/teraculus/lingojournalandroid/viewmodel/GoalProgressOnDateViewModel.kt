@@ -197,19 +197,32 @@ class AccumulatingRangeGoalProgressViewModel(
     private val _goal = repository.goals.get(goalId)
     private val yearMonthRange = Range.create(YearMonth.of(range.lower.year, range.lower.month), YearMonth.of(range.upper.year, range.upper.month))
     private val activities = Transformations.switchMap(_goal) {
-            g -> range.extend(g?.date, range.upper)?.let {
+            g -> range.intersect(g?.date, range.upper)?.let {
                 repository.activities.allLive(it.lower, it.upper, g?.language)
             }
     }
     private val frozenActivities = Transformations.map(activities) { (it as RealmResults<Activity>).freeze() }
     private val perDayActivities = Transformations.map(frozenActivities) { it?.filter { a -> match(a, _goal.value) }.orEmpty().groupBy { a -> a.date } }
     private val perMonthActivities = Transformations.map(frozenActivities) { it?.filter { a -> match(a, _goal.value) }.orEmpty().groupBy { a -> YearMonth.of(a.date.year, a.date.month) } }
-    val perDayGoals = Transformations.map(perDayActivities) {
+    val perDayGoals: LiveData<Map<LocalDate, Float>> = Transformations.map(perDayActivities) { it ->
         var acc = 0f;
-        it.orEmpty()
+        val realRange = range.intersect(_goal.value?.date, range.upper)
+        val res = it.orEmpty()
             .toSortedMap()
             .mapValues { entry -> acc += getProgress(_goal.value, entry.value); acc }
-            .filterKeys { d -> range.contains(d) } }
+            .filterKeys { d -> realRange?.contains(d) ?: false }
+
+        // add
+        val dayBeforeStartOfGoal = _goal.value?.date?.minusDays(1)
+        if(range.contains(dayBeforeStartOfGoal) && !res.containsKey(dayBeforeStartOfGoal)) {
+            val newRes = res.toMutableMap()
+            newRes[dayBeforeStartOfGoal] = 0f
+            return@map newRes.toSortedMap().toMap()
+        } else {
+            return@map res
+        }
+    }
+
     val perMonthGoals = Transformations.map(perMonthActivities) { var acc = 0f; it.orEmpty().toSortedMap().mapValues { entry -> acc += getProgress(_goal.value, entry.value); acc }.filterKeys { m -> yearMonthRange.contains(m) } }
 
     private fun getProgress(goal: ActivityGoal?, activities: List<Activity>) : Float {

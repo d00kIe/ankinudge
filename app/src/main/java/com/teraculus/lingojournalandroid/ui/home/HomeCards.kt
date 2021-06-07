@@ -3,6 +3,7 @@ package com.teraculus.lingojournalandroid.ui.home
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
@@ -13,20 +14,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.ui.stats.Constants
-import com.teraculus.lingojournalandroid.ui.stats.StatsCard
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.toWeekDayString
 import com.teraculus.lingojournalandroid.viewmodel.ActivityListViewModel
 import com.teraculus.lingojournalandroid.viewmodel.DayData
 import com.teraculus.lingojournalandroid.viewmodel.LanguageDayData
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 @ExperimentalAnimationApi
@@ -35,10 +33,10 @@ import java.time.LocalDate
 fun HomeStatsCard(openStatsActivity: () -> Unit, model: ActivityListViewModel) {
     val streaks by model.streaks.observeAsState()
     val lastSevenDays by model.lastSevenDayData.observeAsState()
-    val scope = rememberCoroutineScope()
-    StatsCard(
-        onClick = { scope.launch { openStatsActivity() } },
-            modifier = Modifier.padding(16.dp)) {
+
+    Card(onClick = { openStatsActivity() },
+        modifier = Modifier.padding(16.dp),
+        shape = RoundedCornerShape(16.dp)) {
         Column {
             ListItem(
                 text={ Text("Your activities")},

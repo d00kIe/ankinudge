@@ -7,7 +7,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.AddTask
 import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,7 +22,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.ActivityGoal
 import com.teraculus.lingojournalandroid.model.EffortUnit
-import com.teraculus.lingojournalandroid.ui.stats.StatsCard
 import com.teraculus.lingojournalandroid.utils.getDurationString
 import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
 import com.teraculus.lingojournalandroid.viewmodel.GoalItemViewModel
@@ -43,12 +41,14 @@ fun HomeGoalsCard(
     val hasGoals by goalModel.hasGoals.observeAsState()
 
     if(hasGoals == false) {
-        StatsCard(modifier = Modifier
+        Card(
+            modifier = Modifier
             .padding(horizontal = 16.dp),
+            shape = RoundedCornerShape(16.dp),
             onClick = { onOpenGoals() }) {
             Column() {
                 ListItem(
-                    icon = { Icon(Icons.Rounded.AddTask, contentDescription = null) },
+                    //icon = { Icon(Icons.Rounded.AddTask, contentDescription = null) },
                     text = { Text("Set goals") },
                     secondaryText = {
                         Text("It is well known that setting realistic but challenging goals improves motivation and performance. Set daily and long-term goals.")
@@ -65,8 +65,9 @@ fun HomeGoalsCard(
         }
     }
     else {
-        StatsCard(modifier = Modifier
-            .padding(horizontal = 16.dp)) {
+        Card(modifier = Modifier
+            .padding(horizontal = 16.dp),
+            shape = RoundedCornerShape(16.dp)) {
             Column {
                 ListItem(
                     modifier = Modifier.clickable { onOpenGoals() },
@@ -75,7 +76,7 @@ fun HomeGoalsCard(
                         if (todayGoals.isNullOrEmpty()) {
                             Text("No goals set for today")
                         } else {
-                            Text("Use plus icon to add goal activity.")
+                            Text("Tap on the goal to add activity")
                         }
                     },
                     trailing = {
