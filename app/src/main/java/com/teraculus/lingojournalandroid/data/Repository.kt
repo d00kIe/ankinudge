@@ -197,26 +197,20 @@ class ActivityGoalRepo(val repo: Repository) {
         return goals
     }
 
-    fun allDaily(language: String? = null): LiveRealmResults<ActivityGoal> {
-        return LiveRealmResults(tryAddLanguageQuery(repo.realm!!.where<ActivityGoal>().equalTo("goalType", "daily"), language).findAll())
-    }
-
-    fun allLongTerm(language: String? = null): LiveRealmResults<ActivityGoal> {
-        return LiveRealmResults(tryAddLanguageQuery(repo.realm!!.where<ActivityGoal>().equalTo("goalType", "longterm"), language).findAll())
-    }
-
-    fun allLongTerm(range: Range<LocalDate>, language: String? = null): LiveRealmResults<ActivityGoal> {
+    fun all(type: GoalType? = null, active: Boolean? = null, range: Range<LocalDate>? = null, language: String? = null): LiveRealmResults<ActivityGoal> {
         val query = repo.realm!!.where<ActivityGoal>().apply {
-            equalTo("goalType", "longterm")
+            type?.let { equalTo("goalType", type.id) }
+            active?.let { equalTo("active", active) }
             language?.let { equalTo("language", language) }
-
-            val date = asDate(range.lower)
-            val endDate = asDate(range.upper)
-            beginGroup()
-            between("_date", date, endDate)
-            or()
-            between("_endDate",date, endDate)
-            endGroup()
+            range?.let {
+                val date = asDate(range.lower)
+                val endDate = asDate(range.upper)
+                beginGroup()
+                between("_date", date, endDate)
+                or()
+                between("_endDate",date, endDate)
+                endGroup()
+            }
         }
 
         return LiveRealmResults(query.findAll())
@@ -308,6 +302,7 @@ class Repository {
             if (version == 2L) {
                 schema.get("ActivityType")!!
                     .addField("unitEnum", String::class.java, FieldAttribute.REQUIRED)
+                    .addPrimaryKey("id")
                     .transform { obj: DynamicRealmObject ->
                         obj.setString("unitEnum", "time")
                     }
@@ -322,12 +317,14 @@ class Repository {
                     .removeField("_endDate")
 
                 schema.get("ActivityGoal")!!
-                    .addField("_endDate", String::class.java)
+                    .addField("_endDate", Date::class.java)
                     .addField("_effortUnit", String::class.java)
                     .addField("durationGoal", Int::class.java)
                     .addField("unitCountGoal", Float::class.java)
+                    .addField("lastActiveChange", Date::class.java)
                     .transform { obj: DynamicRealmObject ->
                         obj.setNull("_endDate")
+                        obj.setDate("lastActiveChange", asDate(LocalDate.now()))
                         obj.setString("_effortUnit", "time")
                         obj.setLong("durationGoal", 60)
                         obj.setFloat("unitCountGoal", 1f)

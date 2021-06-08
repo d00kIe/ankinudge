@@ -36,6 +36,7 @@ open class ActivityGoal() : RealmObject() {
     var lastChangeTs: Long = 0 // allows LiveData to update correctly if only "type" was changed, see LiveRealmObject::onActive
     var weekDays: RealmList<Int> = RealmList<Int>()
     var active: Boolean = true
+    var lastActiveChange: Date = asDate(LocalDate.now())
 
     // effort
     var durationGoal: Int? = 60 // new

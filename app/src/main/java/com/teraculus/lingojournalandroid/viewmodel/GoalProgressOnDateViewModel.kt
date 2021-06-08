@@ -147,13 +147,14 @@ class RangeGoalProgressViewModel(
     val repository: Repository = Repository.getRepository(),
 ) : ViewModel() {
     private val _goal = repository.goals.get(goalId)
+    private val _frozen = Transformations.map(_goal) { it?.freeze<ActivityGoal>() }
     private val yearMonthRange = Range.create(YearMonth.of(range.lower.year, range.lower.month), YearMonth.of(range.upper.year, range.upper.month))
-    private val activities = Transformations.switchMap(_goal) { g -> repository.activities.allLive(range.lower, range.upper, g?.language) }
+    private val activities = Transformations.switchMap(_frozen) { g -> repository.activities.allLive(range.lower, range.upper, g?.language) }
     private val frozenActivities = Transformations.map(activities) { (it as RealmResults<Activity>).freeze() }
-    private val perDayActivities = Transformations.map(frozenActivities) { it?.filter { a -> match(a, _goal.value) }.orEmpty().groupBy { a -> a.date } }
-    private val perMonthActivities = Transformations.map(frozenActivities) { it?.filter { a -> match(a, _goal.value) }.orEmpty().groupBy { a -> YearMonth.of(a.date.year, a.date.month) } }
-    val perDayGoals = Transformations.map(perDayActivities) { it.orEmpty().filterKeys { d -> range.contains(d) }.mapValues { entry -> getProgress(_goal.value, entry.value); }.toSortedMap() }
-    val perMonthGoals = Transformations.map(perMonthActivities) { it.orEmpty().filterKeys { m -> yearMonthRange.contains(m) }.mapValues { entry -> getProgress(_goal.value, entry.value); }.toSortedMap() }
+    private val perDayActivities = Transformations.map(frozenActivities) { it?.filter { a -> match(a, _frozen.value) }.orEmpty().groupBy { a -> a.date } }
+    private val perMonthActivities = Transformations.map(frozenActivities) { it?.filter { a -> match(a, _frozen.value) }.orEmpty().groupBy { a -> YearMonth.of(a.date.year, a.date.month) } }
+    val perDayGoals = Transformations.map(perDayActivities) { it.orEmpty().filterKeys { d -> range.contains(d) }.mapValues { entry -> getProgress(_frozen.value, entry.value); }.toSortedMap() }
+    val perMonthGoals = Transformations.map(perMonthActivities) { it.orEmpty().filterKeys { m -> yearMonthRange.contains(m) }.mapValues { entry -> getProgress(_frozen.value, entry.value); }.toSortedMap() }
 
     private fun getProgress(goal: ActivityGoal?, activities: List<Activity>) : Float {
         if (goal == null)
@@ -195,25 +196,26 @@ class AccumulatingRangeGoalProgressViewModel(
     val repository: Repository = Repository.getRepository(),
 ) : ViewModel() {
     private val _goal = repository.goals.get(goalId)
+    private val _frozen = Transformations.map(_goal) { it?.freeze<ActivityGoal>() }
     private val yearMonthRange = Range.create(YearMonth.of(range.lower.year, range.lower.month), YearMonth.of(range.upper.year, range.upper.month))
-    private val activities = Transformations.switchMap(_goal) {
+    private val activities = Transformations.switchMap(_frozen) {
             g -> range.intersect(g?.date, range.upper)?.let {
                 repository.activities.allLive(it.lower, it.upper, g?.language)
             }
     }
     private val frozenActivities = Transformations.map(activities) { (it as RealmResults<Activity>).freeze() }
-    private val perDayActivities = Transformations.map(frozenActivities) { it?.filter { a -> match(a, _goal.value) }.orEmpty().groupBy { a -> a.date } }
-    private val perMonthActivities = Transformations.map(frozenActivities) { it?.filter { a -> match(a, _goal.value) }.orEmpty().groupBy { a -> YearMonth.of(a.date.year, a.date.month) } }
+    private val perDayActivities = Transformations.map(frozenActivities) { it?.filter { a -> match(a, _frozen.value) }.orEmpty().groupBy { a -> a.date } }
+    private val perMonthActivities = Transformations.map(frozenActivities) { it?.filter { a -> match(a, _frozen.value) }.orEmpty().groupBy { a -> YearMonth.of(a.date.year, a.date.month) } }
     val perDayGoals: LiveData<Map<LocalDate, Float>> = Transformations.map(perDayActivities) { it ->
         var acc = 0f;
-        val realRange = range.intersect(_goal.value?.date, range.upper)
+        val realRange = range.intersect(_frozen.value?.date, range.upper)
         val res = it.orEmpty()
             .toSortedMap()
-            .mapValues { entry -> acc += getProgress(_goal.value, entry.value); acc }
+            .mapValues { entry -> acc += getProgress(_frozen.value, entry.value); acc }
             .filterKeys { d -> realRange?.contains(d) ?: false }
 
         // add
-        val dayBeforeStartOfGoal = _goal.value?.date?.minusDays(1)
+        val dayBeforeStartOfGoal = _frozen.value?.date?.minusDays(1)
         if(range.contains(dayBeforeStartOfGoal) && !res.containsKey(dayBeforeStartOfGoal)) {
             val newRes = res.toMutableMap()
             newRes[dayBeforeStartOfGoal] = 0f

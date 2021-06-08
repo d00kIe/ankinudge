@@ -2,6 +2,7 @@ package com.teraculus.lingojournalandroid.model
 
 import io.realm.Realm
 import io.realm.RealmObject
+import io.realm.annotations.PrimaryKey
 import io.realm.kotlin.where
 import org.bson.types.ObjectId
 import java.util.*
@@ -24,9 +25,10 @@ enum class MeasurementUnit(val id: String, val title: String, val unitSuffix: St
 }
 
 open class ActivityType() : RealmObject() {
+    @PrimaryKey
+    var id: ObjectId = ObjectId()
     private var categoryEnum: String = ""
     var name: String = ""
-    var id: ObjectId = ObjectId()
     var created: Date = Date()
     var lastUsed: Date? = null
     var unitEnum: String = "time"

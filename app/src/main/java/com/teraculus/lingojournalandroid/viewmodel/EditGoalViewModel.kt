@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import com.teraculus.lingojournalandroid.PickerProvider
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.*
+import com.teraculus.lingojournalandroid.utils.asDate
 import com.teraculus.lingojournalandroid.utils.mutation
 import kotlinx.coroutines.launch
 import org.bson.types.ObjectId
@@ -44,6 +45,7 @@ class EditGoalViewModel(
     val minutesGoal = Transformations.map(durationGoal) { it?.rem(60) }
     val unitCountGoal = Transformations.map(goal) { it.unitCountGoal }
     val weekDays = Transformations.map(goal) { it.weekDays.toIntArray() }
+    val active = Transformations.map(goal) { it.active }
 
     fun setLanguage(language: String) {
         goal.mutation {
@@ -140,6 +142,14 @@ class EditGoalViewModel(
 
     fun delete() {
         goalId?.let { repository.goals.remove(ObjectId(it)) }
+    }
+
+    fun archive() {
+        goal.mutation {
+            it.active = false
+            it.lastActiveChange = asDate(LocalDate.now())
+        }
+        save()
     }
 
 }

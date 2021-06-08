@@ -1,7 +1,10 @@
 package com.teraculus.lingojournalandroid.ui.goals
 
 import android.util.Range
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,13 +14,12 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.TaskAlt
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,44 +40,84 @@ import com.teraculus.lingojournalandroid.viewmodel.*
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun GoalsActivityContent(
     model: GoalsActivityViewModel = viewModel("goalsViewModel"),
     onDismiss: () -> Unit,
     onAddNewGoal: () -> Unit,
 ) {
-    val scrollState = rememberLazyListState()
-    val goals by model.frozen.observeAsState()
+    val activeScrollState = rememberLazyListState()
+    val inactiveScrollState = rememberLazyListState()
+    val activeGoals by model.activeGoals.observeAsState()
+    val inactiveGoals by model.inactiveGoals.observeAsState()
+    var tabIndex by remember { mutableStateOf(0) }
 
     Scaffold(
         topBar = {
+            val scrolled =
+                if(tabIndex == 0) (activeScrollState.firstVisibleItemScrollOffset > 0 || activeScrollState.firstVisibleItemIndex > 0)
+                else (inactiveScrollState.firstVisibleItemScrollOffset > 0 || inactiveScrollState.firstVisibleItemIndex > 0)
             val elevation =
-                if (MaterialTheme.colors.isLight && (scrollState.firstVisibleItemScrollOffset > 0 || scrollState.firstVisibleItemIndex > 0)) AppBarDefaults.TopAppBarElevation else 0.dp
+                if (MaterialTheme.colors.isLight && scrolled) AppBarDefaults.TopAppBarElevation else 0.dp
             TopAppBar(
-                title = { Text(text = "Goals") },
                 backgroundColor = MaterialTheme.colors.background,
-                elevation = elevation,
-                navigationIcon = {
-                    IconButton(onClick = onDismiss) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
-                    }
+                elevation = elevation) {
+                IconButton(onClick = onDismiss) {
+                    Icon(Icons.Filled.ArrowBack, contentDescription = null)
                 }
-            )
+                TabRow(
+                    selectedTabIndex = tabIndex,
+                    backgroundColor = Color.Transparent,
+                    divider = {},
+                    modifier = Modifier.padding(end = 48.dp)
+                ) {
+                    Tab(
+                        text = { Text("Goals") },
+                        selected = 0 == tabIndex,
+                        onClick = { tabIndex = 0 }
+                    )
+                    Tab(
+                        text = { Text("Archive") },
+                        selected = 1 == tabIndex,
+                        onClick = { tabIndex = 1 }
+                    )
+                }
+            }
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(text = { Text(text = "New Goal") },
-                onClick = { onAddNewGoal() },
-                icon = {
-                    Icon(Icons.Filled.Add, contentDescription = null)
-                })
+            AnimatedVisibility(tabIndex == 0, exit = fadeOut(), enter = fadeIn()) {
+                ExtendedFloatingActionButton(text = { Text(text = "New Goal") },
+                    onClick = { onAddNewGoal() },
+                    icon = {
+                        Icon(Icons.Filled.Add, contentDescription = null)
+                    })
+            }
         }
     )
     {
-        if (goals.isNullOrEmpty()) {
-            WelcomingScreen()
-        } else {
-            LazyColumn(state = scrollState) {
-                items(goals.orEmpty()) { goal ->
+        AnimatedVisibility(visible = tabIndex == 0, exit = fadeOut(), enter = fadeIn()) {
+            if(activeGoals.isNullOrEmpty()) {
+                WelcomingScreen()
+            }
+            LazyColumn(state = activeScrollState) {
+                items(activeGoals.orEmpty()) { goal ->
+                    key(goal.id) {
+                        GoalRow(goal)
+                    }
+                }
+            }
+        }
+
+        AnimatedVisibility(visible = tabIndex == 1, exit = fadeOut(), enter = fadeIn()) {
+            if(inactiveGoals.isNullOrEmpty()) {
+                Row(modifier = Modifier.padding(16.dp)) {
+                    Icon(Icons.Rounded.Info, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
+                    Text(text = "To archive a goal, open the goal for edit and choose 'Archive' from the menu in top right corner.")
+                }
+            }
+            LazyColumn(state = inactiveScrollState) {
+                items(inactiveGoals.orEmpty()) { goal ->
                     key(goal.id) {
                         GoalRow(goal)
                     }
@@ -107,7 +149,8 @@ fun GoalRow(
         {
             Column() {
                 ListItem(
-                    overlineText = { Text("${goal.type.title} goal")
+                    overlineText = {
+                        Text("${goal.type.title} goal")
                     },
                     text = {
                         Text(toActivityTypeTitle(goal.activityType),
@@ -117,9 +160,15 @@ fun GoalRow(
                     secondaryText = {
                         SecondaryText(goal, progress.value, progressPercent.value)
                     },
-                    trailing= {
-                        IconButton(onClick = { model.edit(context) }) {
-                            Icon(Icons.Rounded.Edit, contentDescription = null)
+                    trailing = {
+                        if(goal.active) {
+                            IconButton(onClick = { model.edit(context) }) {
+                                Icon(Icons.Rounded.Edit, contentDescription = null)
+                            }
+                        } else {
+                            IconButton({ model.delete() }) {
+                                Icon(Icons.Rounded.Delete, contentDescription = null, tint = MaterialTheme.colors.error)
+                            }
                         }
                     }
                 )
@@ -133,17 +182,18 @@ fun GoalRow(
 private fun SecondaryText(
     goal: ActivityGoal,
     progress: Float?,
-    progressPercent: Float?
+    progressPercent: Float?,
 ) {
     val type = remember(goal) { goal.activityType }
     val language = remember(goal) { goal.language }
 
-    val progressInt = (progress?:0f).toInt()
+    val progressInt = (progress ?: 0f).toInt()
     val durationGoal = goal.durationGoal ?: 0
     val unitCountGoal = (goal.unitCountGoal ?: 0f).toInt()
-    val progressString = if(goal.effortUnit == EffortUnit.Time) "${getDurationString( durationGoal - progressInt)} left" else "${progressInt}/${unitCountGoal} ${type?.unit?.unitSuffix}"
+    val progressString =
+        if (goal.effortUnit == EffortUnit.Time) "${getDurationString(durationGoal - progressInt)} left" else "${progressInt}/${unitCountGoal} ${type?.unit?.unitSuffix}"
     val values = listOf(
-        "${(progressPercent?:0f).toInt()}%",
+        "${(progressPercent ?: 0f).toInt()}%",
         progressString,
         getLanguageDisplayName(language))
 
@@ -157,19 +207,24 @@ private fun SecondaryText(
 
 @Composable
 private fun GoalChart(
-    goal: ActivityGoal
+    goal: ActivityGoal,
 ) {
     val goalType = remember(goal) { goal.type }
-    val cardColor = remember(goal) { goal.activityType?.category?.color?.let { it1 -> Color(it1) }  }
+    val cardColor = remember(goal) { goal.activityType?.category?.color?.let { it1 -> Color(it1) } }
 
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         when (goalType) {
             GoalType.Daily -> {
-                val model: RangeGoalProgressViewModel = viewModel("dailyViewModel${goal.id}", RangeGoalProgressViewModel.Factory(
-                    Range.create(LocalDate.now().minusDays(7), LocalDate.now()), goal.id.toString()))
+                val model: RangeGoalProgressViewModel =
+                    viewModel("dailyViewModel${goal.id}", RangeGoalProgressViewModel.Factory(
+                        Range.create(LocalDate.now().minusDays(7), LocalDate.now()),
+                        goal.id.toString()))
                 val perDayMap by model.perDayGoals.observeAsState()
                 val firstDate = remember { LocalDate.now().minusDays(6) }
-                val values = remember(perDayMap) { perDayMap.orEmpty().mapKeys { ChronoUnit.DAYS.between(firstDate, it.key).toInt() } }
+                val values = remember(perDayMap) {
+                    perDayMap.orEmpty()
+                        .mapKeys { ChronoUnit.DAYS.between(firstDate, it.key).toInt() }
+                }
                 Label(text = "Last 7 days", modifier = Modifier.padding(top = 8.dp))
                 ProgressBarChart(
                     color = cardColor ?: MaterialTheme.colors.primary,
@@ -181,10 +236,15 @@ private fun GoalChart(
                 val range = remember {
                     Range.create(firstDate, LocalDate.now())
                 }
-                val model: AccumulatingRangeGoalProgressViewModel = viewModel("accumulatingDailyViewModel${goal.id}", AccumulatingRangeGoalProgressViewModel.Factory(
-                    range, goal.id.toString()))
+                val model: AccumulatingRangeGoalProgressViewModel =
+                    viewModel("accumulatingDailyViewModel${goal.id}",
+                        AccumulatingRangeGoalProgressViewModel.Factory(
+                            range, goal.id.toString()))
                 val perDayMap by model.perDayGoals.observeAsState()
-                val values = remember(perDayMap) { perDayMap.orEmpty().mapKeys { ChronoUnit.DAYS.between(firstDate, it.key).toInt() } }
+                val values = remember(perDayMap) {
+                    perDayMap.orEmpty()
+                        .mapKeys { ChronoUnit.DAYS.between(firstDate, it.key).toInt() }
+                }
                 Label(text = "Last 30 days", modifier = Modifier.padding(top = 8.dp))
                 ProgressLineChart(
                     color = cardColor ?: MaterialTheme.colors.primary,
@@ -203,7 +263,8 @@ private fun WelcomingScreen() {
         .fillMaxSize()
         .padding(bottom = 128.dp),
         contentAlignment = Alignment.Center) {
-        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(Icons.Rounded.TaskAlt,
                 contentDescription = null,
                 tint = MaterialTheme.colors.secondary,

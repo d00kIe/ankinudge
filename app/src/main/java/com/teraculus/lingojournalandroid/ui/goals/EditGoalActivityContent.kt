@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.rounded.CalendarToday
 import androidx.compose.material.icons.rounded.EventAvailable
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -41,6 +42,7 @@ fun AddGoalActivityContent(
 ) {
     val scrollState = rememberScrollState()
     var expandedMenu by remember { mutableStateOf(false)}
+    val active by model.active.observeAsState()
 
     Scaffold(
         topBar = {
@@ -71,6 +73,11 @@ fun AddGoalActivityContent(
                         ) {
                             DropdownMenuItem(onClick = { model.delete(); onDismiss(); }) {
                                 Text("Delete")
+                            }
+                            if(active == true) {
+                                DropdownMenuItem(onClick = { model.archive(); onDismiss(); }) {
+                                    Text("Archive")
+                                }
                             }
                         }
                     }
@@ -164,6 +171,11 @@ fun AddGoalFields(model: EditGoalViewModel, scrollState: ScrollState) {
         Spacer(modifier = Modifier.size(8.dp))
         Divider()
         Spacer(modifier = Modifier.size(8.dp))
+        Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+            Icon(Icons.Rounded.Info, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
+            Text(text = "Long-term goals are useful when you need to track your progress over a long time. Like reading a book or a language course.", style = MaterialTheme.typography.caption)
+        }
+        Spacer(modifier = Modifier.size(8.dp))
         Row(modifier = Modifier.padding(horizontal = 8.dp)) {
             ToggleButton(onClick = { model.setGoalType(GoalType.Daily) },
                 selected = type == GoalType.Daily,
@@ -221,6 +233,11 @@ fun AddGoalFields(model: EditGoalViewModel, scrollState: ScrollState) {
         activityType?.unit?.let { unit ->
             AnimatedVisibility(visible = unit != MeasurementUnit.Time ) {
                 Column {
+                    Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        Icon(Icons.Rounded.Info, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
+                        Text(text = "You can track your progress either by the time you spend or using the specific activity unit. Like pages to read, or course sessions to take.", style = MaterialTheme.typography.caption)
+                    }
+                    Spacer(modifier = Modifier.size(8.dp))
                     Row(modifier = Modifier.padding(horizontal = 8.dp)) {
                         ToggleButton(onClick = { model.setEffortUnit(EffortUnit.Time) },
                             selected = effortUnit == EffortUnit.Time,

@@ -14,7 +14,8 @@
         android:theme="@style/Theme.LingoJournal">
         <activity
             android:name=".DetailsActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".EditorActivity"
             android:exported="true"
@@ -54,7 +55,8 @@
             android:exported="false" />
         <activity
             android:name=".EditGoalActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".StatsActivity"
             android:exported="true">

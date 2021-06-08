@@ -105,6 +105,10 @@ class GoalItemViewModel(
     fun edit(context: Context) {
         launchEditGoalActivity(context, frozenGoal.id.toString())
     }
+
+    fun delete() {
+        repository.goals.remove(frozenGoal.id)
+    }
 }
 
 class GoalItemViewModelFactory(
