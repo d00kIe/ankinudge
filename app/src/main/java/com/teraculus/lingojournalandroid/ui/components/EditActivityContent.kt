@@ -17,6 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.ActivityCategory
@@ -212,16 +213,19 @@ fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
 
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ActivityTypeIcon(category: ActivityCategory?) {
+fun ActivityTypeIcon(category: ActivityCategory?, size: Dp = 32.dp, onClick: () -> Unit = {}) {
     category?.let {
-        Surface(elevation = 0.dp,
-            modifier = Modifier.size(32.dp),
+        Surface(
+            onClick = onClick,
+            elevation = 0.dp,
+            modifier = Modifier.size(size),
             shape = CircleShape,
             color = Color(category.color)) {
             Icon(painter = painterResource(id = category.icon),
                 modifier = Modifier
-                    .size(16.dp)
+                    .size(size / 2 )
                     .padding(8.dp),
                 tint = MaterialTheme.colors.onPrimary,
                 contentDescription = null)
