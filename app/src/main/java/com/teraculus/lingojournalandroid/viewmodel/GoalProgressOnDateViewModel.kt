@@ -199,11 +199,12 @@ class AccumulatingRangeGoalProgressViewModel(
     private val _frozen = Transformations.map(_goal) { it?.freeze<ActivityGoal>() }
     private val yearMonthRange = Range.create(YearMonth.of(range.lower.year, range.lower.month), YearMonth.of(range.upper.year, range.upper.month))
     private val activities = Transformations.switchMap(_frozen) {
-            g -> range.intersect(g?.date, range.upper)?.let {
-                repository.activities.allLive(it.lower, it.upper, g?.language)
+            g -> g?.date?.let {
+                val intersection = range.intersect(it, range.upper)
+                repository.activities.allLive(intersection.lower, intersection.upper, g?.language)
             }
     }
-    private val frozenActivities = Transformations.map(activities) { (it as RealmResults<Activity>).freeze() }
+    private val frozenActivities = Transformations.map(activities) { (it as RealmResults<Activity>?)?.freeze() }
     private val perDayActivities = Transformations.map(frozenActivities) { it?.filter { a -> match(a, _frozen.value) }.orEmpty().groupBy { a -> a.date } }
     private val perMonthActivities = Transformations.map(frozenActivities) { it?.filter { a -> match(a, _frozen.value) }.orEmpty().groupBy { a -> YearMonth.of(a.date.year, a.date.month) } }
     val perDayGoals: LiveData<Map<LocalDate, Float>> = Transformations.map(perDayActivities) { it ->
