@@ -46,7 +46,8 @@ fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
     val confidence by model.confidence.observeAsState()
     val motivation by model.motivation.observeAsState()
     val preferences by model.preferences.observeAsState()
-    val typeGroups = model.groupedTypes.observeAsState()
+    val typeGroups by model.groupedTypes.observeAsState()
+    // val createNew by model.createNew.observeAsState()
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
     var showDurationPicker by rememberSaveable { mutableStateOf(false) }
     var showActivityTypeDialog by rememberSaveable { mutableStateOf(false) }

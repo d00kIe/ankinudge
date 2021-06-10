@@ -1,9 +1,6 @@
 package com.teraculus.lingojournalandroid.viewmodel
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import com.teraculus.lingojournalandroid.PickerProvider
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.Activity
@@ -18,7 +15,7 @@ class EditActivityViewModel(
     goalId: String?,
 ) : ViewModel() {
     val types = repository.types.all()
-    val groupedTypes = Transformations.map(types) { it.orEmpty().groupBy { it1 -> it1.category } }
+    val groupedTypes = Transformations.map(types) { it.orEmpty().sortedBy { it.category }.groupBy { it1 -> it1.category } }
     private var preparedId: String? = null
     val date = MutableLiveData(LocalDate.now())
     val startTime = MutableLiveData(LocalTime.now().minusHours(1))
@@ -33,6 +30,7 @@ class EditActivityViewModel(
     val confidence = MutableLiveData(75f)
     val motivation = MutableLiveData(75f)
     val preferences = repository.preferences.all()
+    val createNew: LiveData<Boolean> = MutableLiveData(id == null && goalId == null)
 
     init {
         prepareActivity(id, goalId)
@@ -58,7 +56,7 @@ class EditActivityViewModel(
                 title.value = ""
                 text.value = ""
                 language.value = preferences.value?.languages?.firstOrNull() ?: "en"
-                type.value = types.value!!.first()
+                type.value = types.value.orEmpty().sortedBy { it.category }.first()
                 confidence.value = 50f
                 motivation.value = 50f
                 date.value = LocalDate.now()

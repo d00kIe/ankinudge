@@ -19,7 +19,7 @@ class EditGoalViewModel(
     private val goal: MutableLiveData<ActivityGoal>
     val preferences = repository.preferences.all()
     val types = repository.types.all()
-    val groupedTypes = Transformations.map(types) { it.orEmpty().groupBy { it1 -> it1.category } }
+    val groupedTypes = Transformations.map(types) { it.orEmpty().sortedBy { it.category }.groupBy { it1 -> it1.category } }
 
     init {
         val found = if(goalId.isNullOrEmpty()) null else repository.goals.get(goalId.toString()).value
@@ -29,7 +29,7 @@ class EditGoalViewModel(
             MutableLiveData(ActivityGoal(
                 text = "",
                 language = preferences.value?.languages?.firstOrNull() ?: "en",
-                activityType = types.value!!.first(),
+                activityType = types.value.orEmpty().sortedBy { it.category }.first(),
                 weekDays = arrayOf(1, 2, 3, 4, 5, 6, 7)))
         }
     }

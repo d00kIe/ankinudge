@@ -94,7 +94,7 @@ fun AddGoalActivityContent(
 @Composable
 fun AddGoalFields(model: EditGoalViewModel, scrollState: ScrollState) {
 
-    val typeGroups = model.groupedTypes.observeAsState()
+    val typeGroups by model.groupedTypes.observeAsState()
     val preferences by model.preferences.observeAsState()
     val language by model.language.observeAsState()
     val activityType by model.activityType.observeAsState()

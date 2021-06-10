@@ -24,7 +24,7 @@ fun ActivityTypeSelectDialog(
     onItemClick: (item: ActivityType) -> Unit,
     onAddTypeClick: (item: ActivityType) -> Unit,
     onDismissRequest: () -> Unit,
-    groups: State<Map<ActivityCategory?, List<ActivityType>>?>,
+    groups: Map<ActivityCategory?, List<ActivityType>>?,
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
     var dialogCategory: ActivityCategory? by remember { mutableStateOf(null) }
@@ -42,7 +42,7 @@ fun ActivityTypeSelectDialog(
 
     var selectedCategory: ActivityCategory? by remember { mutableStateOf(null) }
     var title = remember(selectedCategory) { if(selectedCategory == null) "Choose category" else null }
-    val categories = remember(groups) { groups.value.orEmpty().keys.toList() }
+    val categories = remember(groups) { groups.orEmpty().keys.toList() }
     SelectDialog(
         onDismissRequest = onDismissRequest,
         title = title,
@@ -65,16 +65,16 @@ fun ActivityTypeSelectDialog(
 
 
         if(selectedCategory != null) {
-            LazyColumn(
+        LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                item {
+                stickyHeader {
                     ActivityTypeHeader(category = selectedCategory) {
                         dialogCategory = it
                         showAddDialog = true
                     }
                 }
-                items(groups.value.orEmpty()[selectedCategory].orEmpty()) { item ->
+                items(groups.orEmpty()[selectedCategory].orEmpty()) { item ->
                     ActivityTypeItem(item, onClick = onItemClick)
                 }
             }
