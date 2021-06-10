@@ -17,11 +17,11 @@ enum class MeasurementUnit(val id: String, val title: String, val unitSuffix: St
     Chapters("chapters", "Chapters", "chapters"),
     Pages("pages", "Pages", "pages"),
     Words("words", "Words", "words"),
-    Sessions("sessions", "Sessions", "session"),
+    Articles("articles", "Articles", "articles"),
+    Sessions("sessions", "Sessions", "sessions"),
     Classes("classes", "Classes", "classes"),
     Videos("videos", "Videos", "videos"),
     Items("items", "Items", "items")
-
 }
 
 open class ActivityType() : RealmObject() {

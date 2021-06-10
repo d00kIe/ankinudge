@@ -174,6 +174,10 @@ class EditActivityViewModel(
     fun addActivityType(it: ActivityType) {
         repository.types.add(it)
     }
+
+    fun removeActivityType(it: ActivityType) {
+        repository.types.remove(it)
+    }
 }
 
 class EditActivityViewModelFactory(val id: String?, val goalId: String?, private val pickerProvider: PickerProvider) :

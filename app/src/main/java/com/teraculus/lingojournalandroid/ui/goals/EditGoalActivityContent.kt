@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
+import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.model.EffortUnit
 import com.teraculus.lingojournalandroid.model.GoalType
 import com.teraculus.lingojournalandroid.model.MeasurementUnit
@@ -31,6 +32,7 @@ import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
 import com.teraculus.lingojournalandroid.utils.toDateString
 import com.teraculus.lingojournalandroid.viewmodel.EditGoalViewModel
 import com.teraculus.lingojournalandroid.viewmodel.EditGoalViewModelFactory
+import kotlinx.coroutines.CoroutineScope
 import java.time.DayOfWeek
 
 @Composable
@@ -43,6 +45,7 @@ fun AddGoalActivityContent(
     val scrollState = rememberScrollState()
     var expandedMenu by remember { mutableStateOf(false)}
     val active by model.active.observeAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -86,14 +89,17 @@ fun AddGoalActivityContent(
         }
     )
     {
-        AddGoalFields(model, scrollState)
+        AddGoalFields(model, scrollState, coroutineScope)
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun AddGoalFields(model: EditGoalViewModel, scrollState: ScrollState) {
-
+fun AddGoalFields(
+    model: EditGoalViewModel,
+    scrollState: ScrollState,
+    coroutineScope: CoroutineScope
+) {
     val typeGroups by model.groupedTypes.observeAsState()
     val preferences by model.preferences.observeAsState()
     val language by model.language.observeAsState()
@@ -110,7 +116,8 @@ fun AddGoalFields(model: EditGoalViewModel, scrollState: ScrollState) {
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
     var showDurationPicker by rememberSaveable { mutableStateOf(false) }
     var showActivityTypeDialog by rememberSaveable { mutableStateOf(false) }
-
+    var showDeleteActivityTypeAlert by remember { mutableStateOf(false) }
+    var activityTypeToDelete: ActivityType? by remember { mutableStateOf(null) }
 
     if (showLanguageDialog) {
         LanguageSelectDialog(
@@ -132,9 +139,45 @@ fun AddGoalFields(model: EditGoalViewModel, scrollState: ScrollState) {
             onAddTypeClick = {
                 model.addActivityType(it)
             },
+            onRemoveTypeClick = {
+                showActivityTypeDialog = false
+                activityTypeToDelete = it
+                showDeleteActivityTypeAlert = true
+            },
             onDismissRequest = { showActivityTypeDialog = false })
     }
 
+    if(showDeleteActivityTypeAlert) {
+        activityTypeToDelete?.let {
+            if(it == activityType) {
+                val text = "You can't delete this activity type, because it's currently selected."
+                AlertDialog(
+                    onDismissRequest = { showDeleteActivityTypeAlert = false },
+                    text = { Text(text) },
+                    confirmButton = { Button(onClick = { showDeleteActivityTypeAlert = false }) {
+                        Text("OK")
+                    }})
+            } else {
+                val text = "Delete ${it.name} activity type? All activities and goals of this type will also be deleted."
+                AlertDialog(
+                    onDismissRequest = { showDeleteActivityTypeAlert = false },
+                    text = { Text(text) },
+                    confirmButton = { Button(onClick = {
+                        showDeleteActivityTypeAlert = false
+                        model.removeActivityType(it)
+                        activityTypeToDelete = null
+                    }) {
+                        Text("Delete")
+                    }},
+                    dismissButton = { Button(onClick = {
+                        showDeleteActivityTypeAlert = false
+                        activityTypeToDelete = null
+                    }) {
+                        Text("Cancel")
+                    }})
+            }
+        }
+    }
 
     if(showDurationPicker) {
         DurationPicker(onDismissRequest = { showDurationPicker = false },

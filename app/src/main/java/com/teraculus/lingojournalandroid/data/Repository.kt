@@ -84,6 +84,14 @@ class ActivityTypeRepo(val repo: Repository) {
     fun all(): LiveData<List<ActivityType>?> {
         return types
     }
+
+    fun remove(it: ActivityType) {
+        repo.realm!!.executeTransaction {tr ->
+            tr.where<Activity>().equalTo("type.id", it.id).findAll().deleteAllFromRealm()
+            tr.where<ActivityGoal>().equalTo("activityType.id", it.id).findAll().deleteAllFromRealm()
+            it.deleteFromRealm()
+        }
+    }
 }
 
 class ActivityRepo(val repo: Repository) {

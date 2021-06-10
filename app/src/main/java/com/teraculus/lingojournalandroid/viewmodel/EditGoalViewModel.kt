@@ -152,6 +152,10 @@ class EditGoalViewModel(
         save()
     }
 
+    fun removeActivityType(it: ActivityType) {
+        repository.types.remove(it)
+    }
+
 }
 
 class EditGoalViewModelFactory(val goalId: String?) : ViewModelProvider.Factory {

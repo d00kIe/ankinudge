@@ -19,8 +19,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.ActivityCategory
+import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.model.UnitSelector
 import com.teraculus.lingojournalandroid.utils.getDurationString
 import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
@@ -51,6 +53,8 @@ fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
     var showDurationPicker by rememberSaveable { mutableStateOf(false) }
     var showActivityTypeDialog by rememberSaveable { mutableStateOf(false) }
+    var showDeleteActivityTypeAlert by remember { mutableStateOf(false) }
+    var activityTypeToDelete: ActivityType? by remember { mutableStateOf(null) }
 
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
@@ -86,9 +90,54 @@ fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
             onAddTypeClick = {
                 model.addActivityType(it)
             },
+            onRemoveTypeClick = {
+                showActivityTypeDialog = false
+                activityTypeToDelete = it
+                showDeleteActivityTypeAlert = true
+            },
             onDismissRequest = { showActivityTypeDialog = false })
     }
+
+    if(showDeleteActivityTypeAlert) {
+        activityTypeToDelete?.let {
+            if(it == type) {
+                val text = "You can't delete this activity type, because it's currently selected."
+                AlertDialog(
+                    onDismissRequest = { showDeleteActivityTypeAlert = false },
+                    text = { Text(text) },
+                    confirmButton = { Button(onClick = { showDeleteActivityTypeAlert = false }) {
+                        Text("OK")
+                    }})
+            } else {
+                val text = "Delete ${it.name} activity type? All activities and goals of this type will also be deleted."
+                AlertDialog(
+                    onDismissRequest = { showDeleteActivityTypeAlert = false },
+                    text = { Text(text) },
+                    confirmButton = { Button(onClick = {
+                        showDeleteActivityTypeAlert = false
+                        model.removeActivityType(it)
+                        activityTypeToDelete = null
+                    }) {
+                        Text("Delete")
+                    }},
+                    dismissButton = { Button(onClick = {
+                        showDeleteActivityTypeAlert = false
+                        activityTypeToDelete = null
+                    }) {
+                        Text("Cancel")
+                    }})
+            }
+        }
+    }
+
     Scaffold(
+        snackbarHost = {
+            // reuse default SnackbarHost to have default animation and timing handling
+            SnackbarHost(it) { data ->
+                // custom snackbar with the custom border
+                Snackbar(snackbarData = data, Modifier.zIndex(Float.MAX_VALUE))
+            }
+        },
         topBar = {
             val elevation =
                 if (MaterialTheme.colors.isLight && (scrollState.value > 0)) AppBarDefaults.TopAppBarElevation else 0.dp
@@ -226,7 +275,7 @@ fun ActivityTypeIcon(category: ActivityCategory?, size: Dp = 32.dp, onClick: () 
             color = Color(category.color)) {
             Icon(painter = painterResource(id = category.icon),
                 modifier = Modifier
-                    .size(size / 2 )
+                    .size(size / 2)
                     .padding(8.dp),
                 tint = MaterialTheme.colors.onPrimary,
                 contentDescription = null)

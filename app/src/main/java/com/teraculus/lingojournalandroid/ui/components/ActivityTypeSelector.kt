@@ -2,7 +2,7 @@ package com.teraculus.lingojournalandroid.ui.components
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +23,7 @@ import java.util.*
 fun ActivityTypeSelectDialog(
     onItemClick: (item: ActivityType) -> Unit,
     onAddTypeClick: (item: ActivityType) -> Unit,
+    onRemoveTypeClick: (item: ActivityType) -> Unit,
     onDismissRequest: () -> Unit,
     groups: Map<ActivityCategory?, List<ActivityType>>?,
 ) {
@@ -74,8 +75,8 @@ fun ActivityTypeSelectDialog(
                         showAddDialog = true
                     }
                 }
-                items(groups.orEmpty()[selectedCategory].orEmpty()) { item ->
-                    ActivityTypeItem(item, onClick = onItemClick)
+                items(groups.orEmpty()[selectedCategory].orEmpty().sortedBy { it.name }) { item ->
+                    ActivityTypeItem(item, onClick = onItemClick, onLongClick = { /* TODO: onRemoveTypeClick crashes the app, because of realm object being deleted. Investigate! */})
                 }
             }
         }
@@ -115,11 +116,11 @@ fun ActivityTypeHeader(
         }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun ActivityTypeItem(type: ActivityType, onClick: (item: ActivityType) -> Unit) {
+fun ActivityTypeItem(type: ActivityType, onClick: (item: ActivityType) -> Unit, onLongClick: (item: ActivityType) -> Unit) {
     ListItem(
         text = { Text(type.name) },
         secondaryText = { Text("Unit: ${type.unit!!.title}") },
-        modifier = Modifier.clickable { onClick(type) })
+        modifier = Modifier.combinedClickable(onClick = { onClick(type) }, onLongClick = { onLongClick(type) }))
 }

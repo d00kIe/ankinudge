@@ -34,8 +34,10 @@ import com.teraculus.lingojournalandroid.model.ActivityGoal
 import com.teraculus.lingojournalandroid.model.EffortUnit
 import com.teraculus.lingojournalandroid.model.GoalType
 import com.teraculus.lingojournalandroid.ui.components.Label
+import com.teraculus.lingojournalandroid.utils.asLocalDate
 import com.teraculus.lingojournalandroid.utils.getDurationString
 import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
+import com.teraculus.lingojournalandroid.utils.toDayStringOrToday
 import com.teraculus.lingojournalandroid.viewmodel.*
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -56,7 +58,7 @@ fun GoalsActivityContent(
     Scaffold(
         topBar = {
             val scrolled =
-                if(tabIndex == 0) (activeScrollState.firstVisibleItemScrollOffset > 0 || activeScrollState.firstVisibleItemIndex > 0)
+                if (tabIndex == 0) (activeScrollState.firstVisibleItemScrollOffset > 0 || activeScrollState.firstVisibleItemIndex > 0)
                 else (inactiveScrollState.firstVisibleItemScrollOffset > 0 || inactiveScrollState.firstVisibleItemIndex > 0)
             val elevation =
                 if (MaterialTheme.colors.isLight && scrolled) AppBarDefaults.TopAppBarElevation else 0.dp
@@ -97,7 +99,7 @@ fun GoalsActivityContent(
     )
     {
         AnimatedVisibility(visible = tabIndex == 0, exit = fadeOut(), enter = fadeIn()) {
-            if(activeGoals.isNullOrEmpty()) {
+            if (activeGoals.isNullOrEmpty()) {
                 WelcomingScreen()
             }
             LazyColumn(state = activeScrollState) {
@@ -110,9 +112,11 @@ fun GoalsActivityContent(
         }
 
         AnimatedVisibility(visible = tabIndex == 1, exit = fadeOut(), enter = fadeIn()) {
-            if(inactiveGoals.isNullOrEmpty()) {
+            if (inactiveGoals.isNullOrEmpty()) {
                 Row(modifier = Modifier.padding(16.dp)) {
-                    Icon(Icons.Rounded.Info, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
+                    Icon(Icons.Rounded.Info,
+                        contentDescription = null,
+                        modifier = Modifier.padding(end = 8.dp))
                     Text(text = "To archive a goal, open the goal for edit and choose 'Archive' from the menu in top right corner.")
                 }
             }
@@ -136,8 +140,8 @@ fun GoalRow(
 ) {
     val snapshot by model.snapshot.observeAsState()
     snapshot?.let { goal ->
-        val progress = model.progress.observeAsState()
-        val progressPercent = model.progressPercent.observeAsState()
+        val progress by model.progress.observeAsState()
+        val progressPercent by model.progressPercent.observeAsState()
         val context = LocalContext.current
 
         Card(modifier = Modifier
@@ -158,21 +162,23 @@ fun GoalRow(
                             overflow = TextOverflow.Ellipsis)
                     },
                     secondaryText = {
-                        SecondaryText(goal, progress.value, progressPercent.value)
+                        SecondaryText(goal)
                     },
                     trailing = {
-                        if(goal.active) {
+                        if (goal.active) {
                             IconButton(onClick = { model.edit(context) }) {
                                 Icon(Icons.Rounded.Edit, contentDescription = null)
                             }
                         } else {
                             IconButton({ model.delete() }) {
-                                Icon(Icons.Rounded.Delete, contentDescription = null, tint = MaterialTheme.colors.error)
+                                Icon(Icons.Rounded.Delete,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colors.error)
                             }
                         }
                     }
                 )
-                GoalChart(goal)
+                GoalChart(goal, progress, progressPercent)
             }
         }
     }
@@ -180,34 +186,41 @@ fun GoalRow(
 
 @Composable
 private fun SecondaryText(
+    goal: ActivityGoal
+) {
+    val type = remember(goal) { goal.activityType }
+    val durationGoal = goal.durationGoal ?: 0
+    val unitCountGoal = (goal.unitCountGoal ?: 0f).toInt()
+    val goalString =
+        if (goal.effortUnit == EffortUnit.Time) "Goal: ${getDurationString(durationGoal)}" else "Goal: $unitCountGoal ${type?.unit?.unitSuffix}"
+
+    val language = remember(goal) { goal.language }
+    val values = listOf(
+        goalString,
+        getLanguageDisplayName(language))
+    Text(text = values.joinToString(separator = " · "))
+}
+
+@Composable
+private fun ProgressLabel(
     goal: ActivityGoal,
     progress: Float?,
     progressPercent: Float?,
 ) {
-    val type = remember(goal) { goal.activityType }
-    val language = remember(goal) { goal.language }
-
-    val progressInt = (progress ?: 0f).toInt()
-    val durationGoal = goal.durationGoal ?: 0
-    val unitCountGoal = (goal.unitCountGoal ?: 0f).toInt()
-    val progressString =
-        if (goal.effortUnit == EffortUnit.Time) "${getDurationString(durationGoal - progressInt)} left" else "${progressInt}/${unitCountGoal} ${type?.unit?.unitSuffix}"
+    val date = if(goal.active) LocalDate.now() else asLocalDate(goal.lastActiveChange)
     val values = listOf(
-        "${(progressPercent ?: 0f).toInt()}%",
-        progressString,
-        getLanguageDisplayName(language))
+        toDayStringOrToday(date),
+        "${(progressPercent ?: 0f).toInt()}%",)
 
-    Column {
-        Text(modifier = Modifier.padding(bottom = 8.dp),
-            text = values.filterNotNull().joinToString(separator = " · "),
-            style = MaterialTheme.typography.body2)
-    }
+    Label(text = values.joinToString(separator = ": "), modifier = Modifier.padding(0.dp))
 }
 
 
 @Composable
 private fun GoalChart(
     goal: ActivityGoal,
+    progress: Float?,
+    progressPercent: Float?,
 ) {
     val goalType = remember(goal) { goal.type }
     val cardColor = remember(goal) { goal.activityType?.category?.color?.let { it1 -> Color(it1) } }
@@ -225,7 +238,13 @@ private fun GoalChart(
                     perDayMap.orEmpty()
                         .mapKeys { ChronoUnit.DAYS.between(firstDate, it.key).toInt() }
                 }
-                Label(text = "Last 7 days", modifier = Modifier.padding(top = 8.dp))
+                Row(horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                    Label(text = "Last 7 days", modifier = Modifier.padding(0.dp))
+                    ProgressLabel(goal = goal,
+                        progress = progress,
+                        progressPercent = progressPercent)
+                }
                 ProgressBarChart(
                     color = cardColor ?: MaterialTheme.colors.primary,
                     firstDate = firstDate,
@@ -245,7 +264,14 @@ private fun GoalChart(
                     perDayMap.orEmpty()
                         .mapKeys { ChronoUnit.DAYS.between(firstDate, it.key).toInt() }
                 }
-                Label(text = "Last 30 days", modifier = Modifier.padding(top = 8.dp))
+
+                Row(horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                    Label(text = "Last 30 days", modifier = Modifier.padding(0.dp))
+                    ProgressLabel(goal = goal,
+                        progress = progress,
+                        progressPercent = progressPercent)
+                }
                 ProgressLineChart(
                     color = cardColor ?: MaterialTheme.colors.primary,
                     firstDate = firstDate,

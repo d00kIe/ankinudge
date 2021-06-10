@@ -4,6 +4,7 @@ import android.util.Range
 import androidx.lifecycle.*
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.*
+import com.teraculus.lingojournalandroid.utils.asLocalDate
 import io.realm.RealmResults
 import java.time.LocalDate
 import java.util.*
@@ -17,8 +18,9 @@ class RangeGoalProgressViewModel(
     private val _goal = repository.goals.get(goalId)
     private val _frozen = Transformations.map(_goal) { it?.freeze<ActivityGoal>() }
     private val activities = Transformations.switchMap(_frozen) { g ->
-        g?.date?.let {
-            val intersection = range.intersect(it, range.upper)
+        g?.date?.let { startDate ->
+            val endDate = if(!g.active) asLocalDate(g.lastActiveChange) else range.upper
+            val intersection = range.intersect(startDate, endDate)
             repository.activities.allLive(intersection.lower, intersection.upper, g.language)
         }
     }
@@ -74,8 +76,9 @@ class AccumulatingRangeGoalProgressViewModel(
     private val _goal = repository.goals.get(goalId)
     private val _frozen = Transformations.map(_goal) { it?.freeze<ActivityGoal>() }
     private val activities = Transformations.switchMap(_frozen) { g ->
-        g?.date?.let {
-            val intersection = range.intersect(it, range.upper)
+        g?.date?.let {startDate ->
+            val endDate = if(!g.active) asLocalDate(g.lastActiveChange) else range.upper
+            val intersection = range.intersect(startDate, endDate)
             repository.activities.allLive(intersection.lower, intersection.upper, g.language)
         }
     }
