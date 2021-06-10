@@ -27,7 +27,7 @@ class GoalItemViewModel(
                 val today = LocalDate.now();
                 return@switchMap LiveRealmResults(repository.activities.all(today))
             } else {
-                return@switchMap LiveRealmResults(repository.activities.all(g.date, g.endDate ?: LocalDate.MAX))
+                return@switchMap LiveRealmResults(repository.activities.all(g.date, g.endDate ?: LocalDate.now().plusYears(25))) // TODO: LocalDate.MAX crashes asDate
             }
         }
     }

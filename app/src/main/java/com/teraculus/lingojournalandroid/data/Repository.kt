@@ -3,10 +3,7 @@ package com.teraculus.lingojournalandroid.data
 import android.util.Range
 import androidx.lifecycle.LiveData
 import com.teraculus.lingojournalandroid.model.*
-import com.teraculus.lingojournalandroid.utils.asDate
-import com.teraculus.lingojournalandroid.utils.getMinutes
-import com.teraculus.lingojournalandroid.utils.parseRealmTimeString
-import com.teraculus.lingojournalandroid.utils.toRealmTimeString
+import com.teraculus.lingojournalandroid.utils.*
 import io.realm.*
 import io.realm.kotlin.where
 import org.bson.types.ObjectId
@@ -322,20 +319,24 @@ class Repository {
                         obj.setFloat("unitCount", 1f)
                         obj.setInt("duration", getMinutesFromDynamicRealmObject(obj).toInt())
                     }
-                    .removeField("_endDate")
+                    .removeField("_endTime")
 
                 schema.get("ActivityGoal")!!
                     .addField("_endDate", Date::class.java)
                     .addField("_effortUnit", String::class.java)
                     .addField("durationGoal", Int::class.java)
+                    .setNullable("durationGoal", true)
                     .addField("unitCountGoal", Float::class.java)
-                    .addField("lastActiveChange", Date::class.java)
+                    .setNullable("unitCountGoal", true)
+                    .addField("lastActiveChange", Date::class.java, FieldAttribute.REQUIRED)
                     .transform { obj: DynamicRealmObject ->
-                        obj.setNull("_endDate")
                         obj.setDate("lastActiveChange", asDate(LocalDate.now()))
                         obj.setString("_effortUnit", "time")
                         obj.setLong("durationGoal", 60)
                         obj.setFloat("unitCountGoal", 1f)
+                        // set _endDate to something meaningful, null will crash the app when converting old daily goal to long-term
+                        val date = asLocalDate(obj.getDate("_date"))
+                        obj.setDate("_endDate", asDate(date.plusMonths(1)))
                     }
                 //version++
             }
