@@ -52,11 +52,11 @@ fun ActivityList(
     val groups by model.grouped.observeAsState()
 
     LazyColumn(state = scrollState) {
-        item {
+        item(key = "homeStatsCard") {
             HomeStatsCard(onOpenStats, model = model)
         }
 
-        item {
+        item(key = "homeGoalsCard") {
             HomeGoalsCard(onOpenGoals, onGoalClick)
         }
 

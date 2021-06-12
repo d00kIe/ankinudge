@@ -19,7 +19,7 @@ private fun getMinutesFromDynamicRealmObject(obj: DynamicRealmObject): Long {
 }
 
 class PreferencesRepo(val repo: Repository) {
-    private val maxRecentLangSize = 3
+    private val maxRecentLangSize = 4
     private val userPreferences: LiveData<UserPreferences>
 
     init {
@@ -202,8 +202,12 @@ class ActivityGoalRepo(val repo: Repository) {
         return goals
     }
 
-    fun all(type: GoalType? = null, active: Boolean? = null, range: Range<LocalDate>? = null, language: String? = null): LiveRealmResults<ActivityGoal> {
-        val query = repo.realm!!.where<ActivityGoal>().apply {
+    fun allAsync(): LiveRealmResults<ActivityGoal> {
+        return LiveRealmResults(repo.realm!!.where<ActivityGoal>().findAllAsync())
+    }
+
+    private fun allQuery(type: GoalType? = null, active: Boolean? = null, range: Range<LocalDate>? = null, language: String? = null): RealmQuery<ActivityGoal> {
+        return repo.realm!!.where<ActivityGoal>().apply {
             type?.let { equalTo("goalType", type.id) }
             active?.let { equalTo("active", active) }
             language?.let { equalTo("language", language) }
@@ -217,8 +221,15 @@ class ActivityGoalRepo(val repo: Repository) {
                 endGroup()
             }
         }
+    }
 
-        return LiveRealmResults(query.findAll())
+    fun all(type: GoalType? = null, active: Boolean? = null, range: Range<LocalDate>? = null, language: String? = null): LiveRealmResults<ActivityGoal> {
+
+        return LiveRealmResults(allQuery(type, active,range, language).findAll())
+    }
+
+    fun allAsync(type: GoalType? = null, active: Boolean? = null, range: Range<LocalDate>? = null, language: String? = null): LiveRealmResults<ActivityGoal> {
+        return LiveRealmResults(allQuery(type, active,range, language).findAllAsync())
     }
 
     fun get(id: String): LiveRealmObject<ActivityGoal?> {
@@ -229,6 +240,7 @@ class ActivityGoalRepo(val repo: Repository) {
     fun insertOrUpdate(goal: ActivityGoal) {
         goal.lastChangeTs = Instant.now().toEpochMilli()
         repo.realm!!.executeTransaction { tr -> tr.insertOrUpdate(goal) }
+        repo.preferences.updateLastLanguage(goal.language)
     }
 
     fun remove(goalId: ObjectId) {

@@ -28,8 +28,8 @@ import com.teraculus.lingojournalandroid.model.GoalType
 import com.teraculus.lingojournalandroid.model.MeasurementUnit
 import com.teraculus.lingojournalandroid.ui.components.*
 import com.teraculus.lingojournalandroid.utils.getDurationString
-import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
 import com.teraculus.lingojournalandroid.utils.toDateString
+import com.teraculus.lingojournalandroid.utils.toShortActivityTypeTitle
 import com.teraculus.lingojournalandroid.viewmodel.EditGoalViewModel
 import com.teraculus.lingojournalandroid.viewmodel.EditGoalViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -206,7 +206,7 @@ fun AddGoalFields(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
             leadingIcon = { ActivityTypeIcon(activityType?.category) },
-            value = toActivityTypeTitle(activityType),
+            value = toShortActivityTypeTitle(activityType),
             onClick = { showActivityTypeDialog = true })
 
         Spacer(modifier = Modifier.size(24.dp))

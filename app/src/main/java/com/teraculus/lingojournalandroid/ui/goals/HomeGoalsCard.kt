@@ -23,7 +23,8 @@ import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.ActivityGoal
 import com.teraculus.lingojournalandroid.model.EffortUnit
 import com.teraculus.lingojournalandroid.utils.getDurationString
-import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
+import com.teraculus.lingojournalandroid.utils.toActivityTypeCategoryName
+import com.teraculus.lingojournalandroid.utils.toShortActivityTypeTitle
 import com.teraculus.lingojournalandroid.viewmodel.GoalItemViewModel
 import com.teraculus.lingojournalandroid.viewmodel.GoalItemViewModelFactory
 import com.teraculus.lingojournalandroid.viewmodel.GoalsListViewModel
@@ -142,10 +143,10 @@ fun FeedGoalRow(
                 modifier = Modifier
                     .height(IntrinsicSize.Min)
                     .clickable { onClick(goal.id.toString()) },
-                overlineText = { Text("${goal.type.title} goal")
+                overlineText = { Text("${goal.type.title} goal · ${toActivityTypeCategoryName(goal.activityType)}")
                 },
                 text = {
-                    Text(toActivityTypeTitle(goal.activityType),
+                    Text(toShortActivityTypeTitle(goal.activityType),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis)
                 },

@@ -21,7 +21,7 @@ import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.utils.getDurationString
 import com.teraculus.lingojournalandroid.utils.getMeasurementUnitValueString
-import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
+import com.teraculus.lingojournalandroid.utils.toShortActivityTypeTitle
 import com.teraculus.lingojournalandroid.viewmodel.ActivityItemViewModel
 import com.teraculus.lingojournalandroid.viewmodel.ActivityItemViewModelFactory
 
@@ -37,7 +37,7 @@ fun ActivityRow(
     val snapshot by model.snapshot.observeAsState()
     snapshot?.let { activity ->
         val title =
-            if (activity.title.isEmpty()) toActivityTypeTitle(activity.type) else activity.title
+            if (activity.title.isEmpty()) toShortActivityTypeTitle(activity.type) else activity.title
         Card(
             onClick = { onClick(activity.id.toString()) },
             shape = RoundedCornerShape(16.dp),

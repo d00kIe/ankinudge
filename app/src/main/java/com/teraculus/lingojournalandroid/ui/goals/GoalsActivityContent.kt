@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,8 +16,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.TaskAlt
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -33,11 +34,7 @@ import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.ActivityGoal
 import com.teraculus.lingojournalandroid.model.EffortUnit
 import com.teraculus.lingojournalandroid.model.GoalType
-import com.teraculus.lingojournalandroid.ui.components.Label
-import com.teraculus.lingojournalandroid.utils.asLocalDate
-import com.teraculus.lingojournalandroid.utils.getDurationString
-import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
-import com.teraculus.lingojournalandroid.utils.toDayStringOrToday
+import com.teraculus.lingojournalandroid.utils.*
 import com.teraculus.lingojournalandroid.viewmodel.*
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -152,12 +149,14 @@ fun GoalRow(
         )
         {
             Column() {
+                val modifier = if(goal.active) Modifier.clickable { model.edit(context) } else Modifier
                 ListItem(
+                    modifier = modifier,
                     overlineText = {
-                        Text("${goal.type.title} goal")
+                        Text("${goal.type.title} goal · ${toActivityTypeCategoryName(goal.activityType)}")
                     },
                     text = {
-                        Text(toActivityTypeTitle(goal.activityType),
+                        Text(toShortActivityTypeTitle(goal.activityType),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis)
                     },
@@ -167,7 +166,7 @@ fun GoalRow(
                     trailing = {
                         if (goal.active) {
                             IconButton(onClick = { model.edit(context) }) {
-                                Icon(Icons.Rounded.Edit, contentDescription = null)
+                                Icon(Icons.Rounded.KeyboardArrowRight, contentDescription = null)
                             }
                         } else {
                             IconButton({ model.delete() }) {
@@ -202,6 +201,11 @@ private fun SecondaryText(
 }
 
 @Composable
+private fun ChartLabel(text: String, modifier: Modifier = Modifier) {
+    Text(text = text, modifier = modifier, style = MaterialTheme.typography.body2, color = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium))
+}
+
+@Composable
 private fun ProgressLabel(
     goal: ActivityGoal,
     progress: Float?,
@@ -212,7 +216,7 @@ private fun ProgressLabel(
         toDayStringOrToday(date),
         "${(progressPercent ?: 0f).toInt()}%",)
 
-    Label(text = values.joinToString(separator = ": "), modifier = Modifier.padding(0.dp))
+    ChartLabel(text = values.joinToString(separator = ": "))
 }
 
 
@@ -242,7 +246,7 @@ private fun GoalChart(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)) {
-                    Label(text = "Last 7 days", modifier = Modifier.padding(0.dp))
+                    ChartLabel(text = "Last 7 days")
                     ProgressLabel(goal = goal,
                         progress = progress,
                         progressPercent = progressPercent)
@@ -265,7 +269,7 @@ private fun GoalChart(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp)) {
-                        Label(text = "Last $days days", modifier = Modifier.padding(0.dp))
+                        ChartLabel(text = "Last $days days")
                         ProgressLabel(goal = goal,
                             progress = progress,
                             progressPercent = progressPercent)

@@ -142,7 +142,7 @@ fun ProgressBarChart(
 @Composable
 fun ProgressLineChart(
     color: Color = MaterialTheme.colors.secondary,
-    height: Dp = 90.dp,
+    height: Dp = 100.dp,
     xRange: Range<Float> = Range(1f, 100f),
     yRange: Range<Float> = Range(0f, 100f),
     xValueFormatter: ValueFormatter = DefaultAxisValueFormatter(0),
@@ -151,7 +151,7 @@ fun ProgressLineChart(
     fillWithLastValue: Boolean = true
 ) {
     val alpha = ContentAlpha.medium
-    val textColor = MaterialTheme.colors.onSurface
+    val textColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
     val gridColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled)
 
     val entries: MutableList<Entry> = ArrayList()
@@ -224,7 +224,7 @@ fun ProgressLineChart(
 @Composable
 fun ProgressBarChart(
     color: Color = MaterialTheme.colors.secondary,
-    height: Dp = 90.dp,
+    height: Dp = 100.dp,
     xRange: Range<Float> = Range(1f, 100f),
     yRange: Range<Float> = Range(0f, 100f),
     xValueFormatter: ValueFormatter = DefaultAxisValueFormatter(0),
@@ -232,7 +232,7 @@ fun ProgressBarChart(
     values: Map<Float, Float>,
 ) {
     val alpha = ContentAlpha.medium
-    val textColor = MaterialTheme.colors.onSurface
+    val textColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
     val gridColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled)
 
     val entries: MutableList<BarEntry> = ArrayList()

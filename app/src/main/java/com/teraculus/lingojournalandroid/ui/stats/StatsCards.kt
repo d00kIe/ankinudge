@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.teraculus.lingojournalandroid.ui.components.SentimentIcon
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.getDurationString
+import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
 import com.teraculus.lingojournalandroid.viewmodel.DayLanguageStreakData
 import com.teraculus.lingojournalandroid.viewmodel.LanguageStatData
 
@@ -278,7 +279,7 @@ fun TopActivityTypes(stats: LanguageStatData) {
                     it.first?.let { at ->
                         Row(modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween) {
-                            StatsHeader(text = "${at.category?.title}: ${at.name}",
+                            StatsHeader(text = toActivityTypeTitle(at),
                                 modifier = Modifier.padding(bottom = 8.dp))
                             StatsHeader(text = getDurationString(it.second),
                                 modifier = Modifier.padding(bottom = 8.dp))

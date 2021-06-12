@@ -12,7 +12,7 @@ import java.time.LocalDate
 class LanguageDayData(val language: String, val data: List<DayData>)
 
 class GoalsListViewModel(repository: Repository, day: LocalDate) : ViewModel() {
-    private val goals = repository.goals.all()
+    private val goals = repository.goals.allAsync()
     private val frozenGoals = Transformations.map(goals) { (it as RealmResults<ActivityGoal>).freeze().sortedByDescending { g -> g.id.timestamp } }
     val todayGoals = Transformations.map(frozenGoals) { it.filter { g -> goalFilter(g, day) } }
     val hasGoals = Transformations.map(frozenGoals) { it.any { g -> g.active } }

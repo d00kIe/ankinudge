@@ -175,7 +175,15 @@ fun getMinutes(start: LocalTime?, end: LocalTime?): Long {
 }
 
 fun toActivityTypeTitle(type: ActivityType?): String {
-    return type?.let { "${type.category?.title}: ${type.name}" } ?: ""
+    return type?.let { "${type.name} (${type.category?.title})" } ?: ""
+}
+
+fun toShortActivityTypeTitle(type: ActivityType?): String {
+    return type?.let { "${type.name}" } ?: ""
+}
+
+fun toActivityTypeCategoryName(type: ActivityType?): String {
+    return type?.let { "${type.category?.title}" } ?: ""
 }
 
 @Composable

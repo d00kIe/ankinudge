@@ -25,8 +25,8 @@ import com.teraculus.lingojournalandroid.model.ActivityCategory
 import com.teraculus.lingojournalandroid.model.ActivityType
 import com.teraculus.lingojournalandroid.model.UnitSelector
 import com.teraculus.lingojournalandroid.utils.getDurationString
-import com.teraculus.lingojournalandroid.utils.toActivityTypeTitle
 import com.teraculus.lingojournalandroid.utils.toDateString
+import com.teraculus.lingojournalandroid.utils.toShortActivityTypeTitle
 import com.teraculus.lingojournalandroid.utils.toTimeString
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
 import kotlinx.coroutines.launch
@@ -207,7 +207,7 @@ fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 leadingIcon = { ActivityTypeIcon(type?.category) },
-                value = toActivityTypeTitle(type),
+                value = toShortActivityTypeTitle(type),
                 onClick = { showActivityTypeDialog = true })
             Spacer(modifier = Modifier.size(16.dp))
             Divider()
