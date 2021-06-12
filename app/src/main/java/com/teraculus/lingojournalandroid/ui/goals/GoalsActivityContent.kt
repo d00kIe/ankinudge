@@ -239,7 +239,9 @@ private fun GoalChart(
                         .mapKeys { ChronoUnit.DAYS.between(firstDate, it.key).toInt() }
                 }
                 Row(horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)) {
                     Label(text = "Last 7 days", modifier = Modifier.padding(0.dp))
                     ProgressLabel(goal = goal,
                         progress = progress,
@@ -251,33 +253,30 @@ private fun GoalChart(
                     values = values)
             }
             GoalType.LongTerm -> {
-                val firstDate = remember { LocalDate.now().minusDays(29) }
-                val range = remember {
-                    Range.create(firstDate, LocalDate.now())
-                }
                 val model: AccumulatingRangeGoalProgressViewModel =
                     viewModel("accumulatingDailyViewModel${goal.id}",
-                        AccumulatingRangeGoalProgressViewModel.Factory(
-                            range, goal.id.toString()))
-                val perDayMap by model.perDayGoals.observeAsState()
-                val values = remember(perDayMap) {
-                    perDayMap.orEmpty()
-                        .mapKeys { ChronoUnit.DAYS.between(firstDate, it.key).toInt() }
-                }
+                        AccumulatingRangeGoalProgressViewModel.Factory(goal.id.toString()))
+                val perDayChartMap by model.perDayChartMap.observeAsState()
+                val chartRange by model.chartRange.observeAsState()
+                chartRange?.let { range ->
 
-                Row(horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
-                    Label(text = "Last 30 days", modifier = Modifier.padding(0.dp))
-                    ProgressLabel(goal = goal,
-                        progress = progress,
-                        progressPercent = progressPercent)
+                    val days = ChronoUnit.DAYS.between(range.lower, range.upper).toInt() + 1
+                    Row(horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)) {
+                        Label(text = "Last $days days", modifier = Modifier.padding(0.dp))
+                        ProgressLabel(goal = goal,
+                            progress = progress,
+                            progressPercent = progressPercent)
+                    }
+                    ProgressLineChart(
+                        color = cardColor ?: MaterialTheme.colors.primary,
+                        firstDate = range.lower,
+                        dayCount = days, // 30,
+                        values = perDayChartMap.orEmpty()
+                    )
                 }
-                ProgressLineChart(
-                    color = cardColor ?: MaterialTheme.colors.primary,
-                    firstDate = firstDate,
-                    dayCount = 30,
-                    values = values
-                )
             }
         }
     }
