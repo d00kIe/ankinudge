@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id "realm-android"
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -131,5 +132,9 @@ dependencies {
 
     // Kotlin + coroutines
     implementation 'androidx.work:work-runtime-ktx:2.7.0-alpha04'
+
+    // Firebase analytics
+    implementation platform('com.google.firebase:firebase-bom:28.1.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 
 }

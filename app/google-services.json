@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "718396340896",
+    "project_id": "lingo-journal",
+    "storage_bucket": "lingo-journal.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:718396340896:android:f1c3704b0d2006725de7c5",
+        "android_client_info": {
+          "package_name": "com.teraculus.lingojournalandroid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "718396340896-m0pa53aloj8vamrth03p5n8ucmei7e26.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPtalz3jJas2-dg58DEA2bcV5UJJN-2xw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "718396340896-m0pa53aloj8vamrth03p5n8ucmei7e26.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

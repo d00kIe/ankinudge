@@ -15,11 +15,14 @@ import com.teraculus.lingojournalandroid.utils.SystemUiController
 
 
 class MainActivity : AppCompatActivity() {
+
     @ExperimentalAnimationApi
     @ExperimentalFoundationApi
     @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         PickerProvider.getPickerProvider().fragmentManagerProvider = { supportFragmentManager }
         setContent {
             val systemUiController = remember { SystemUiController(window) }
