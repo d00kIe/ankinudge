@@ -69,7 +69,7 @@ class SettingsViewModel(val repository: Repository = Repository.getRepository())
 @ExperimentalMaterialApi
 @Composable
 fun SettingsContent(
-    viewModel: SettingsViewModel = viewModel("settingsViewModel"),
+    viewModel: SettingsViewModel = viewModel(key = "settingsViewModel"),
     onDismiss: () -> Unit,
     openPrivacyPolicy: () -> Unit,
     onOpenFeedback: () -> Unit

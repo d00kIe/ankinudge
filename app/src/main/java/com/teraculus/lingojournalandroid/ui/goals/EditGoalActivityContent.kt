@@ -39,8 +39,8 @@ import java.time.DayOfWeek
 fun AddGoalActivityContent(
     goalId: String?,
     onDismiss: () -> Unit,
-    model: EditGoalViewModel = viewModel("addGoalViewModel",
-        EditGoalViewModelFactory(goalId)),
+    model: EditGoalViewModel = viewModel(key = "addGoalViewModel",
+        factory = EditGoalViewModelFactory(goalId)),
 ) {
     val scrollState = rememberScrollState()
     var expandedMenu by remember { mutableStateOf(false)}

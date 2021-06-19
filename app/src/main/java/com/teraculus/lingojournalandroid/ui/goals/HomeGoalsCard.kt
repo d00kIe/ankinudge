@@ -35,8 +35,8 @@ import com.teraculus.lingojournalandroid.viewmodel.GoalsListViewModelFactory
 fun HomeGoalsCard(
     onOpenGoals: () -> Unit,
     onGoalClick: (goalId: String) -> Unit,
-    goalModel: GoalsListViewModel = viewModel("goalsListViewModel",
-        GoalsListViewModelFactory()),) {
+    goalModel: GoalsListViewModel = viewModel(key = "goalsListViewModel",
+        factory = GoalsListViewModelFactory()),) {
 
     val todayGoals by goalModel.todayGoals.observeAsState()
     val hasGoals by goalModel.hasGoals.observeAsState()
@@ -129,8 +129,8 @@ private fun SecondaryText(
 @Composable
 fun FeedGoalRow(
     rawGoal: ActivityGoal,
-    model: GoalItemViewModel = viewModel("goalRow${rawGoal.id}",
-        GoalItemViewModelFactory(rawGoal, LocalLifecycleOwner.current)),
+    model: GoalItemViewModel = viewModel(key = "goalRow${rawGoal.id}",
+        factory = GoalItemViewModelFactory(rawGoal, LocalLifecycleOwner.current)),
     onClick: (goalId: String) -> Unit,
 ) {
     val snapshot by model.snapshot.observeAsState()

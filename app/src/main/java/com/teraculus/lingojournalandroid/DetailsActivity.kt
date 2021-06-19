@@ -1,31 +1,20 @@
 package com.teraculus.lingojournalandroid
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Window
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.teraculus.lingojournalandroid.data.Repository
-import com.teraculus.lingojournalandroid.model.ThemePreference
-import com.teraculus.lingojournalandroid.model.UserPreferences
-import com.teraculus.lingojournalandroid.ui.DarkColors
-import com.teraculus.lingojournalandroid.ui.LightColors
 import com.teraculus.lingojournalandroid.ui.LingoTheme
 import com.teraculus.lingojournalandroid.ui.components.ActivityDetailsDialogContent
 import com.teraculus.lingojournalandroid.utils.LocalSysUiController
 import com.teraculus.lingojournalandroid.utils.SystemUiController
-import com.teraculus.lingojournalandroid.utils.initStatusBarColor
-import com.teraculus.lingojournalandroid.utils.isDarkMode
-import com.teraculus.lingojournalandroid.viewmodel.ActivityDetailsViewModel
 import com.teraculus.lingojournalandroid.viewmodel.ActivityDetailsViewModelFactory
 
 private const val KEY_ARG_DETAILS_ACTIVITY_ID = "KEY_ARG_DETAILS_ACTIVITY_ID"
@@ -58,12 +47,10 @@ class DetailsActivity : AppCompatActivity() {
             val systemUiController = remember { SystemUiController(window) }
             CompositionLocalProvider(LocalSysUiController provides systemUiController) {
                 LingoTheme {
-                    val model: ActivityDetailsViewModel =
-                        viewModel("activityDetailsViewModel", modelFactory)
                     ActivityDetailsDialogContent(onDismiss = { finish() },
                         onDelete = { finish() },
                         onEdit = { launchEditorActivity(this, args.id) },
-                        model)
+                        viewModel(key = "activityDetailsViewModel", factory = modelFactory))
                 }
             }
         }

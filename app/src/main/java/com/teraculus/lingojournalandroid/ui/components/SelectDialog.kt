@@ -13,7 +13,7 @@ import androidx.compose.material.icons.rounded.History
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
+//import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.teraculus.lingojournalandroid.data.Language
@@ -209,7 +209,7 @@ private fun RadioWithText(
             .selectable(
                 selected = selected,
                 onClick = { onSelect(text) },
-                role = Role.RadioButton
+//                role = Role.RadioButton
             )
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically

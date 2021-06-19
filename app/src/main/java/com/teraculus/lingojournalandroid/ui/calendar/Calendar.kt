@@ -87,7 +87,7 @@ fun MonthItem(
     year: Int,
     modifier: Modifier,
     onClick: (data: DayData) -> Unit,
-    model: MonthItemViewModel = viewModel("monthItem${year}_${month}", MonthItemViewModelFactory(yearMonth = YearMonth.of(year, month))),
+    model: MonthItemViewModel = viewModel(key = "monthItem${year}_${month}", factory = MonthItemViewModelFactory(yearMonth = YearMonth.of(year, month))),
 ) {
     val dataItems by model.daydata.observeAsState()
     if (dataItems != null) {

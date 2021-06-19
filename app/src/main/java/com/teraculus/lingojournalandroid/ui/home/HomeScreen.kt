@@ -27,8 +27,8 @@ import com.teraculus.lingojournalandroid.viewmodel.ActivityListViewModelFactory
 @ExperimentalMaterialApi
 @Composable
 fun HomeScreen(
-    model: ActivityListViewModel = viewModel("activityListViewModel",
-        ActivityListViewModelFactory()),
+    model: ActivityListViewModel = viewModel(key = "activityListViewModel",
+        factory = ActivityListViewModelFactory()),
     onItemClick: (id: String) -> Unit,
     onOpenStats: () -> Unit,
     scrollState: LazyListState,

@@ -31,8 +31,8 @@ import com.teraculus.lingojournalandroid.viewmodel.ActivityItemViewModelFactory
 fun ActivityRow(
     rawactivity: Activity,
     onClick: (id: String) -> Unit,
-    model: ActivityItemViewModel = viewModel("activityRow${rawactivity.id}",
-        ActivityItemViewModelFactory(rawactivity, LocalLifecycleOwner.current)),
+    model: ActivityItemViewModel = viewModel(key = "activityRow${rawactivity.id}",
+        factory = ActivityItemViewModelFactory(rawactivity, LocalLifecycleOwner.current)),
 ) {
     val snapshot by model.snapshot.observeAsState()
     snapshot?.let { activity ->

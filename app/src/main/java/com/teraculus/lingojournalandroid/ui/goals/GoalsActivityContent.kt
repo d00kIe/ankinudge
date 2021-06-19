@@ -42,7 +42,7 @@ import java.time.temporal.ChronoUnit
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun GoalsActivityContent(
-    model: GoalsActivityViewModel = viewModel("goalsViewModel"),
+    model: GoalsActivityViewModel = viewModel(key = "goalsViewModel"),
     onDismiss: () -> Unit,
     onAddNewGoal: () -> Unit,
 ) {
@@ -132,8 +132,8 @@ fun GoalsActivityContent(
 @Composable
 fun GoalRow(
     rawGoal: ActivityGoal,
-    model: GoalItemViewModel = viewModel("goalRow${rawGoal.id}",
-        GoalItemViewModelFactory(rawGoal, LocalLifecycleOwner.current)),
+    model: GoalItemViewModel = viewModel(key = "goalRow${rawGoal.id}",
+        factory = GoalItemViewModelFactory(rawGoal, LocalLifecycleOwner.current)),
 ) {
     val snapshot by model.snapshot.observeAsState()
     snapshot?.let { goal ->
@@ -233,7 +233,7 @@ private fun GoalChart(
         when (goalType) {
             GoalType.Daily -> {
                 val model: RangeGoalProgressViewModel =
-                    viewModel("dailyViewModel${goal.id}", RangeGoalProgressViewModel.Factory(
+                    viewModel(key = "dailyViewModel${goal.id}", factory = RangeGoalProgressViewModel.Factory(
                         Range.create(LocalDate.now().minusDays(7), LocalDate.now()),
                         goal.id.toString()))
                 val perDayMap by model.perDayGoals.observeAsState()
@@ -258,8 +258,8 @@ private fun GoalChart(
             }
             GoalType.LongTerm -> {
                 val model: AccumulatingRangeGoalProgressViewModel =
-                    viewModel("accumulatingDailyViewModel${goal.id}",
-                        AccumulatingRangeGoalProgressViewModel.Factory(goal.id.toString()))
+                    viewModel(key = "accumulatingDailyViewModel${goal.id}",
+                        factory = AccumulatingRangeGoalProgressViewModel.Factory(goal.id.toString()))
                 val perDayChartMap by model.perDayChartMap.observeAsState()
                 val chartRange by model.chartRange.observeAsState()
                 chartRange?.let { range ->

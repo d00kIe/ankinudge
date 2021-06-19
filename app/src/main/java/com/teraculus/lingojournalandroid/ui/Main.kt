@@ -34,7 +34,7 @@ fun MainContent(
     onOpenSettings: () -> Unit,
     onOpenStats: () -> Unit,
     onOpenGoals: () -> Unit,
-    viewModel: MainViewModel = viewModel("mainViewModel"),
+    viewModel: MainViewModel = viewModel(key = "mainViewModel"),
     onGoalClick: (goalId: String) -> Unit,
 ) {
     val scrollState = rememberLazyListState()

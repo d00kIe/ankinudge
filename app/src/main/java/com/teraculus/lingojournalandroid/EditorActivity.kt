@@ -15,7 +15,6 @@ import com.teraculus.lingojournalandroid.ui.LingoTheme
 import com.teraculus.lingojournalandroid.ui.components.EditActivityContent
 import com.teraculus.lingojournalandroid.utils.LocalSysUiController
 import com.teraculus.lingojournalandroid.utils.SystemUiController
-import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModel
 import com.teraculus.lingojournalandroid.viewmodel.EditActivityViewModelFactory
 
 private const val KEY_ARG_EDITOR_ACTIVITY_ID = "KEY_ARG_EDITOR_ACTIVITY_ID"
@@ -54,8 +53,7 @@ class EditorActivity : AppCompatActivity() {
             val systemUiController = remember { SystemUiController(window) }
             CompositionLocalProvider(LocalSysUiController provides systemUiController) {
                 LingoTheme {
-                    val model : EditActivityViewModel = viewModel("editActivityViewModel", modelFactory)
-                    EditActivityContent(onDismiss = { onBackPressed() }, model)
+                    EditActivityContent(onDismiss = { onBackPressed() }, model = viewModel(key = "editActivityViewModel",  factory = modelFactory))
                 }
             }
         }
