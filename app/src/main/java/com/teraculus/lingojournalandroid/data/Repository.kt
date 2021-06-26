@@ -2,10 +2,6 @@ package com.teraculus.lingojournalandroid.data
 
 import android.util.Range
 import androidx.lifecycle.LiveData
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.analytics.ktx.logEvent
-import com.google.firebase.ktx.Firebase
 import com.teraculus.lingojournalandroid.model.*
 import com.teraculus.lingojournalandroid.utils.*
 import io.realm.*
@@ -56,27 +52,18 @@ class PreferencesRepo(val repo: Repository) {
         repo.realm!!.executeTransaction {
             userPreferences.value?.theme = theme
         }
-
-        repo.firebaseAnalytics.logEvent("updateTheme") {
-            param("theme", theme)
-        }
     }
 
     fun updateReminderActive(active: Boolean) {
         repo.realm!!.executeTransaction {
             userPreferences.value?.reminderActive = active
         }
-        repo.firebaseAnalytics.logEvent("updateReminderActive") {
-            param("active", active.toString())
-        }
+
     }
 
     fun updateReminder(time: LocalTime) {
         repo.realm!!.executeTransaction {
             userPreferences.value?.reminder = time
-        }
-        repo.firebaseAnalytics.logEvent("updateReminder") {
-            param("time", time.toString())
         }
     }
 }
@@ -91,7 +78,6 @@ class ActivityTypeRepo(val repo: Repository) {
 
     fun add(type: ActivityType) {
         repo.realm!!.executeTransaction { tr -> tr.insert(type) }
-        repo.firebaseAnalytics.logEvent("ActivityType_Add") {}
     }
 
     fun all(): LiveData<List<ActivityType>?> {
@@ -104,7 +90,6 @@ class ActivityTypeRepo(val repo: Repository) {
             tr.where<ActivityGoal>().equalTo("activityType.id", it.id).findAll().deleteAllFromRealm()
             it.deleteFromRealm()
         }
-        repo.firebaseAnalytics.logEvent("ActivityType_Remove") {}
     }
 }
 
@@ -119,14 +104,12 @@ class ActivityRepo(val repo: Repository) {
     fun add(activity: Activity) {
         repo.realm!!.executeTransaction { tr -> tr.insert(activity) }
         repo.preferences.updateLastLanguage(activity.language)
-        repo.firebaseAnalytics.logEvent("Activity_Add") {}
     }
 
     fun remove(activity: Activity) {
         repo.realm!!.executeTransaction {
             activity.deleteFromRealm()
         }
-        repo.firebaseAnalytics.logEvent("Activity_Remove") {}
     }
 
     fun get(id: String): LiveRealmObject<Activity?> {
@@ -202,7 +185,6 @@ class ActivityRepo(val repo: Repository) {
                 activity.lastChangeTs = Instant.now().toEpochMilli()
             }
             repo.preferences.updateLastLanguage(language)
-            repo.firebaseAnalytics.logEvent("Activit_Update") {}
         }
     }
 }
@@ -261,7 +243,6 @@ class ActivityGoalRepo(val repo: Repository) {
         goal.lastChangeTs = Instant.now().toEpochMilli()
         repo.realm!!.executeTransaction { tr -> tr.insertOrUpdate(goal) }
         repo.preferences.updateLastLanguage(goal.language)
-        repo.firebaseAnalytics.logEvent("ActivityGoal_InsertOrUpdate") {}
     }
 
     fun remove(goalId: ObjectId) {
@@ -270,7 +251,6 @@ class ActivityGoalRepo(val repo: Repository) {
             repo.realm!!.executeTransaction {
                 goal.deleteFromRealm()
             }
-            repo.firebaseAnalytics.logEvent("ActivityGoal_Remove") {}
         }
     }
 }
@@ -281,7 +261,6 @@ class Repository {
     val types: ActivityTypeRepo
     val preferences: PreferencesRepo
     val goals: ActivityGoalRepo
-    val firebaseAnalytics: FirebaseAnalytics
 
     init {
         initializeRealm()
@@ -299,9 +278,6 @@ class Repository {
 
         // goals
         goals = ActivityGoalRepo(this)
-
-        // analytics
-        firebaseAnalytics = Firebase.analytics
     }
 
     private fun initializeRealm() {
