@@ -22,7 +22,7 @@ android {
         applicationId "com.teraculus.lingojournalandroid"
         minSdkVersion 24 // because of my old phone
         targetSdkVersion 30
-        versionCode 18
+        versionCode 19
         versionName "2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -127,7 +127,7 @@ dependencies {
     // UI Tests
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.0.0-beta09'
 
-    implementation 'com.google.accompanist:accompanist-pager:0.11.1'
+    implementation 'com.google.accompanist:accompanist-pager:0.12.0'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
     // Kotlin + coroutines
