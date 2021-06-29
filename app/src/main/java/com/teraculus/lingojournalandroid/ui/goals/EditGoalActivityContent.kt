@@ -32,7 +32,6 @@ import com.teraculus.lingojournalandroid.utils.toDateString
 import com.teraculus.lingojournalandroid.utils.toShortActivityTypeTitle
 import com.teraculus.lingojournalandroid.viewmodel.EditGoalViewModel
 import com.teraculus.lingojournalandroid.viewmodel.EditGoalViewModelFactory
-import kotlinx.coroutines.CoroutineScope
 import java.time.DayOfWeek
 
 @Composable
@@ -45,7 +44,6 @@ fun AddGoalActivityContent(
     val scrollState = rememberScrollState()
     var expandedMenu by remember { mutableStateOf(false)}
     val active by model.active.observeAsState()
-    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -89,7 +87,7 @@ fun AddGoalActivityContent(
         }
     )
     {
-        AddGoalFields(model, scrollState, coroutineScope)
+        AddGoalFields(model, scrollState)
     }
 }
 
@@ -98,7 +96,6 @@ fun AddGoalActivityContent(
 fun AddGoalFields(
     model: EditGoalViewModel,
     scrollState: ScrollState,
-    coroutineScope: CoroutineScope
 ) {
     val typeGroups by model.groupedTypes.observeAsState()
     val preferences by model.preferences.observeAsState()
@@ -139,11 +136,11 @@ fun AddGoalFields(
             onAddTypeClick = {
                 model.addActivityType(it)
             },
-            onRemoveTypeClick = {
-                showActivityTypeDialog = false
-                activityTypeToDelete = it
-                showDeleteActivityTypeAlert = true
-            },
+//            onRemoveTypeClick = {
+//                showActivityTypeDialog = false
+//                activityTypeToDelete ana= it
+//                showDeleteActivityTypeAlert = true
+//            },
             onDismissRequest = { showActivityTypeDialog = false })
     }
 

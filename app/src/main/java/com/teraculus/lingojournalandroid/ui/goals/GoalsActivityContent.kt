@@ -137,7 +137,6 @@ fun GoalRow(
 ) {
     val snapshot by model.snapshot.observeAsState()
     snapshot?.let { goal ->
-        val progress by model.progress.observeAsState()
         val progressPercent by model.progressPercent.observeAsState()
         val context = LocalContext.current
 
@@ -177,7 +176,7 @@ fun GoalRow(
                         }
                     }
                 )
-                GoalChart(goal, progress, progressPercent)
+                GoalChart(goal, progressPercent)
             }
         }
     }
@@ -208,7 +207,6 @@ private fun ChartLabel(text: String, modifier: Modifier = Modifier) {
 @Composable
 private fun ProgressLabel(
     goal: ActivityGoal,
-    progress: Float?,
     progressPercent: Float?,
 ) {
     val date = if(goal.active) LocalDate.now() else asLocalDate(goal.lastActiveChange)
@@ -223,7 +221,6 @@ private fun ProgressLabel(
 @Composable
 private fun GoalChart(
     goal: ActivityGoal,
-    progress: Float?,
     progressPercent: Float?,
 ) {
     val goalType = remember(goal) { goal.type }
@@ -248,7 +245,6 @@ private fun GoalChart(
                         .padding(top = 8.dp)) {
                     ChartLabel(text = "Last 7 days")
                     ProgressLabel(goal = goal,
-                        progress = progress,
                         progressPercent = progressPercent)
                 }
                 ProgressBarChart(
@@ -271,7 +267,6 @@ private fun GoalChart(
                             .padding(top = 8.dp)) {
                         ChartLabel(text = "Last $days days")
                         ProgressLabel(goal = goal,
-                            progress = progress,
                             progressPercent = progressPercent)
                     }
                     ProgressLineChart(

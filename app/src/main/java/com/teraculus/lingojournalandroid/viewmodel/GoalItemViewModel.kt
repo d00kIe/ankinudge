@@ -24,7 +24,7 @@ class GoalItemViewModel(
     val activities = Transformations.switchMap(snapshot) {
         it?.let { g ->
             if(g.type == GoalType.Daily) {
-                val today = LocalDate.now();
+                val today = LocalDate.now()
                 return@switchMap LiveRealmResults(repository.activities.all(today))
             } else {
                 return@switchMap LiveRealmResults(repository.activities.all(g.date, g.endDate ?: LocalDate.now().plusYears(25))) // TODO: LocalDate.MAX crashes asDate
@@ -96,10 +96,7 @@ class GoalItemViewModel(
     }
 
     private fun match(activity: Activity, goal: ActivityGoal) : Boolean {
-        return with(activity)
-        {
-            return language == goal.language && type?.id == goal.activityType?.id
-        }
+        return activity.language == goal.language && activity.type?.id == goal.activityType?.id
     }
 
     fun edit(context: Context) {

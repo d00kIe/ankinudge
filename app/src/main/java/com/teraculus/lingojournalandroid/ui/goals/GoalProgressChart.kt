@@ -231,7 +231,6 @@ fun ProgressBarChart(
     yValueFormatter: ValueFormatter = DefaultAxisValueFormatter(0),
     values: Map<Float, Float>,
 ) {
-    val alpha = ContentAlpha.medium
     val textColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
     val gridColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled)
 

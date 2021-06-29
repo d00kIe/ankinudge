@@ -25,7 +25,7 @@ import java.util.*
 fun ActivityTypeSelectDialog(
     onItemClick: (item: ActivityType) -> Unit,
     onAddTypeClick: (item: ActivityType) -> Unit,
-    onRemoveTypeClick: (item: ActivityType) -> Unit,
+//    onRemoveTypeClick: (item: ActivityType) -> Unit,
     onDismissRequest: () -> Unit,
     groups: Map<ActivityCategory?, List<ActivityType>>?,
 ) {
@@ -40,11 +40,11 @@ fun ActivityTypeSelectDialog(
                 dialogCategory = null
             },
             onDismissRequest = { showAddDialog = false },
-            title = "New ${dialogCategory?.title?.toLowerCase(Locale.ROOT)} activity")
+            title = "New ${dialogCategory?.title?.lowercase(Locale.ROOT)} activity")
 
 
     var selectedCategory: ActivityCategory? by remember { mutableStateOf(null) }
-    var title = remember(selectedCategory) { if(selectedCategory == null) "Choose category" else null }
+    val title = remember(selectedCategory) { if(selectedCategory == null) "Choose category" else null }
     val categories = remember(groups) { groups.orEmpty().keys.toList() }
     SelectDialog(
         onDismissRequest = onDismissRequest,

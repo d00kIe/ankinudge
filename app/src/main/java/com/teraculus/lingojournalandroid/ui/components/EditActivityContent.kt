@@ -90,29 +90,29 @@ fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
             onAddTypeClick = {
                 model.addActivityType(it)
             },
-            onRemoveTypeClick = {
-                showActivityTypeDialog = false
-                activityTypeToDelete = it
-                showDeleteActivityTypeAlert = true
-            },
+//            onRemoveTypeClick = {
+//                showActivityTypeDialog = false
+//                activityTypeToDelete = it
+//                showDeleteActivityTypeAlert = true
+//            },
             onDismissRequest = { showActivityTypeDialog = false })
     }
 
     if(showDeleteActivityTypeAlert) {
         activityTypeToDelete?.let {
             if(it == type) {
-                val text = "You can't delete this activity type, because it's currently selected."
+                val msg = "You can't delete this activity type, because it's currently selected."
                 AlertDialog(
                     onDismissRequest = { showDeleteActivityTypeAlert = false },
-                    text = { Text(text) },
+                    text = { Text(msg) },
                     confirmButton = { Button(onClick = { showDeleteActivityTypeAlert = false }) {
                         Text("OK")
                     }})
             } else {
-                val text = "Delete ${it.name} activity type? All activities and goals of this type will also be deleted."
+                val msg = "Delete ${it.name} activity type? All activities and goals of this type will also be deleted."
                 AlertDialog(
                     onDismissRequest = { showDeleteActivityTypeAlert = false },
-                    text = { Text(text) },
+                    text = { Text(msg) },
                     confirmButton = { Button(onClick = {
                         showDeleteActivityTypeAlert = false
                         model.removeActivityType(it)

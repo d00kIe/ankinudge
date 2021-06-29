@@ -26,7 +26,6 @@ import com.teraculus.lingojournalandroid.ui.components.Label
 import com.teraculus.lingojournalandroid.ui.components.ToggleButton
 import com.teraculus.lingojournalandroid.utils.toDayString
 import com.teraculus.lingojournalandroid.viewmodel.DayLanguageStreakData
-import com.teraculus.lingojournalandroid.viewmodel.LanguageStatData
 import com.teraculus.lingojournalandroid.viewmodel.StatisticRange
 import com.teraculus.lingojournalandroid.viewmodel.StatisticsViewModel
 
@@ -97,11 +96,9 @@ private fun InnerContent(
     val languageStats by model.languageStats.observeAsState()
     val languageDayStreak by model.languageDayStreak.observeAsState()
     val day by model.day.observeAsState()
-    val month by model.month.observeAsState()
     val year by model.year.observeAsState()
     val languages by model.languages.observeAsState()
     val languageIndex by model.languageIndex.observeAsState()
-    val selectedLanguage by model.selectedLanguage.observeAsState()
 
     Column(modifier = modifier.verticalScroll(scrollState)) {
         AnimatedVisibility(tabIndex == 0) {
@@ -161,7 +158,6 @@ private fun InnerContent(
                     Column {
                         Label(text = "No activities for this period",
                             modifier = Modifier.padding(16.dp))
-                        LanguageStatContent(it = LanguageStatData.empty())
                     }
                 }
 
@@ -205,9 +201,6 @@ private fun DayStreakContent(it: DayLanguageStreakData) {
     DayStreak(stats = it)
 }
 
-@Composable
-private fun LanguageStatContent(it: LanguageStatData) {
-}
 
 @ExperimentalMaterialApi
 @Composable

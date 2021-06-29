@@ -1,6 +1,7 @@
 package com.teraculus.lingojournalandroid.model
 
 //import com.teraculus.lingojournalandroid.BuildConfig
+import com.teraculus.lingojournalandroid.BuildConfig
 import org.bson.types.ObjectId
 import java.time.LocalDate
 import kotlin.random.Random
@@ -27,11 +28,11 @@ fun activityTypeData(): List<ActivityType> {
 
 fun activityData(activityTypes: List<ActivityType>): List<Activity> {
 
-    var aLotOfActivities = mutableListOf<Activity>()
+    val aLotOfActivities = mutableListOf<Activity>()
 
-    //if(BuildConfig.DEBUG) {
-        //generateRandomData(activityTypes, aLotOfActivities)
-    //}
+    if(BuildConfig.DEBUG) {
+        generateRandomData(activityTypes, aLotOfActivities)
+    }
 
     return aLotOfActivities
 }

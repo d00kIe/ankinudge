@@ -2,10 +2,7 @@ package com.teraculus.lingojournalandroid.model
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class TransformedLiveData<Source, Output>(
     private val scope: CoroutineScope ,
@@ -40,7 +37,7 @@ class TransformedLiveData<Source, Output>(
     }
 }
 
+@OptIn(DelicateCoroutinesApi::class)
 fun <Source, Output> LiveData<Source>.transform(
     scope: CoroutineScope = GlobalScope,
-    initialSource: Source? = null,
     transformation: (Source?) -> Output?) = TransformedLiveData(scope, this, transformation)

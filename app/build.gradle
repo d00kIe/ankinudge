@@ -30,7 +30,6 @@ android {
 
     buildFeatures {
         compose true
-        viewBinding true
     }
 
     buildTypes {
@@ -56,6 +55,11 @@ android {
 
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+        kotlin {
+            kotlinOptions {
+                freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+            }
+        }
     }
 
     kotlinOptions {
@@ -134,7 +138,7 @@ dependencies {
     implementation 'androidx.work:work-runtime-ktx:2.7.0-alpha04'
 
     // Firebase analytics
-    // implementation platform('com.google.firebase:firebase-bom:28.1.0')
-    // implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation platform('com.google.firebase:firebase-bom:28.1.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 
 }

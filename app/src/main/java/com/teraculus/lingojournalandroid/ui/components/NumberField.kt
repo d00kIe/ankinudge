@@ -29,17 +29,18 @@ fun NumberField(
     var focused by remember { mutableStateOf(false) }
     var textValue by remember(value) { mutableStateOf(value.toString()) }
 
-    OutlinedTextField(value = textValue,
+    OutlinedTextField(
+        value = textValue,
         textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
         label = { Text(label.orEmpty()) },
         modifier = modifier.onFocusChanged {
-            if(!it.isFocused) {
-                if(focused) {
+            if (!it.isFocused) {
+                if (focused) {
                     val new = textValue.toIntOrNull()
                     val current = value ?: 0
 
                     // if empty or not int, take previous value
-                    if(new == null) {
+                    if (new == null) {
                         textValue = current.toString()
                     }
 
@@ -53,16 +54,18 @@ fun NumberField(
                 focused = true
             }
         },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done
+        ),
         keyboardActions = KeyboardActions {
             focusManager.clearFocus() // this will trigger onFocusChanged
         },
         onValueChange = {
-            var f: Int? = null
-            if(it.isEmpty()) {
+            val f: Int?
+            if (it.isEmpty()) {
                 textValue = it
-            }
-            else {
+            } else {
                 f = it.toIntOrNull()
                 if (f != null && value != f && (range == null || range.contains(f))) {
                     textValue = it
@@ -73,11 +76,11 @@ fun NumberField(
             IconButton(
                 modifier = Modifier.size(32.dp),
                 onClick = {
-                val newVal = (value ?: 0) - 1
-                if (range == null || range.contains(newVal)) {
-                    onValueChange(newVal)
-                }
-            }) {
+                    val newVal = (value ?: 0) - 1
+                    if (range == null || range.contains(newVal)) {
+                        onValueChange(newVal)
+                    }
+                }) {
                 Icon(Icons.Rounded.Remove, contentDescription = null)
             }
         },
@@ -85,13 +88,12 @@ fun NumberField(
             IconButton(
                 modifier = Modifier.size(32.dp),
                 onClick = {
-                val newVal = (value ?: 0) + 1
-                if (range == null || range.contains(newVal)) {
-                    onValueChange(newVal)
-                }
-            }) {
+                    val newVal = (value ?: 0) + 1
+                    if (range == null || range.contains(newVal)) {
+                        onValueChange(newVal)
+                    }
+                }) {
                 Icon(Icons.Rounded.Add, contentDescription = null)
             }
-        }
-    )
+        })
 }
