@@ -24,7 +24,7 @@ fun launchEditGoalActivity(context: Context, id: String? = null) {
 fun createEditGoalActivityIntent(context: Context, id: String?): Intent {
     val intent = Intent(context, EditGoalActivity::class.java)
     intent.putExtra(KEY_ARG_EDITOR_GOAL_ID, id)
-    return intent;
+    return intent
 }
 
 
@@ -41,6 +41,7 @@ class EditGoalActivity : AppCompatActivity() {
         val args = getDetailsArgs(intent)
 
         PickerProvider.getPickerProvider().fragmentManagerProvider = { supportFragmentManager }
+
         setContent {
             val systemUiController = remember { SystemUiController(window) }
             CompositionLocalProvider(LocalSysUiController provides systemUiController) {
@@ -49,7 +50,11 @@ class EditGoalActivity : AppCompatActivity() {
                 }
             }
         }
+
     }
+
+
+
 
     override fun onBackPressed() {
         if (isTaskRoot) {

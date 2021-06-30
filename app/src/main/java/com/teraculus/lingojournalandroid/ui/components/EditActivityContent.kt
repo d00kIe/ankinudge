@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
-fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
+fun EditActivityContent(onDismiss: (success: Boolean) -> Unit, model: EditActivityViewModel) {
     val title = model.title.observeAsState()
     val text = model.text.observeAsState()
     val date = model.date.observeAsState()
@@ -146,13 +146,13 @@ fun EditActivityContent(onDismiss: () -> Unit, model: EditActivityViewModel) {
                 backgroundColor = MaterialTheme.colors.background,
                 elevation = elevation,
                 navigationIcon = {
-                    IconButton(onClick = onDismiss) {
+                    IconButton(onClick = {onDismiss(false) }) {
                         Icon(Icons.Filled.Close, contentDescription = null)
                     }
                 },
                 actions = {
                     // RowScope here, so these icons will be placed horizontally
-                    TextButton(onClick = { model.save(); onDismiss(); }) {
+                    TextButton(onClick = { model.save(); onDismiss(true); }) {
                         Text(text = "Save")
                     }
 

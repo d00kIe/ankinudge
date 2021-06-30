@@ -37,7 +37,7 @@ import java.time.DayOfWeek
 @Composable
 fun AddGoalActivityContent(
     goalId: String?,
-    onDismiss: () -> Unit,
+    onDismiss: (success: Boolean) -> Unit,
     model: EditGoalViewModel = viewModel(key = "addGoalViewModel",
         factory = EditGoalViewModelFactory(goalId)),
 ) {
@@ -55,13 +55,13 @@ fun AddGoalActivityContent(
                 backgroundColor = MaterialTheme.colors.background,
                 elevation = elevation,
                 navigationIcon = {
-                    IconButton(onClick = onDismiss) {
+                    IconButton(onClick = { onDismiss(false) }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = null)
                     }
                 },
                 actions = {
                     // RowScope here, so these icons will be placed horizontally
-                    TextButton(onClick = { focusManager.clearFocus(); model.save(); onDismiss(); }) {
+                    TextButton(onClick = { focusManager.clearFocus(); model.save(); onDismiss(true); }) {
                         Text(text = "Save")
                     }
                     if(!goalId.isNullOrEmpty()) {
@@ -72,11 +72,11 @@ fun AddGoalActivityContent(
                             expanded = expandedMenu,
                             onDismissRequest = { expandedMenu = false }
                         ) {
-                            DropdownMenuItem(onClick = { model.delete(); onDismiss(); }) {
+                            DropdownMenuItem(onClick = { model.delete(); onDismiss(false); }) {
                                 Text("Delete")
                             }
                             if(active == true) {
-                                DropdownMenuItem(onClick = { model.archive(); onDismiss(); }) {
+                                DropdownMenuItem(onClick = { model.archive(); onDismiss(false); }) {
                                     Text("Archive")
                                 }
                             }
