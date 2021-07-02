@@ -58,8 +58,7 @@ fun ActivityList(
         }
 
         item(key = "homeGoalsCard") {
-            AdBanner(Modifier.padding(horizontal = 16.dp))
-            Spacer(modifier = Modifier.size(16.dp))
+            AdBanner(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp))
             HomeGoalsCard(onOpenGoals, onGoalClick)
         }
 

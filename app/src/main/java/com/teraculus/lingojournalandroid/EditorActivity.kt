@@ -108,8 +108,7 @@ class EditorActivity : AppCompatActivity() {
 
     private fun loadAd() {
         val adRequest = AdRequest.Builder().build()
-        val adUnitId = if (BuildConfig.DEBUG) AD_UNIT_TEST_ID else AD_UNIT_ID
-        InterstitialAd.load(this, adUnitId, adRequest, object : InterstitialAdLoadCallback() {
+        InterstitialAd.load(this, AD_UNIT_ID, adRequest, object : InterstitialAdLoadCallback() {
             override fun onAdFailedToLoad(adError: LoadAdError) {
                 Log.d(TAG, adError.message)
                 mInterstitialAd = null
