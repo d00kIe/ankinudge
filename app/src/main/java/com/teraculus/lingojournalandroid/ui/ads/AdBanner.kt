@@ -1,6 +1,7 @@
 package com.teraculus.lingojournalandroid.ui.ads
 
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.runtime.*
@@ -22,6 +23,7 @@ private class Listener(val onLoaded: () -> Unit): AdListener() {
         onLoaded()
     }
 }
+
 @Composable
 fun AdBanner(modifier: Modifier = Modifier) {
     var loaded by remember { mutableStateOf(false)}
@@ -29,7 +31,7 @@ fun AdBanner(modifier: Modifier = Modifier) {
         shape = RoundedCornerShape(16.dp)
     ) {
         val context = LocalContext.current.applicationContext
-        BoxWithConstraints() {
+        BoxWithConstraints(modifier = if(loaded) Modifier.padding(16.dp) else Modifier) {
             AndroidView(
                 factory = {
                     AdView(it).apply {
@@ -40,7 +42,7 @@ fun AdBanner(modifier: Modifier = Modifier) {
                     view ->
                     if(view.adUnitId.isNullOrEmpty()) {
                         view.adUnitId = AD_UNIT_ID //if (BuildConfig.DEBUG) AD_UNIT_TEST_ID else AD_UNIT_ID
-                        view.adSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize (context, maxWidth.value.roundToInt())
+                        view.adSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize (context, maxWidth.value.roundToInt() - 64) // 64 for padding
                         val adRequest = AdRequest.Builder().build()
                         view.loadAd(adRequest)
                     }
