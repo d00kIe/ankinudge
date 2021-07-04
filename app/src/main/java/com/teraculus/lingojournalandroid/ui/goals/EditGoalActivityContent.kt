@@ -320,7 +320,7 @@ fun AddGoalFields(
                     value = unitCountGoal?.toInt(),
                     onValueChange = { model.setUnitCountGoal(it.toFloat()) },
                     label = activityType?.unit?.title,
-                    range = Range.create(0, 50000))
+                    range = Range.create(1, 50000))
             }
         }
     }
