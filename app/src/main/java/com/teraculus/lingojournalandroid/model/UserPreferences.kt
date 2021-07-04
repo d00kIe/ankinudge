@@ -10,6 +10,11 @@ import io.realm.annotations.PrimaryKey
 import io.realm.kotlin.where
 import java.time.LocalTime
 
+enum class PaidVersionStatus {
+    Unknown,
+    Paid
+}
+
 open class UserPreferences : RealmObject() {
 
     @PrimaryKey
@@ -17,6 +22,13 @@ open class UserPreferences : RealmObject() {
     var languages = RealmList<String>()
     var theme = ThemePreference.SYSTEM
     var reminderActive: Boolean = true
+    private var _paidVersionStatus: String = PaidVersionStatus.Unknown.name
+    var paidVersionStatus : PaidVersionStatus
+        get() {
+            return PaidVersionStatus.valueOf(_paidVersionStatus)
+        }
+        set(value) { _paidVersionStatus = value.name
+        }
 
     private var _reminder: String? = toRealmTimeString(LocalTime.of(20,0))
 

@@ -56,18 +56,11 @@ class PreferencesRepo(val repo: Repository) {
         repo.realm!!.executeTransaction {
             userPreferences.value?.theme = theme
         }
-
-        repo.firebaseAnalytics.logEvent("updateTheme") {
-            param("theme", theme)
-        }
     }
 
     fun updateReminderActive(active: Boolean) {
         repo.realm!!.executeTransaction {
             userPreferences.value?.reminderActive = active
-        }
-        repo.firebaseAnalytics.logEvent("updateReminderActive") {
-            param("active", active.toString())
         }
     }
 
@@ -75,8 +68,11 @@ class PreferencesRepo(val repo: Repository) {
         repo.realm!!.executeTransaction {
             userPreferences.value?.reminder = time
         }
-        repo.firebaseAnalytics.logEvent("updateReminder") {
-            param("time", time.toString())
+    }
+
+    fun updatePaidVersionStatus(status: PaidVersionStatus) {
+        repo.realm!!.executeTransaction {
+            userPreferences.value?.paidVersionStatus = status
         }
     }
 }
@@ -376,6 +372,16 @@ class Repository {
                         val date = asLocalDate(obj.getDate("_date"))
                         obj.setDate("_endDate", asDate(date.plusMonths(1)))
                     }
+                version++
+            }
+
+            if (version == 3L) {
+                schema.get("UserPreferences")!!
+                    .addField("_paidVersionStatus", String::class.java)
+                    .transform { obj: DynamicRealmObject ->
+                        obj.setString("_paidVersionStatus", PaidVersionStatus.Unknown.name)
+                    }
+
                 //version++
             }
         }
@@ -383,7 +389,7 @@ class Repository {
         val config = RealmConfiguration.Builder()
             .allowQueriesOnUiThread(true)
             .allowWritesOnUiThread(true)
-            .schemaVersion(3)
+            .schemaVersion(4)
             .migration(migration)
             .build()
 
