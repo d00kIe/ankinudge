@@ -17,7 +17,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.teraculus.lingojournalandroid.ui.ads.AdBanner
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
 import com.teraculus.lingojournalandroid.ui.goals.HomeGoalsCard
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
@@ -58,7 +57,7 @@ fun ActivityList(
         }
 
         item(key = "homeGoalsCard") {
-            AdBanner(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp))
+            //AdBanner(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp))
             HomeGoalsCard(onOpenGoals, onGoalClick)
         }
 
