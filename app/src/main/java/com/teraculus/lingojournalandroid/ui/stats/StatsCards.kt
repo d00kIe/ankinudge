@@ -172,16 +172,20 @@ private fun SplitDonut(
                 strokeWidth = strokeWidth,
                 modifier = Modifier.size(120.dp))
 
-
-            val perUnit =
-                if (isTime) 1f / (stats.allMinutes + Float.MIN_VALUE) else 1f / (stats.allCount + Float.MIN_VALUE)
-            var currentSpan = 1f
-            stats.categoryStats.forEach {
-                CircularProgressIndicator(progress = currentSpan,
-                    color = Color(it.category?.color!!),
-                    strokeWidth = strokeWidth,
-                    modifier = Modifier.size(120.dp))
-                currentSpan -= perUnit * (if (isTime) it.minutes else it.count).toFloat()
+            val allValue = if(isTime) stats.allMinutes else stats.allCount
+            val hasValue = allValue > 0f
+            if(hasValue) {
+                val perUnit = 1f/allValue
+                var currentSpan = 1f
+                stats.categoryStats.forEach {
+                    CircularProgressIndicator(
+                        progress = currentSpan,
+                        color = Color(it.category?.color!!),
+                        strokeWidth = strokeWidth,
+                        modifier = Modifier.size(120.dp)
+                    )
+                    currentSpan -= perUnit * (if (isTime) it.minutes else it.count).toFloat()
+                }
             }
 
             Text(text = if (isTime) getDurationString(stats.allMinutes) else "${stats.allCount}x")
@@ -266,7 +270,7 @@ fun DayStreak(stats: DayLanguageStreakData) {
 
 @Composable
 fun TopActivityTypes(stats: LanguageStatData) {
-    if (stats.topActivityTypes.isNotEmpty()) {
+    if (stats.topActivityTypes.isNotEmpty() && stats.topActivityTypeMinutes > 0f) {
         val factor = 1f / stats.topActivityTypeMinutes
         StatsHeader(text = "Top activities")
         StatsCard {
