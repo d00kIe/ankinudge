@@ -12,6 +12,7 @@ import java.time.LocalTime
 
 enum class PaidVersionStatus {
     Unknown,
+    Free,
     Paid
 }
 

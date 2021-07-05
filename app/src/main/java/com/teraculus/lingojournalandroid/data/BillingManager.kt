@@ -24,7 +24,12 @@ class BillingManager(context: Context, repository: Repository) {
 
     private val purchasesResponseListener =
         PurchasesResponseListener { billingResult, purchases ->
-            handlePurchaseResponse(billingResult, purchases, repository)
+            if(billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases.isEmpty()) {
+                repository.preferences.updatePaidVersionStatus(PaidVersionStatus.Free)
+            }
+            else {
+                handlePurchaseResponse(billingResult, purchases, repository)
+            }
         }
 
     private var billingClient = BillingClient.newBuilder(context)
