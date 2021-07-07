@@ -17,7 +17,7 @@ public class App extends Application {
         super.onCreate();
         Realm.init(this);
 
-        // init billing
+        // Initialize billing
         BillingManager.Companion.init(this);
 
         // Initialize the Mobile Ads SDK.

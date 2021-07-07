@@ -113,10 +113,16 @@ class BillingManager(context: Context) {
         return true
     }
 
-    suspend fun alreadyPurchased(): Boolean {
+    suspend fun alreadyAcknowledged(): Boolean {
         ensureConnected()
         val purchases = queryPurchases()
         return purchases.purchasesList.isNotEmpty() && purchases.purchasesList.all { it.isAcknowledged }
+    }
+
+    suspend fun getPurchasePendingAcknowledge(): Purchase? {
+        ensureConnected()
+        val purchases = queryPurchases()
+        return purchases.purchasesList.find { it.purchaseState == Purchase.PurchaseState.PURCHASED && !it.isAcknowledged }
     }
 
     suspend fun launchBillingFlow(context: Activity): PurchasesResult? {

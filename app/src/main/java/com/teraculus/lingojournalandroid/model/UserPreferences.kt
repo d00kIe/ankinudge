@@ -13,7 +13,8 @@ import java.time.LocalTime
 enum class PaidVersionStatus {
     Unknown,
     Free,
-    Paid
+    Paid,
+    Pending
 }
 
 open class UserPreferences : RealmObject() {

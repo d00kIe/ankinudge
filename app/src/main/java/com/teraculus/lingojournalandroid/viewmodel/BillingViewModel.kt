@@ -2,8 +2,12 @@ package com.teraculus.lingojournalandroid.viewmodel
 
 import android.app.Activity
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.Purchase
 import com.teraculus.lingojournalandroid.data.BillingManager
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.PaidVersionStatus
@@ -13,26 +17,14 @@ class BillingViewModel : ViewModel() {
     private val billingManager = BillingManager.getManager()
     private val preferences = Repository.getRepository().preferences.all()
 
-    val canPurchase: LiveData<Boolean> = preferences.switchMap { pref ->
-        liveData {
-            val purchases = billingManager.queryPurchases()
-            val result =
-                if(purchases.billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    purchases.purchasesList.isEmpty() // if we connect and don't have purchases
-                }
-                else {
-                    Log.w("BillingViewModel", purchases.billingResult.responseCode.toString())
-                    pref.paidVersionStatus != PaidVersionStatus.Paid // if we don't connect and status is not Paid
-                }
-
-            emit(result)
-        }
+    val canPurchase: LiveData<Boolean> = Transformations.map(preferences) {
+        pref -> pref.paidVersionStatus != PaidVersionStatus.Paid
     }
 
     init {
         this.viewModelScope.launch {
             billingManager.ensureConnected()
-            if(billingManager.alreadyPurchased())
+            if(billingManager.alreadyAcknowledged())
                 Repository.getRepository().preferences.updatePaidVersionStatus(PaidVersionStatus.Paid)
         }
     }
@@ -43,9 +35,18 @@ class BillingViewModel : ViewModel() {
                 val result = billingManager.launchBillingFlow(context)
                 result?.let { pr ->
                     if(pr.billingResult.responseCode == BillingClient.BillingResponseCode.OK && pr.purchasesList.isNotEmpty()) {
-                        if(pr.purchasesList.size == 1) {
-                            if(billingManager.acknowlidgePurchase(pr.purchasesList[0])) {
-                                Repository.getRepository().preferences.updatePaidVersionStatus(PaidVersionStatus.Paid)
+                        if(pr.purchasesList.size != 1) {
+                            Log.w("BillingViewModel", "Strange: more than one purchases made, skipping all of them..")
+                        }
+                        else {
+                            val purchase = pr.purchasesList[0]
+                            if(purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                                if(billingManager.acknowlidgePurchase(pr.purchasesList[0])) {
+                                    Repository.getRepository().preferences.updatePaidVersionStatus(PaidVersionStatus.Paid)
+                                }
+                            }
+                            else if(purchase.purchaseState == Purchase.PurchaseState.PENDING) {
+                                Repository.getRepository().preferences.updatePaidVersionStatus(PaidVersionStatus.Pending)
                             }
                         }
                     }
