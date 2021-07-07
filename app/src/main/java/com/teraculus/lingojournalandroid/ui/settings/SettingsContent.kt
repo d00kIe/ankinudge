@@ -1,6 +1,9 @@
 package com.teraculus.lingojournalandroid.ui.settings
 
+import android.app.Activity
 import android.content.Context
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -28,6 +31,7 @@ import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.ThemePreference
 import com.teraculus.lingojournalandroid.ui.components.RadioSelectDialog
 import com.teraculus.lingojournalandroid.utils.toTimeString
+import com.teraculus.lingojournalandroid.viewmodel.BillingViewModel
 import com.teraculus.lingojournalandroid.viewmodel.cancelScheduledNotification
 import com.teraculus.lingojournalandroid.viewmodel.scheduleNotification
 import java.time.LocalTime
@@ -41,13 +45,13 @@ class SettingsViewModel(val repository: Repository = Repository.getRepository())
     val reminder = Transformations.map(preferences) { it.reminder }
 
     fun setTheme(theme: String) {
-        if(themeOptions.contains(theme)) {
+        if (themeOptions.contains(theme)) {
             repository.preferences.updateTheme(theme)
         }
     }
 
     fun setReminderActive(value: Boolean, ctx: Context) {
-        if(!value)
+        if (!value)
             cancelScheduledNotification(ctx)
         else
             reminder.value?.let { scheduleNotification(ctx, it.hour, it.minute) }
@@ -56,9 +60,10 @@ class SettingsViewModel(val repository: Repository = Repository.getRepository())
     }
 
     fun setReminder(ctx: Context) {
-        PickerProvider.getPickerProvider().pickTime("Set reminder time", reminder.value ?: LocalTime.now()
+        PickerProvider.getPickerProvider().pickTime(
+            "Set reminder time", reminder.value ?: LocalTime.now()
         ) {
-            if(reminderActive.value == true)
+            if (reminderActive.value == true)
                 scheduleNotification(ctx, it.hour, it.minute)
             repository.preferences.updateReminder(it)
         }
@@ -66,10 +71,12 @@ class SettingsViewModel(val repository: Repository = Repository.getRepository())
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @ExperimentalMaterialApi
 @Composable
 fun SettingsContent(
     viewModel: SettingsViewModel = viewModel(key = "settingsViewModel"),
+    billingModel: BillingViewModel = viewModel(key = "billingViewModel"),
     onDismiss: () -> Unit,
     openPrivacyPolicy: () -> Unit,
     onOpenFeedback: () -> Unit
@@ -77,14 +84,16 @@ fun SettingsContent(
     val theme by viewModel.theme.observeAsState()
     val reminderActive by viewModel.reminderActive.observeAsState()
     val context = LocalContext.current.applicationContext
+    val activity = LocalContext.current as Activity
     val reminder by viewModel.reminder.observeAsState()
     val options = viewModel.themeOptions
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
     val scrollState = rememberScrollState()
+    val canPurchase by billingModel.canPurchase.observeAsState()
 
-    if(showThemeDialog) {
+    if (showThemeDialog) {
         RadioSelectDialog(
-            title="Theme",
+            title = "Theme",
             selected = theme.orEmpty(),
             options = options,
             onSelect = { viewModel.setTheme(it); showThemeDialog = false; },
@@ -106,26 +115,65 @@ fun SettingsContent(
             )
         },
         bottomBar = {
-            Text(text = "Version: ${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE}", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+            Text(
+                text = "Version: ${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE}",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
         }
     )
     {
-        Column(modifier = Modifier.verticalScroll(scrollState).padding(horizontal = 16.dp)) {
+        Column(
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .padding(horizontal = 16.dp)
+        ) {
             ListItem(text = { Text("Appearance", color = MaterialTheme.colors.primary) })
-            ListItem(icon ={ Icon(Icons.Rounded.DarkMode, contentDescription = null) }, text = { Text("Theme") },
+            ListItem(icon = { Icon(Icons.Rounded.DarkMode, contentDescription = null) },
+                text = { Text("Theme") },
                 modifier = Modifier.clickable { showThemeDialog = true })
             Spacer(modifier = Modifier.size(16.dp))
             ListItem(text = { Text("Notifications", color = MaterialTheme.colors.primary) })
-            ListItem(icon = { Icon(Icons.Rounded.NotificationsActive, contentDescription = null) }, text = { Text("Reminder") }, trailing = {
-                Switch(checked = reminderActive ?: false, onCheckedChange = { viewModel.setReminderActive(it, context) })
-            } )
-            ListItem(icon = { Icon(Icons.Rounded.Timer, contentDescription = null) }, text = { Text("Reminder time") }, trailing = {
-                Text(text = toTimeString(reminder))
-            }, modifier = Modifier.clickable { viewModel.setReminder(context) })
+            ListItem(
+                icon = { Icon(Icons.Rounded.NotificationsActive, contentDescription = null) },
+                text = { Text("Reminder") },
+                trailing = {
+                    Switch(
+                        checked = reminderActive ?: false,
+                        onCheckedChange = { viewModel.setReminderActive(it, context) })
+                })
+            ListItem(
+                icon = { Icon(Icons.Rounded.Timer, contentDescription = null) },
+                text = { Text("Reminder time") },
+                trailing = {
+                    Text(text = toTimeString(reminder))
+                },
+                modifier = Modifier.clickable { viewModel.setReminder(context) })
+            AnimatedVisibility(visible = canPurchase == true) {
+                Column() {
+                    Spacer(modifier = Modifier.size(16.dp))
+                    ListItem(text = { Text("Support us", color = MaterialTheme.colors.primary) })
+                    ListItem(
+                        icon = {
+                            Icon(
+                                Icons.Rounded.DoNotDisturbAlt,
+                                contentDescription = null
+                            )
+                        },
+                        text = { Text("Remove Ads") },
+                        modifier = Modifier.clickable { billingModel.tryPurchase(activity) })
+                }
+            }
             Spacer(modifier = Modifier.size(16.dp))
             ListItem(text = { Text("About", color = MaterialTheme.colors.primary) })
-            ListItem(icon ={ Icon(Icons.Rounded.Policy, contentDescription = null) }, text = { Text("Privacy policy") }, modifier = Modifier.clickable { openPrivacyPolicy() })
-            ListItem(icon ={ Icon(Icons.Rounded.Mail, contentDescription = null) }, text = { Text("Feedback") }, modifier = Modifier.clickable { onOpenFeedback() })
+            ListItem(
+                icon = { Icon(Icons.Rounded.Policy, contentDescription = null) },
+                text = { Text("Privacy policy") },
+                modifier = Modifier.clickable { openPrivacyPolicy() })
+            ListItem(
+                icon = { Icon(Icons.Rounded.Mail, contentDescription = null) },
+                text = { Text("Feedback") },
+                modifier = Modifier.clickable { onOpenFeedback() })
         }
     }
 }

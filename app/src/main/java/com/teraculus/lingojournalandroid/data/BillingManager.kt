@@ -3,112 +3,76 @@ package com.teraculus.lingojournalandroid.data
 import android.app.Activity
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.*
-import com.teraculus.lingojournalandroid.model.PaidVersionStatus
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
-enum class BillingStatus {
-    Initial,
-    QueryingSKU,
-    Ready,
-    Disconnected,
-}
+class BillingManager(context: Context) {
 
-class BillingManager(context: Context, repository: Repository) {
-    private val purchasesUpdatedListener =
-        PurchasesUpdatedListener { billingResult, purchases ->
-            handlePurchaseResponse(billingResult, purchases, repository)
-        }
-
-    private val purchasesResponseListener =
-        PurchasesResponseListener { billingResult, purchases ->
-            if(billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases.isEmpty()) {
-                repository.preferences.updatePaidVersionStatus(PaidVersionStatus.Free)
-            }
-            else {
-                handlePurchaseResponse(billingResult, purchases, repository)
-            }
-        }
+    // Channel to receive PurchaseResult
+    private val purchaseChannel: Channel<PurchasesResult> = Channel(Channel.UNLIMITED)
 
     private var billingClient = BillingClient.newBuilder(context)
-        .setListener(purchasesUpdatedListener)
+        .setListener { responseCode, purchases ->
+            purchaseChannel.trySend(PurchasesResult(responseCode, purchases.orEmpty())).isSuccess
+        }
         .enablePendingPurchases()
         .build()
 
-    private val _status = MutableLiveData<BillingStatus>(BillingStatus.Initial)
-    private val _paidVersionSku = MutableLiveData<SkuDetails>(null)
-    private val scope = CoroutineScope(Job() + Dispatchers.IO)
-    val canLaunchBillingFlow = MediatorLiveData<Boolean>().apply {
-        fun update() {
-            value = _status.value == BillingStatus.Ready && _paidVersionSku.value != null
-        }
+    private val billingConnectionMutex = Mutex()
 
-        addSource(_status) { update() }
-        addSource(_paidVersionSku) { update() }
+    private val resultAlreadyConnected = BillingResult.newBuilder()
+        .setResponseCode(BillingClient.BillingResponseCode.OK)
+        .setDebugMessage("Billing client is already connected")
+        .build()
 
-        update()
+    private val resultSkuUnavailable = BillingResult.newBuilder()
+        .setResponseCode(BillingClient.BillingResponseCode.ERROR)
+        .setDebugMessage("SKU unavailable")
+        .build()
+
+
+    suspend fun ensureConnected(): Boolean {
+        return billingClient.connect().responseCode == BillingClient.BillingResponseCode.OK
     }
 
-    val stateListener = object : BillingClientStateListener {
-        override fun onBillingSetupFinished(billingResult: BillingResult) {
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                // The BillingClient is ready. You can query purchases here.
-                scope.launch {
-                    _paidVersionSku.value = querySkuDetails()
-                }
-                // query purchises
-                billingClient.queryPurchasesAsync(BillingClient.SkuType.INAPP, purchasesResponseListener)
-            }
-        }
-
-        override fun onBillingServiceDisconnected() {
-            _status.value = BillingStatus.Disconnected
-            // Try to restart the connection on the next request to
-            // Google Play by calling the startConnection() method.
-        }
-    }
-
-    init {
-        startConnection()
-    }
-
-
-    private fun handlePurchaseResponse(
-        billingResult: BillingResult,
-        purchases: MutableList<Purchase>?,
-        repository: Repository
-    ) {
-        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
-            for (purchase in purchases) {
-                if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-                    scope.launch {
-                        if (acknowlidgePurchase(purchase)) {
-                            repository.preferences.updatePaidVersionStatus(PaidVersionStatus.Paid)
-                        }
-                    }
-                } else if (purchase.purchaseState == Purchase.PurchaseState.PENDING) {
-                    // TODO
-                }
-            }
-        } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-            Log.i("BillingManager", "User cancelled purchase")
-            // Handle an error caused by a user cancelling the purchase flow.
+    /**
+     * Returns immediately if this BillingClient is already connected, otherwise
+     * initiates the connection and suspends until this client is connected.
+     * If a connection is already in the process of being established, this
+     * method just suspends until the billing client is ready.
+     */
+    suspend fun BillingClient.connect(): BillingResult = billingConnectionMutex.withLock {
+        if (isReady) {
+            // fast path: avoid suspension if already connected
+            resultAlreadyConnected
         } else {
-            // Handle any other error codes.
+            unsafeConnect()
         }
     }
 
-    private fun startConnection() {
-        _status.value = BillingStatus.Initial
-        billingClient.startConnection(stateListener)
+    suspend fun BillingClient.unsafeConnect() = suspendCoroutine<BillingResult> { cont ->
+        startConnection(object : BillingClientStateListener {
+            override fun onBillingSetupFinished(billingResult: BillingResult) {
+                cont.resume(billingResult)
+            }
+            override fun onBillingServiceDisconnected() {
+                // no need to setup reconnection logic here, call ensureReady()
+                // before each purchase to reconnect as necessary
+            }
+        })
     }
 
-    private suspend fun querySkuDetails(): SkuDetails? {
-        _status.value = BillingStatus.QueryingSKU
+    suspend fun querySkuDetails(): SkuDetails? {
+        // wait for connection
+        ensureConnected()
+
         val skuList = ArrayList<String>()
-        skuList.add("paid_version")
+        skuList.add(PAID_VERSION_SKU)
         val params = SkuDetailsParams.newBuilder()
         params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP)
 
@@ -118,11 +82,25 @@ class BillingManager(context: Context, repository: Repository) {
         }
 
         // Process the result.
-
         return skuDetailsResult.skuDetailsList.orEmpty().find { skuDetails -> skuDetails.sku == "paid_version"  }
     }
 
-    private suspend fun acknowlidgePurchase(purchase: Purchase): Boolean {
+    suspend fun queryPurchases(): PurchasesResult {
+        // wait for connection
+        ensureConnected()
+
+        return withContext(Dispatchers.IO) {
+            val sku =
+                querySkuDetails() ?: return@withContext PurchasesResult(resultSkuUnavailable, listOf())
+
+            billingClient.queryPurchasesAsync(sku.sku)
+        }
+    }
+
+    suspend fun acknowlidgePurchase(purchase: Purchase): Boolean {
+        // wait for connection
+        ensureConnected()
+
         if (!purchase.isAcknowledged) {
             val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                 .setPurchaseToken(purchase.purchaseToken)
@@ -135,27 +113,45 @@ class BillingManager(context: Context, repository: Repository) {
         return true
     }
 
-    fun prepareForBillingFlow() {
-        if(_status.value == BillingStatus.Disconnected) {
-            startConnection()
-        }
+    suspend fun alreadyPurchased(): Boolean {
+        ensureConnected()
+        val purchases = queryPurchases()
+        return purchases.purchasesList.isNotEmpty() && purchases.purchasesList.all { it.isAcknowledged }
     }
 
-    fun launchBillingFlow(context: Activity): Boolean {
-        if(canLaunchBillingFlow.value != true) {
-            Log.w("BillingManager", "User wants to purchase, but SKU is not available.")
-            return false;
+    suspend fun launchBillingFlow(context: Activity): PurchasesResult? {
+        // wait for connection
+        ensureConnected()
+
+        val skuDetail = querySkuDetails()
+        if(skuDetail == null) {
+            Log.i("BillingManager", "SKU details unavailable")
+            return null
         }
 
-        _paidVersionSku.value?.let { skuDetails ->
-            val flowParams = BillingFlowParams.newBuilder()
-                .setSkuDetails(skuDetails)
-                .build()
-            val responseCode = billingClient.launchBillingFlow(context, flowParams).responseCode
-            Log.i("BillingManager", "Launched billing flow")
-            return responseCode == BillingClient.BillingResponseCode.OK
+        val params = BillingFlowParams.newBuilder()
+            .setSkuDetails(skuDetail)
+            .build()
+
+        billingClient.launchBillingFlow(context, params)
+        return purchaseChannel.receive()
+    }
+
+    companion object {
+        private var INSTANCE: BillingManager? = null
+
+        fun init(context: Context) {
+            synchronized(BillingManager::class) {
+                INSTANCE = BillingManager(context)
+            }
         }
 
-        return false
+        fun getManager(): BillingManager {
+            return synchronized(BillingManager::class) {
+                INSTANCE!!
+            }
+        }
+
+        const val PAID_VERSION_SKU = "paid_version"
     }
 }

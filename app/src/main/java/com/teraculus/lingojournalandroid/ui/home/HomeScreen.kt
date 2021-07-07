@@ -1,5 +1,6 @@
 package com.teraculus.lingojournalandroid.ui.home
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -17,12 +18,14 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teraculus.lingojournalandroid.ui.ads.AdBanner
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
 import com.teraculus.lingojournalandroid.ui.goals.HomeGoalsCard
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
 import com.teraculus.lingojournalandroid.utils.toDayStringOrToday
 import com.teraculus.lingojournalandroid.viewmodel.ActivityListViewModel
 import com.teraculus.lingojournalandroid.viewmodel.ActivityListViewModelFactory
+import com.teraculus.lingojournalandroid.viewmodel.BillingViewModel
 
 @ExperimentalMaterialApi
 @Composable
@@ -48,8 +51,10 @@ fun ActivityList(
     scrollState: LazyListState,
     onGoalClick: (goalId: String) -> Unit,
     onOpenGoals: () -> Unit,
+    billingModel: BillingViewModel = viewModel(key = "billingViewModel"),
 ) {
     val groups by model.grouped.observeAsState()
+    val canPurchase by billingModel.canPurchase.observeAsState()
 
     LazyColumn(state = scrollState) {
         item(key = "homeStatsCard") {
@@ -57,7 +62,9 @@ fun ActivityList(
         }
 
         item(key = "homeGoalsCard") {
-            //AdBanner(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp))
+            AnimatedVisibility(canPurchase == true) {
+                AdBanner(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp))
+            }
             HomeGoalsCard(onOpenGoals, onGoalClick)
         }
 
