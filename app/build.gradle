@@ -23,7 +23,7 @@ android {
         applicationId "com.teraculus.lingojournalandroid"
         minSdkVersion 24 // because of my old phone
         targetSdkVersion 30
-        versionCode 21
+        versionCode 22
         versionName "2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -48,6 +48,7 @@ android {
             ndk {
                 debugSymbolLevel 'SYMBOL_TABLE'
             }
+            debuggable false
         }
     }
     compileOptions {
