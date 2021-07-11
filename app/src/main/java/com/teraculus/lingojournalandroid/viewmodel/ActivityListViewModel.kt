@@ -1,7 +1,9 @@
 package com.teraculus.lingojournalandroid.viewmodel
 
 import androidx.lifecycle.*
+import com.google.android.gms.ads.AdRequest
 import com.teraculus.lingojournalandroid.data.Repository
+import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityGoal
 import com.teraculus.lingojournalandroid.model.GoalType
@@ -51,6 +53,17 @@ class ActivityListViewModel(repository: Repository) : ViewModel() {
     var streaks = frozen.transform(scope = viewModelScope) { act ->
         act.orEmpty().groupBy { it.language }
             .mapValues { lang -> streakFromDate(lang.value, LocalDate.now(), true).size }
+    }
+
+    val adRequest: AdRequest
+
+    init {
+        val tl = Repository.getRepository().preferences.all().value?.languages?.firstOrNull()
+        val adRequestBuilder = AdRequest.Builder().addKeyword("language learning")
+        if(tl != null) {
+            adRequestBuilder.addKeyword(getLanguageDisplayName(tl))
+        }
+        adRequest = adRequestBuilder.build()
     }
 
     private fun getGroupedLanguageDayData(activities: List<Activity>?): List<LanguageDayData> {

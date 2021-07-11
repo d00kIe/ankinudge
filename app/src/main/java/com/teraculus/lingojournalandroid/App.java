@@ -26,6 +26,9 @@ public class App extends Application {
             RequestConfiguration configuration =
                     new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
             MobileAds.setRequestConfiguration(configuration);
+
+            MobileAds.setAppMuted(true);
         });
+
     }
 }

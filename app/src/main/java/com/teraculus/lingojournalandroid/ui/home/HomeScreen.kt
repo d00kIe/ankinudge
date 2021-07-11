@@ -1,6 +1,5 @@
 package com.teraculus.lingojournalandroid.ui.home
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -16,9 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.ui.ads.AdBanner
+import com.teraculus.lingojournalandroid.ui.ads.rememberAdViewState
 import com.teraculus.lingojournalandroid.ui.components.ActivityRow
 import com.teraculus.lingojournalandroid.ui.goals.HomeGoalsCard
 import com.teraculus.lingojournalandroid.utils.ApplyTextStyle
@@ -56,15 +57,24 @@ fun ActivityList(
     val groups by model.grouped.observeAsState()
     val canPurchase by billingModel.canPurchase.observeAsState()
 
+    val width = LocalConfiguration.current.screenWidthDp.toInt()
+    val adViewState = rememberAdViewState(model.adRequest, width - 64)
+
     LazyColumn(state = scrollState) {
         item(key = "homeStatsCard") {
             HomeStatsCard(onOpenStats, model = model)
         }
 
-        item(key = "homeGoalsCard") {
-            AnimatedVisibility(canPurchase == true) {
-                AdBanner(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp))
+        if(canPurchase == true) {
+            item(key = "adCard") {
+                AdBanner(
+                    Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    adViewState
+                )
             }
+        }
+
+        item(key = "homeGoalsCard") {
             HomeGoalsCard(onOpenGoals, onGoalClick)
         }
 
