@@ -4,7 +4,11 @@ import android.app.Application;
 
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.RequestConfiguration;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.teraculus.lingojournalandroid.data.BillingManager;
+import com.teraculus.lingojournalandroid.data.ConsentManager;
+import com.teraculus.lingojournalandroid.data.SharedPreferenceProvider;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +20,16 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         Realm.init(this);
+
+        // Shared preferences provider
+        SharedPreferenceProvider.Companion.init(this);
+
+        // Only activate analytics if we have consent
+        if(!BuildConfig.DEBUG) {
+            ConsentManager manager = new ConsentManager();
+            FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(manager.hasConsent());
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(manager.hasConsent());
+        }
 
         // Initialize billing
         BillingManager.Companion.init(this);
@@ -31,4 +45,5 @@ public class App extends Application {
         });
 
     }
+
 }

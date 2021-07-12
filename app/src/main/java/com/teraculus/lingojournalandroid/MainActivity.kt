@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.android.billingclient.api.BillingClient
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -20,6 +21,7 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.teraculus.lingojournalandroid.data.BillingManager
+import com.teraculus.lingojournalandroid.data.ConsentManager
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
 import com.teraculus.lingojournalandroid.model.PaidVersionStatus
@@ -47,20 +49,17 @@ class MainActivity : AppCompatActivity() {
         PickerProvider.getPickerProvider().fragmentManagerProvider = { supportFragmentManager }
 
         validatePurchaseStatus()
+
+        // only loadAd if it's a new activity and it's free version and we have concent
         val freeVersion = Repository.getRepository().preferences.all().value?.paidVersionStatus != PaidVersionStatus.Paid
-
-        val tl = Repository.getRepository().preferences.all().value?.languages?.firstOrNull()
-        val adRequestBuilder = AdRequest.Builder().addKeyword("language learning")
-        if(tl != null) {
-            adRequestBuilder.addKeyword(getLanguageDisplayName(tl))
-        }
-        val adRequest = adRequestBuilder.build()
-
-        // only loadAd if it's a new activity and it's free version
         if(freeVersion) {
-            loadAd(adRequest)
+            val manager = ConsentManager()
+            if(manager.hasConsent() == true) {
+                loadAd()
+            }
         }
 
+        // show add only if editor activity returns RESULT_FIRST_USER
         val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_FIRST_USER) {
                 showAd()
@@ -103,8 +102,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 // TODO: Currently refunds are not working because google doesn't want to fix this issue https://issuetracker.google.com/issues/73982566
-                // TODO: Activate when bug is fixed.
-                /*val purchases = billing.queryPurchases()
+                val purchases = billing.queryPurchases()
                 val retrievedPurchases = purchases.billingResult.responseCode == BillingClient.BillingResponseCode.OK
                 if(retrievedPurchases) { //this is just to make sure we successfully retrieved something
                     val alreadyAcknowledged = billing.alreadyAcknowledged()
@@ -113,7 +111,7 @@ class MainActivity : AppCompatActivity() {
                     } else if (paidVersionState != PaidVersionStatus.Paid && alreadyAcknowledged) {
                         preferences.updatePaidVersionStatus(PaidVersionStatus.Paid) // new installation on a new device probably
                     }
-                }*/
+                }
             }
         }
     }
@@ -141,7 +139,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadAd(adRequest: AdRequest) {
+    private fun loadAd() {
+        val tl = Repository.getRepository().preferences.all().value?.languages?.firstOrNull()
+        val adRequestBuilder = AdRequest.Builder().addKeyword("language learning")
+        if(tl != null) {
+            adRequestBuilder.addKeyword(getLanguageDisplayName(tl))
+        }
+        val adRequest = adRequestBuilder.build()
+
         InterstitialAd.load(this, AD_UNIT_ID, adRequest, object : InterstitialAdLoadCallback() {
             override fun onAdFailedToLoad(adError: LoadAdError) {
                 Log.d(TAG, adError.message)

@@ -27,6 +27,7 @@ import com.teraculus.lingojournalandroid.utils.toDayStringOrToday
 import com.teraculus.lingojournalandroid.viewmodel.ActivityListViewModel
 import com.teraculus.lingojournalandroid.viewmodel.ActivityListViewModelFactory
 import com.teraculus.lingojournalandroid.viewmodel.BillingViewModel
+import com.teraculus.lingojournalandroid.viewmodel.ConsentViewModel
 
 @ExperimentalMaterialApi
 @Composable
@@ -53,19 +54,21 @@ fun ActivityList(
     onGoalClick: (goalId: String) -> Unit,
     onOpenGoals: () -> Unit,
     billingModel: BillingViewModel = viewModel(key = "billingViewModel"),
+    consentViewModel: ConsentViewModel = viewModel(key = "consentViewModel"),
 ) {
     val groups by model.grouped.observeAsState()
     val canPurchase by billingModel.canPurchase.observeAsState()
+    val hasConsent by consentViewModel.hasConsent.observeAsState()
 
     val width = LocalConfiguration.current.screenWidthDp.toInt()
     val adViewState = rememberAdViewState(model.adRequest, width - 64)
-
+    ConsentDialog()
     LazyColumn(state = scrollState) {
         item(key = "homeStatsCard") {
             HomeStatsCard(onOpenStats, model = model)
         }
 
-        if(canPurchase == true) {
+        if(hasConsent == true && canPurchase == true) {
             item(key = "adCard") {
                 AdBanner(
                     Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
