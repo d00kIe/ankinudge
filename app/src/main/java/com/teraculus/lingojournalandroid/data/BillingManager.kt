@@ -88,12 +88,8 @@ class BillingManager(context: Context) {
     suspend fun queryPurchases(): PurchasesResult {
         // wait for connection
         ensureConnected()
-
         return withContext(Dispatchers.IO) {
-            val sku =
-                querySkuDetails() ?: return@withContext PurchasesResult(resultSkuUnavailable, listOf())
-
-            billingClient.queryPurchasesAsync(sku.sku)
+            return@withContext billingClient.queryPurchasesAsync(BillingClient.SkuType.INAPP)
         }
     }
 
