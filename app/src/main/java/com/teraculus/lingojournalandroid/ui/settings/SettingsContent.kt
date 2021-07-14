@@ -178,11 +178,12 @@ fun SettingsContent(
                 ListItem(
                     icon = {
                         Icon(
-                            Icons.Rounded.DoNotDisturbAlt,
+                            Icons.Rounded.Star,
                             contentDescription = null
                         )
                     },
-                    text = { Text("Upgrade to Pro - Remove Ads") },
+                    text = { Text("Upgrade to Pro") },
+                    secondaryText = { Text("Remove Ads") },
                     modifier = Modifier.clickable { billingModel.tryPurchase(activity) })
             }
             
@@ -195,7 +196,8 @@ fun SettingsContent(
                             tint = MaterialTheme.colors.primary
                         )
                     },
-                    text = { Text("Upgraded: Pro version") },)
+                    text = { Text("Pro version") },
+                    secondaryText = { Text("Thank you for supporting us!") },)
             }
             Spacer(modifier = Modifier.size(16.dp))
             ListItem(text = { Text("About", color = MaterialTheme.colors.primary) })
