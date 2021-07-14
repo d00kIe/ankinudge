@@ -2,6 +2,7 @@ package com.teraculus.lingojournalandroid.ui.settings
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
@@ -68,6 +69,17 @@ class SettingsViewModel(val repository: Repository = Repository.getRepository())
             repository.preferences.updateReminder(it)
         }
 
+    }
+
+    fun showRecommendUs(activity: Activity) {
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, "Hi, I found a language learning activity tracker app that you might like. \n  https://play.google.com/store/apps/details?id=com.teraculus.lingojournalandroid&referrer=utm_source%3Drecommendation")
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        activity.startActivity(shareIntent)
     }
 }
 
@@ -149,20 +161,41 @@ fun SettingsContent(
                     Text(text = toTimeString(reminder))
                 },
                 modifier = Modifier.clickable { viewModel.setReminder(context) })
+            Spacer(modifier = Modifier.size(16.dp))
+            ListItem(text = { Text("Support us", color = MaterialTheme.colors.primary) })
+
+            ListItem(
+                icon = {
+                    Icon(
+                        Icons.Rounded.Recommend,
+                        contentDescription = null
+                    )
+                },
+                text = { Text("Recommend us") },
+                modifier = Modifier.clickable { viewModel.showRecommendUs(activity) })
+            
             AnimatedVisibility(visible = canPurchase == true) {
-                Column() {
-                    Spacer(modifier = Modifier.size(16.dp))
-                    ListItem(text = { Text("Support us", color = MaterialTheme.colors.primary) })
-                    ListItem(
-                        icon = {
-                            Icon(
-                                Icons.Rounded.DoNotDisturbAlt,
-                                contentDescription = null
-                            )
-                        },
-                        text = { Text("Remove Ads") },
-                        modifier = Modifier.clickable { billingModel.tryPurchase(activity) })
-                }
+                ListItem(
+                    icon = {
+                        Icon(
+                            Icons.Rounded.DoNotDisturbAlt,
+                            contentDescription = null
+                        )
+                    },
+                    text = { Text("Upgrade to Pro - Remove Ads") },
+                    modifier = Modifier.clickable { billingModel.tryPurchase(activity) })
+            }
+            
+            if(canPurchase == false) {
+                ListItem(
+                    icon = {
+                        Icon(
+                            Icons.Rounded.CheckCircle,
+                            contentDescription = null,
+                            tint = MaterialTheme.colors.primary
+                        )
+                    },
+                    text = { Text("Upgraded: Pro version") },)
             }
             Spacer(modifier = Modifier.size(16.dp))
             ListItem(text = { Text("About", color = MaterialTheme.colors.primary) })
