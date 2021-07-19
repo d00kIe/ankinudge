@@ -3,18 +3,25 @@ package com.teraculus.lingojournalandroid.ui.home
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Shield
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teraculus.lingojournalandroid.R
 import com.teraculus.lingojournalandroid.viewmodel.BillingViewModel
 import com.teraculus.lingojournalandroid.viewmodel.ConsentViewModel
 
@@ -39,11 +46,20 @@ fun ConsentDialogContent(
     activity: Activity
 ) {
     val canPurchase by billingViewModel.canPurchase.observeAsState()
-    var acceptedPrivacyPolicy by remember { mutableStateOf(false) }
-    Card(Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
-        Column(modifier = Modifier.padding(16.dp)) {
+    Card(Modifier.fillMaxSize()) {
+        Column(modifier = Modifier
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+            Arrangement.Center
+        ) {
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Rounded.Shield, contentDescription = null, modifier = Modifier.size(64.dp))
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(Icons.Rounded.Shield, contentDescription = null, modifier = Modifier.size(72.dp))
+                    Image(
+                        painterResource(id = R.drawable.ic_welcome_icon),
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp))
+                }
             }
             Spacer(modifier = Modifier.size(8.dp))
             Text("We care about your privacy", style = MaterialTheme.typography.h5, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())

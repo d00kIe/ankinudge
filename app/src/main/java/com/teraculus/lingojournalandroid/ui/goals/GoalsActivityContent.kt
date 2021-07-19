@@ -15,10 +15,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.TaskAlt
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -31,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.data.getLanguageDisplayName
+import com.teraculus.lingojournalandroid.launchShareActivity
 import com.teraculus.lingojournalandroid.model.ActivityGoal
 import com.teraculus.lingojournalandroid.model.EffortUnit
 import com.teraculus.lingojournalandroid.model.GoalType
@@ -132,8 +130,12 @@ fun GoalsActivityContent(
 @Composable
 fun GoalRow(
     rawGoal: ActivityGoal,
-    model: GoalItemViewModel = viewModel(key = "goalRow${rawGoal.id}",
-        factory = GoalItemViewModelFactory(rawGoal, LocalLifecycleOwner.current)),
+    modifier: Modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+    model: GoalItemViewModel = viewModel(
+        key = "goalRow${rawGoal.id}",
+        factory = GoalItemViewModelFactory(rawGoal, LocalLifecycleOwner.current)
+    ),
+    noButtons: Boolean = false,
 ) {
     val snapshot by model.snapshot.observeAsState()
     snapshot?.let { goal ->
@@ -141,8 +143,7 @@ fun GoalRow(
         val context = LocalContext.current
 
         Card(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .fillMaxWidth().then(modifier),
             elevation = 2.dp,
             shape = RoundedCornerShape(16.dp)
         )
@@ -163,15 +164,32 @@ fun GoalRow(
                         SecondaryText(goal)
                     },
                     trailing = {
-                        if (goal.active) {
-                            IconButton(onClick = { model.edit(context) }) {
-                                Icon(Icons.Rounded.KeyboardArrowRight, contentDescription = null)
-                            }
-                        } else {
-                            IconButton({ model.delete() }) {
-                                Icon(Icons.Rounded.Delete,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colors.error)
+                        Row() {
+                            if(!noButtons) {
+                                IconButton(onClick = {
+                                    launchShareActivity(
+                                        context,
+                                        goalId = rawGoal.id.toString()
+                                    )
+                                }) {
+                                    Icon(Icons.Rounded.Share, contentDescription = null)
+                                }
+                                if (goal.active) {
+                                    IconButton(onClick = { model.edit(context) }) {
+                                        Icon(
+                                            Icons.Rounded.Edit,
+                                            contentDescription = null
+                                        )
+                                    }
+                                } else {
+                                    IconButton({ model.delete() }) {
+                                        Icon(
+                                            Icons.Rounded.Delete,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colors.error
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
