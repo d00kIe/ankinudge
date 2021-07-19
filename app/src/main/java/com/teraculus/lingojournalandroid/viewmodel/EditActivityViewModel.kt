@@ -5,6 +5,7 @@ import com.teraculus.lingojournalandroid.PickerProvider
 import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.Activity
 import com.teraculus.lingojournalandroid.model.ActivityType
+import com.teraculus.lingojournalandroid.model.GoalType
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -72,7 +73,7 @@ class EditActivityViewModel(
                 motivation.value = 50f
                 date.value = LocalDate.now()
                 startTime.value = LocalTime.now().minusHours(1)
-                duration.value = 60
+                duration.value =  if(goal.type == GoalType.Daily) goal.durationGoal ?: 60 else 60
                 unitCount.value = 1f
             }
         }
