@@ -23,8 +23,8 @@ android {
         applicationId "com.teraculus.lingojournalandroid"
         minSdkVersion 24 // because of my old phone
         targetSdkVersion 30
-        versionCode 24
-        versionName "2.0"
+        versionCode 26
+        versionName "2.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

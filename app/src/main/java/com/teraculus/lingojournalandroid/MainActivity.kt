@@ -61,7 +61,8 @@ class MainActivity : AppCompatActivity() {
 
         // show add only if editor activity returns RESULT_FIRST_USER
         val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_FIRST_USER) {
+            val isFree = Repository.getRepository().preferences.all().value?.paidVersionStatus != PaidVersionStatus.Paid
+            if (result.resultCode == RESULT_FIRST_USER && isFree) {
                 showAd()
             }
         }
