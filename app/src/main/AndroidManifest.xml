@@ -19,73 +19,11 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-5945698753650975~4863593417"/>
-        <activity
-            android:name=".DetailsActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustResize"/>
-        <activity
-            android:name=".EditorActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustResize"
-            android:hardwareAccelerated="true">
-            <tools:validation testUrl="http://lingojournal.com/app/add_new" />
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:scheme="http"
-                    android:host="lingojournal.com"
-                    android:pathPattern="/app/add_new" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".GoalsActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustResize">
-            <tools:validation testUrl="http://lingojournal.com/app/goals" />
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:scheme="http"
-                    android:host="lingojournal.com"
-                    android:pathPattern="/app/goals" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".SettingsActivity"
             android:exported="false" />
-        <activity
-            android:name=".EditGoalActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize"/>
 
-        <activity
-            android:name=".ShareActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize"/>
-        <activity
-            android:name=".StatsActivity"
-            android:exported="true">
-            <tools:validation testUrl="http://lingojournal.com/app/stats" />
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:scheme="http"
-                    android:host="lingojournal.com"
-                    android:pathPattern="/app/stats" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"

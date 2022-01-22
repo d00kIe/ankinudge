@@ -32,8 +32,7 @@ import com.teraculus.lingojournalandroid.utils.SystemUiController
 import kotlinx.coroutines.launch
 
 
-private const val AD_UNIT_ID = "ca-app-pub-5945698753650975/2437759523"
-private const val AD_UNIT_TEST_ID = "ca-app-pub-3940256099942544/1033173712"
+private const val AD_UNIT_ID = "ad unit id"
 
 class MainActivity : AppCompatActivity() {
 
@@ -48,39 +47,42 @@ class MainActivity : AppCompatActivity() {
 
         PickerProvider.getPickerProvider().fragmentManagerProvider = { supportFragmentManager }
 
-        validatePurchaseStatus()
+//        validatePurchaseStatus()
+//
+//        loadAndShowAds()
 
-        // only loadAd if it's a new activity and it's free version and we have concent
-        val freeVersion = Repository.getRepository().preferences.all().value?.paidVersionStatus != PaidVersionStatus.Paid
-        if(freeVersion) {
-            val manager = ConsentManager()
-            if(manager.hasConsent() == true) {
-                loadAd()
-            }
-        }
-
-        // show add only if editor activity returns RESULT_FIRST_USER
-        val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val isFree = Repository.getRepository().preferences.all().value?.paidVersionStatus != PaidVersionStatus.Paid
-            if (result.resultCode == RESULT_FIRST_USER && isFree) {
-                showAd()
-            }
-        }
         setContent {
             val systemUiController = remember { SystemUiController(window) }
             CompositionLocalProvider(LocalSysUiController provides systemUiController) {
                 LingoTheme {
                     MainContent(
-                        onActivityClick = { launchDetailsActivity(this, it) },
-                        onAddActivity = { launchEditorActivity(resultLauncher, this) },
-                        onOpenSettings = { launchSettingsActivity(this) },
-                        onOpenStats = { launchStatsActivity(this) },
-                        onOpenGoals = { launchGoalsActivity(this) },
-                        onGoalClick = { launchEditorActivity(this, null, it) }
+                        onOpenSettings = { launchSettingsActivity(this) }
                     )
                 }
             }
         }
+    }
+
+    private fun loadAndShowAds() {
+        // only loadAd if it's a new activity and it's free version and we have concent
+        val freeVersion =
+            Repository.getRepository().preferences.all().value?.paidVersionStatus != PaidVersionStatus.Paid
+        if (freeVersion) {
+            val manager = ConsentManager()
+            if (manager.hasConsent() == true) {
+                loadAd()
+            }
+        }
+
+        // show add only if editor activity returns RESULT_FIRST_USER
+        val resultLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                val isFree =
+                    Repository.getRepository().preferences.all().value?.paidVersionStatus != PaidVersionStatus.Paid
+                if (result.resultCode == RESULT_FIRST_USER && isFree) {
+                    showAd()
+                }
+            }
     }
 
     private fun validatePurchaseStatus() {

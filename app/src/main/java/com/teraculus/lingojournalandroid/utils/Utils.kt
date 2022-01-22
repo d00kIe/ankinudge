@@ -10,8 +10,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.teraculus.lingojournalandroid.model.ActivityType
-import com.teraculus.lingojournalandroid.model.MeasurementUnit
 import com.teraculus.lingojournalandroid.model.ThemePreference
 import com.teraculus.lingojournalandroid.model.UserPreferences
 import com.teraculus.lingojournalandroid.ui.DarkColors
@@ -174,18 +172,6 @@ fun getMinutes(start: LocalTime?, end: LocalTime?): Long {
     }
 }
 
-fun toActivityTypeTitle(type: ActivityType?): String {
-    return type?.let { "${type.name} (${type.category?.title})" } ?: ""
-}
-
-fun toShortActivityTypeTitle(type: ActivityType?): String {
-    return type?.let { "${type.name}" } ?: ""
-}
-
-fun toActivityTypeCategoryName(type: ActivityType?): String {
-    return type?.let { "${type.category?.title}" } ?: ""
-}
-
 @Composable
 fun ApplyTextStyle(
     textStyle: TextStyle,
@@ -220,14 +206,6 @@ fun initStatusBarColor(activity: android.app.Activity, preferences: UserPreferen
     SystemUiController(activity.window).setSystemBarsColor(
         color = colors.surface
     )
-}
-
-
-fun getMeasurementUnitValueString(unit: MeasurementUnit, unitCount: Float): String? {
-    return if(unit == MeasurementUnit.Time)
-        null
-    else
-        "${unitCount.toInt()} ${unit.unitSuffix}"
 }
 
 fun <T> MutableLiveData<T>.mutation(actions: (T) -> Unit) {

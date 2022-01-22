@@ -29,7 +29,7 @@ fun launchFeedbackActivity(context: Context) {
     context.startActivity(Intent(Intent.ACTION_SENDTO).apply {
 
         data = Uri.parse("mailto:")
-        putExtra(Intent.EXTRA_EMAIL, arrayOf("theteraculus@gmail.com")) // recipients
+        putExtra(Intent.EXTRA_EMAIL, arrayOf("codewithdimi@gmail.com")) // recipients
         putExtra(Intent.EXTRA_SUBJECT, "Lingo Journal: Feedback (ver: ${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE})")
 //        putExtra(Intent.EXTRA_TEXT, "Email message text")
 //        putExtra(Intent.EXTRA_STREAM, Uri.parse("content://path/to/email/attachment"))

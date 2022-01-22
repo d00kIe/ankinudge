@@ -8,8 +8,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.AddTask
-import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,7 +19,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teraculus.lingojournalandroid.R
-import com.teraculus.lingojournalandroid.ui.home.HomeScreen
 import com.teraculus.lingojournalandroid.viewmodel.MainViewModel
 
 @ExperimentalAnimationApi
@@ -29,13 +26,8 @@ import com.teraculus.lingojournalandroid.viewmodel.MainViewModel
 @ExperimentalMaterialApi
 @Composable
 fun MainContent(
-    onAddActivity: () -> Unit,
-    onActivityClick: (id: String) -> Unit,
     onOpenSettings: () -> Unit,
-    onOpenStats: () -> Unit,
-    onOpenGoals: () -> Unit,
     viewModel: MainViewModel = viewModel(key = "mainViewModel"),
-    onGoalClick: (goalId: String) -> Unit,
 ) {
     val scrollState = rememberLazyListState()
     val newUser by viewModel.newUser.observeAsState()
@@ -50,35 +42,19 @@ fun MainContent(
                 backgroundColor = MaterialTheme.colors.background,
                 elevation = elevation,
                 actions = {
-                    IconButton(onClick = onOpenGoals) {
-                        Icon(Icons.Rounded.AddTask, contentDescription = null)
-                    }
-                    IconButton(onClick = onOpenStats) {
-                        Icon(Icons.Rounded.BarChart, contentDescription = null)
-                    }
                     IconButton(onClick = onOpenSettings) {
                         Icon(Icons.Rounded.Settings, contentDescription = null)
                     }
                 })
         },
         floatingActionButton = {
-            if (newUser == true) {
-                //Pulsating {
-                    FAB(onAddActivity)
-                //}
-            } else {
-                FAB(onAddActivity)
-            }
+            FAB {/*todo click*/}
         }
     ) {
         if (newUser == true) {
             WelcomingScreen()
         } else {
-            HomeScreen(onItemClick = onActivityClick,
-                onOpenStats = onOpenStats,
-                scrollState = scrollState,
-                onGoalClick = onGoalClick,
-                onOpenGoals = onOpenGoals)
+
         }
     }
 }
