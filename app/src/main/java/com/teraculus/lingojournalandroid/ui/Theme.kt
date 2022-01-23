@@ -16,12 +16,12 @@ import com.teraculus.lingojournalandroid.data.Repository
 import com.teraculus.lingojournalandroid.model.ThemePreference
 import com.teraculus.lingojournalandroid.utils.LocalSysUiController
 
-private val Primary = Color(0xff068912)
-private val PrimaryVariant = Color(0xff005a00)
+private val Primary = Color(0xff1565c0)
+private val PrimaryVariant = Color(0xff003c8f)
 private val OnPrimary = Color(0xffffffff)
 
-private val Secondary = Color(0xff068912)
-private val SecondaryVariant = Color(0xff005a00)
+private val Secondary = Color(0xff1565c0)
+private val SecondaryVariant = Color(0xff003c8f)
 private val OnSecondary = Color(0xffffffff)
 
 
