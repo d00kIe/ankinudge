@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.teraculus.lingojournalandroid">
+    package="com.codewithdimi.app_template">
 
     <application
-        android:name=".App"
+        android:name="com.codewithdimi.app_template.App"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_descriptor"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.LingoJournal">
-        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="false" />
-        <meta-data
-            android:name="firebase_crashlytics_collection_enabled"
-            android:value="false" />
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-5945698753650975~4863593417"/>
+        android:theme="@style/Theme.App">
+<!--        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="false" />-->
+<!--        <meta-data-->
+<!--            android:name="firebase_crashlytics_collection_enabled"-->
+<!--            android:value="false" />-->
+<!--        <meta-data-->
+<!--            android:name="com.google.android.gms.ads.APPLICATION_ID"-->
+<!--            android:value="ca-app-pub-5945698753650975~4863593417"/>-->
 
         <activity
-            android:name=".SettingsActivity"
+            android:name="com.codewithdimi.app_template.SettingsActivity"
             android:exported="false" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.codewithdimi.app_template.MainActivity"
             android:label="@string/app_name"
             android:exported="true"
             android:hardwareAccelerated="true">
@@ -37,7 +36,7 @@
         </activity>
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.teraculus.lingojournalandroid.fileprovider"
+            android:authorities="com.codewithdimi.app_template.fileprovider"
             android:grantUriPermissions="true"
             android:exported="false">
             <meta-data

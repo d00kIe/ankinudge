@@ -1,15 +1,15 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="Theme.LingoJournal" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.App" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Important for Jetpack Compose dialog to be full width -->
         <item name="android:dialogTheme">@style/Theme.DialogFullScreen</item>
 
         <!-- Primary brand color. -->
-        <item name="colorPrimary">#00796b</item>
+        <item name="colorPrimary">#1565c0</item>
         <item name="colorOnPrimary">#ffffff</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">#00796b</item>
-        <item name="colorSecondaryVariant">#004c40</item>
+        <item name="colorSecondary">#1565c0</item>
+        <item name="colorSecondaryVariant">#003c8f</item>
         <item name="colorOnSecondary">#ffffff</item>
 
 
@@ -23,7 +23,7 @@
         <item name="android:windowMinWidthMinor">100%</item>
     </style>
 
-    <style name="Theme.LingoJournal.NoActionBar">
+    <style name="Theme.App.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
