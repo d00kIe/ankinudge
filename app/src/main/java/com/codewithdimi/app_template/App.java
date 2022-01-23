@@ -1,19 +1,8 @@
 package com.codewithdimi.app_template;
 
 import android.app.Application;
-import android.content.Context;
 
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.RequestConfiguration;
-import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import com.codewithdimi.app_template.BuildConfig;
-import com.codewithdimi.app_template.data.BillingManager;
-import com.codewithdimi.app_template.data.ConsentManager;
 import com.codewithdimi.app_template.data.SharedPreferenceProvider;
-
-import java.util.Arrays;
-import java.util.List;
 
 import io.realm.Realm;
 
@@ -36,6 +25,7 @@ public class App extends Application {
         // Initialize billing
 //        BillingManager.Companion.init(this);
 //
+        //ads
 //        Context context = this;
 //        Thread thread = new Thread() {
 //            @Override

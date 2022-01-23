@@ -14,7 +14,7 @@ import com.codewithdimi.app_template.model.PaidVersionStatus
 import kotlinx.coroutines.launch
 
 class BillingViewModel : ViewModel() {
-    private val billingManager = BillingManager.getManager()
+//    private val billingManager = BillingManager.getManager()
     private val preferences = Repository.getRepository().preferences.all()
 
     val canPurchase: LiveData<Boolean> = Transformations.map(preferences) {
@@ -23,37 +23,37 @@ class BillingViewModel : ViewModel() {
 
     init {
         this.viewModelScope.launch {
-            billingManager.ensureConnected()
-            if(billingManager.alreadyAcknowledged())
-                Repository.getRepository().preferences.updatePaidVersionStatus(PaidVersionStatus.Paid)
+//            billingManager.ensureConnected()
+//            if(billingManager.alreadyAcknowledged())
+//                Repository.getRepository().preferences.updatePaidVersionStatus(PaidVersionStatus.Paid)
         }
     }
 
     fun tryPurchase(context: Activity) {
         viewModelScope.launch {
-            if(billingManager.ensureConnected()) {
-                val result = billingManager.launchBillingFlow(context)
-                result?.let { pr ->
-                    if(pr.billingResult.responseCode == BillingClient.BillingResponseCode.OK && pr.purchasesList.isNotEmpty()) {
-                        if(pr.purchasesList.size != 1) {
-                            Log.w("BillingViewModel", "Strange: more than one purchases made, skipping all of them..")
-                        }
-                        else {
-                            val purchase = pr.purchasesList[0]
-                            if(purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-                                if(billingManager.acknowlidgePurchase(pr.purchasesList[0])) {
-                                    Repository.getRepository().preferences.updatePaidVersionStatus(
-                                        PaidVersionStatus.Paid)
-                                }
-                            }
-                            else if(purchase.purchaseState == Purchase.PurchaseState.PENDING) {
-                                Repository.getRepository().preferences.updatePaidVersionStatus(
-                                    PaidVersionStatus.Pending)
-                            }
-                        }
-                    }
-                }
-            }
+//            if(billingManager.ensureConnected()) {
+//                val result = billingManager.launchBillingFlow(context)
+//                result?.let { pr ->
+//                    if(pr.billingResult.responseCode == BillingClient.BillingResponseCode.OK && pr.purchasesList.isNotEmpty()) {
+//                        if(pr.purchasesList.size != 1) {
+//                            Log.w("BillingViewModel", "Strange: more than one purchases made, skipping all of them..")
+//                        }
+//                        else {
+//                            val purchase = pr.purchasesList[0]
+//                            if(purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+//                                if(billingManager.acknowlidgePurchase(pr.purchasesList[0])) {
+//                                    Repository.getRepository().preferences.updatePaidVersionStatus(
+//                                        PaidVersionStatus.Paid)
+//                                }
+//                            }
+//                            else if(purchase.purchaseState == Purchase.PurchaseState.PENDING) {
+//                                Repository.getRepository().preferences.updatePaidVersionStatus(
+//                                    PaidVersionStatus.Pending)
+//                            }
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 }

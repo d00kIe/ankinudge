@@ -11,12 +11,6 @@ import com.codewithdimi.app_template.utils.parseRealmTimeString
 import io.realm.*
 import java.time.LocalTime
 
-private fun getMinutesFromDynamicRealmObject(obj: DynamicRealmObject): Long {
-    val startTime = parseRealmTimeString(obj.getString("_startTime"))
-    val endTime = parseRealmTimeString(obj.getString("_endTime"))
-    return getMinutes(startTime, endTime)
-}
-
 class PreferencesRepo(val repo: Repository) {
     private val maxRecentLangSize = 4
     private val userPreferences: LiveData<UserPreferences>
@@ -31,21 +25,6 @@ class PreferencesRepo(val repo: Repository) {
         return userPreferences
     }
 
-    fun updateLastLanguage(language: String) {
-        repo.realm!!.executeTransaction {
-            userPreferences.value?.languages?.let { languages ->
-                if (languages.find { it == language } == null) {
-                    languages.add(0, language)
-                } else {
-                    languages.remove(language)
-                    languages.add(0, language)
-                }
-
-                if (languages.size > maxRecentLangSize)
-                    languages.removeAll(languages.takeLast(languages.size - maxRecentLangSize))
-            }
-        }
-    }
 
     fun updateTheme(theme: String) {
         repo.realm!!.executeTransaction {
@@ -75,7 +54,7 @@ class PreferencesRepo(val repo: Repository) {
 class Repository {
     var realm: Realm? = null
     val preferences: PreferencesRepo
-    val firebaseAnalytics: FirebaseAnalytics
+//    val firebaseAnalytics: FirebaseAnalytics
 
     init {
         initializeRealm()
@@ -86,7 +65,7 @@ class Repository {
         preferences = PreferencesRepo(this)
 
         // analytics
-        firebaseAnalytics = Firebase.analytics
+//        firebaseAnalytics = Firebase.analytics
     }
 
     private fun initializeRealm() {

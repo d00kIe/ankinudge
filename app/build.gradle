@@ -144,7 +144,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
     // Ads
-    implementation 'com.google.android.gms:play-services-ads:20.4.0'
+//    implementation 'com.google.android.gms:play-services-ads:20.4.0'
 
     // Billing
     def billing_version = "4.0.0"
