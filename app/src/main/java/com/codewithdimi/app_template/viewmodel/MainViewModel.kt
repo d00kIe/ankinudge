@@ -1,8 +1,8 @@
-package com.codewithdimi.app_template.viewmodel
+package com.codewithdimi.ankinudge.viewmodel
 
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import com.codewithdimi.app_template.data.Repository
+import com.codewithdimi.ankinudge.data.Repository
 
 class MainViewModel(repository: Repository = Repository.getRepository()): ViewModel() {
     private val preferences = repository.preferences.all()

@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.data
+package com.codewithdimi.ankinudge.data
 
 import android.app.Activity
 import android.content.Context

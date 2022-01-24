@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.utils
+package com.codewithdimi.ankinudge.utils
 
 import android.app.Activity
 import android.content.Context
@@ -36,7 +36,7 @@ fun shareImage(activity: Activity, bitmap: Bitmap) {
     val imagePath = File(activity.cacheDir, ShareImageFolderName)
     val newFile = File(imagePath, ShareImageName)
     val contentUri: Uri? =
-        FileProvider.getUriForFile(activity, "com.codewithdimi.app_template .fileprovider", newFile)
+        FileProvider.getUriForFile(activity, "com.codewithdimi.ankinudge .fileprovider", newFile)
 
     if (contentUri != null) {
         val shareIntent = Intent()

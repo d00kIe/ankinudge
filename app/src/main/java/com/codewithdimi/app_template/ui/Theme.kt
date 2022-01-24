@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.ui
+package com.codewithdimi.ankinudge.ui
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
@@ -12,9 +12,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.codewithdimi.app_template.data.Repository
-import com.codewithdimi.app_template.model.ThemePreference
-import com.codewithdimi.app_template.utils.LocalSysUiController
+import com.codewithdimi.ankinudge.data.Repository
+import com.codewithdimi.ankinudge.model.ThemePreference
+import com.codewithdimi.ankinudge.utils.LocalSysUiController
 
 private val Primary = Color(0xff1565c0)
 private val PrimaryVariant = Color(0xff003c8f)

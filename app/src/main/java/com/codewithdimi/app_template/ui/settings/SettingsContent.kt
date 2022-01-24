@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.ui.settings
+package com.codewithdimi.ankinudge.ui.settings
 
 import android.app.Activity
 import android.content.Context
@@ -26,15 +26,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.codewithdimi.app_template.BuildConfig
-import com.codewithdimi.app_template.PickerProvider
-import com.codewithdimi.app_template.data.Repository
-import com.codewithdimi.app_template.model.ThemePreference
-import com.codewithdimi.app_template.ui.components.RadioSelectDialog
-import com.codewithdimi.app_template.utils.toTimeString
-import com.codewithdimi.app_template.viewmodel.BillingViewModel
-import com.codewithdimi.app_template.viewmodel.cancelScheduledNotification
-import com.codewithdimi.app_template.viewmodel.scheduleNotification
+import com.codewithdimi.ankinudge.BuildConfig
+import com.codewithdimi.ankinudge.PickerProvider
+import com.codewithdimi.ankinudge.data.Repository
+import com.codewithdimi.ankinudge.model.ThemePreference
+import com.codewithdimi.ankinudge.ui.components.RadioSelectDialog
+import com.codewithdimi.ankinudge.utils.toTimeString
+import com.codewithdimi.ankinudge.viewmodel.BillingViewModel
+import com.codewithdimi.ankinudge.viewmodel.cancelScheduledNotification
+import com.codewithdimi.ankinudge.viewmodel.scheduleNotification
 import java.time.LocalTime
 
 

@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template
+package com.codewithdimi.ankinudge
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -8,10 +8,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import com.codewithdimi.app_template.ui.AppTheme
-import com.codewithdimi.app_template.ui.MainContent
-import com.codewithdimi.app_template.utils.LocalSysUiController
-import com.codewithdimi.app_template.utils.SystemUiController
+import com.codewithdimi.ankinudge.ui.AppTheme
+import com.codewithdimi.ankinudge.ui.MainContent
+import com.codewithdimi.ankinudge.utils.LocalSysUiController
+import com.codewithdimi.ankinudge.utils.SystemUiController
 
 
 private const val AD_UNIT_ID = "ad unit id"

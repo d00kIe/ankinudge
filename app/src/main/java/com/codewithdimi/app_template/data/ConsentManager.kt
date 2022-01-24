@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.data
+package com.codewithdimi.ankinudge.data
 
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.crashlytics.ktx.crashlytics

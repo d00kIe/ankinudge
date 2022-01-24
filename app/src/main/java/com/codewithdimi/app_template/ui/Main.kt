@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.ui
+package com.codewithdimi.ankinudge.ui
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -18,8 +18,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.codewithdimi.app_template.R
-import com.codewithdimi.app_template.viewmodel.MainViewModel
+import com.codewithdimi.ankinudge.R
+import com.codewithdimi.ankinudge.viewmodel.MainViewModel
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi

@@ -1,13 +1,13 @@
-package com.codewithdimi.app_template.data
+package com.codewithdimi.ankinudge.data
 
 import androidx.lifecycle.LiveData
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.codewithdimi.app_template.model.PaidVersionStatus
-import com.codewithdimi.app_template.model.UserPreferences
-import com.codewithdimi.app_template.utils.getMinutes
-import com.codewithdimi.app_template.utils.parseRealmTimeString
+import com.codewithdimi.ankinudge.model.PaidVersionStatus
+import com.codewithdimi.ankinudge.model.UserPreferences
+import com.codewithdimi.ankinudge.utils.getMinutes
+import com.codewithdimi.ankinudge.utils.parseRealmTimeString
 import io.realm.*
 import java.time.LocalTime
 

@@ -1,4 +1,4 @@
-//package com.codewithdimi.app_template.ui.ads
+//package com.codewithdimi.ankinudge.ui.ads
 //
 //import android.app.Activity
 //import android.content.Context
@@ -22,8 +22,8 @@
 //import com.google.android.gms.ads.AdRequest
 //import com.google.android.gms.ads.AdSize
 //import com.google.android.gms.ads.AdView
-//import com.codewithdimi.app_template.ui.components.Label
-//import com.codewithdimi.app_template.viewmodel.BillingViewModel
+//import com.codewithdimi.ankinudge.ui.components.Label
+//import com.codewithdimi.ankinudge.viewmodel.BillingViewModel
 //
 //private const val AD_UNIT_ID = "ca-app-pub-5945698753650975/1919078294"
 //private const val AD_UNIT_TEST_ID = "ca-app-pub-3940256099942544/6300978111"

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.codewithdimi.app_template">
+    package="com.codewithdimi.ankinudge">
 
     <application
-        android:name="com.codewithdimi.app_template.App"
+        android:name="com.codewithdimi.ankinudge.App"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_descriptor"
         android:icon="@mipmap/ic_launcher"
@@ -20,11 +20,11 @@
 <!--            android:value="ca-app-pub-5945698753650975~4863593417"/>-->
 
         <activity
-            android:name="com.codewithdimi.app_template.SettingsActivity"
+            android:name="com.codewithdimi.ankinudge.SettingsActivity"
             android:exported="false" />
 
         <activity
-            android:name="com.codewithdimi.app_template.MainActivity"
+            android:name="com.codewithdimi.ankinudge.MainActivity"
             android:label="@string/app_name"
             android:exported="true"
             android:hardwareAccelerated="true">
@@ -36,7 +36,7 @@
         </activity>
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.codewithdimi.app_template.fileprovider"
+            android:authorities="com.codewithdimi.ankinudge.fileprovider"
             android:grantUriPermissions="true"
             android:exported="false">
             <meta-data

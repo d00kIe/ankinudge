@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template
+package com.codewithdimi.ankinudge
 
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.datepicker.MaterialDatePicker

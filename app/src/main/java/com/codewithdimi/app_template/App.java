@@ -1,8 +1,8 @@
-package com.codewithdimi.app_template;
+package com.codewithdimi.ankinudge;
 
 import android.app.Application;
 
-import com.codewithdimi.app_template.data.SharedPreferenceProvider;
+import com.codewithdimi.ankinudge.data.SharedPreferenceProvider;
 
 import io.realm.Realm;
 

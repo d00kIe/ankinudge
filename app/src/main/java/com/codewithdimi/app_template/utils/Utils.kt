@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.utils
+package com.codewithdimi.ankinudge.utils
 
 import android.content.Context
 import android.content.res.Configuration
@@ -10,10 +10,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.codewithdimi.app_template.model.ThemePreference
-import com.codewithdimi.app_template.model.UserPreferences
-import com.codewithdimi.app_template.ui.DarkColors
-import com.codewithdimi.app_template.ui.LightColors
+import com.codewithdimi.ankinudge.model.ThemePreference
+import com.codewithdimi.ankinudge.model.UserPreferences
+import com.codewithdimi.ankinudge.ui.DarkColors
+import com.codewithdimi.ankinudge.ui.LightColors
 import java.text.DateFormatSymbols
 import java.time.*
 import java.time.format.DateTimeFormatter

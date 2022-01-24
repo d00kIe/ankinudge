@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.ui.components
+package com.codewithdimi.ankinudge.ui.components
 
 //import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.*

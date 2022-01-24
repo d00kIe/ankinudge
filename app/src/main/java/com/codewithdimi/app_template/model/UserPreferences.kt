@@ -1,8 +1,8 @@
-package com.codewithdimi.app_template.model
+package com.codewithdimi.ankinudge.model
 
-import com.codewithdimi.app_template.utils.parseRealmTimeString
-import com.codewithdimi.app_template.utils.toRealmTimeString
-import com.codewithdimi.app_template.viewmodel.scheduleNotification
+import com.codewithdimi.ankinudge.utils.parseRealmTimeString
+import com.codewithdimi.ankinudge.utils.toRealmTimeString
+import com.codewithdimi.ankinudge.viewmodel.scheduleNotification
 import io.realm.Realm
 import io.realm.RealmList
 import io.realm.RealmObject

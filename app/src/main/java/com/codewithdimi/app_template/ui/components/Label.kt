@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.ui.components
+package com.codewithdimi.ankinudge.ui.components
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ContentAlpha
@@ -7,7 +7,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.codewithdimi.app_template.utils.ApplyTextStyle
+import com.codewithdimi.ankinudge.utils.ApplyTextStyle
 
 @Composable
 fun Label(text: String, modifier: Modifier = Modifier.padding(horizontal = 16.dp)) {

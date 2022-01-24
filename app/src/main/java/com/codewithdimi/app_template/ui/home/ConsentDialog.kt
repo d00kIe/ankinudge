@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.ui.home
+package com.codewithdimi.ankinudge.ui.home
 
 import android.app.Activity
 import android.content.Intent
@@ -21,9 +21,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.codewithdimi.app_template.R
-import com.codewithdimi.app_template.viewmodel.BillingViewModel
-import com.codewithdimi.app_template.viewmodel.ConsentViewModel
+import com.codewithdimi.ankinudge.R
+import com.codewithdimi.ankinudge.viewmodel.BillingViewModel
+import com.codewithdimi.ankinudge.viewmodel.ConsentViewModel
 
 @Composable
 fun ConsentDialog(

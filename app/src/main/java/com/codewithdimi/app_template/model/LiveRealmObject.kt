@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.model
+package com.codewithdimi.ankinudge.model
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.MutableLiveData

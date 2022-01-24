@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.ui.components
+package com.codewithdimi.ankinudge.ui.components
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.Box

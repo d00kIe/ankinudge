@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.viewmodel
+package com.codewithdimi.ankinudge.viewmodel
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -9,15 +9,15 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.*
-import com.codewithdimi.app_template.MainActivity
-import com.codewithdimi.app_template.R
+import com.codewithdimi.ankinudge.MainActivity
+import com.codewithdimi.ankinudge.R
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random.Default.nextInt
 
-const val TAG_OUTPUT = "AppTemplateReminderWorkTag"
-const val UNIQUE_WORK_NAME = "AppTemplateReminderWork"
-const val CHANNEL_ID = "AppTemplateReminderChannelID"
+const val TAG_OUTPUT = "AnkiNudgeReminderWorkTag"
+const val UNIQUE_WORK_NAME = "AnkiNudgeReminderWork"
+const val CHANNEL_ID = "AnkiNudgeReminderChannelID"
 const val DATA_TITLE_ID = "notification_data_title_id"
 const val DATA_TEXT_ID = "notification_data_text_id"
 const val DATA_HOUR_ID = "notification_data_hour_id"

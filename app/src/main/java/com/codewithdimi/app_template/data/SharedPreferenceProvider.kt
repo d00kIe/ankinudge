@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.data
+package com.codewithdimi.ankinudge.data
 
 import android.content.Context
 import android.content.SharedPreferences

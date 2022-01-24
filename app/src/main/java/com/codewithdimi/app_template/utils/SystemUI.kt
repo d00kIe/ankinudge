@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.utils
+package com.codewithdimi.ankinudge.utils
 
 import android.os.Build
 import android.view.View

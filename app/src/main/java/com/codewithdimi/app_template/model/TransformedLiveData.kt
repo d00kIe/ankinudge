@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.model
+package com.codewithdimi.ankinudge.model
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer

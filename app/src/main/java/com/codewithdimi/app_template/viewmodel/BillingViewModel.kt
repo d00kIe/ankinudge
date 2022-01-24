@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.viewmodel
+package com.codewithdimi.ankinudge.viewmodel
 
 import android.app.Activity
 import android.util.Log
@@ -8,9 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.Purchase
-import com.codewithdimi.app_template.data.BillingManager
-import com.codewithdimi.app_template.data.Repository
-import com.codewithdimi.app_template.model.PaidVersionStatus
+import com.codewithdimi.ankinudge.data.BillingManager
+import com.codewithdimi.ankinudge.data.Repository
+import com.codewithdimi.ankinudge.model.PaidVersionStatus
 import kotlinx.coroutines.launch
 
 class BillingViewModel : ViewModel() {

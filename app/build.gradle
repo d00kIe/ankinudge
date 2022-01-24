@@ -20,7 +20,7 @@ android {
     buildToolsVersion "31.0.0"
 
     defaultConfig {
-        applicationId "com.codewithdimi.app_template"
+        applicationId "com.codewithdimi.ankinudge"
         minSdkVersion 24 // because of my old phone
         targetSdkVersion 31
         versionCode 1

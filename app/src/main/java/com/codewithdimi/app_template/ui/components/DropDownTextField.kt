@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template.ui.components
+package com.codewithdimi.ankinudge.ui.components
 
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField

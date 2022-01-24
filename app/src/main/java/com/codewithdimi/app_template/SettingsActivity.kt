@@ -1,4 +1,4 @@
-package com.codewithdimi.app_template
+package com.codewithdimi.ankinudge
 
 import android.content.Context
 import android.content.Intent
@@ -11,11 +11,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import com.codewithdimi.app_template.ui.AppTheme
-import com.codewithdimi.app_template.ui.settings.SettingsContent
-import com.codewithdimi.app_template.utils.LocalSysUiController
-import com.codewithdimi.app_template.utils.SystemUiController
-import com.codewithdimi.app_template.BuildConfig
+import com.codewithdimi.ankinudge.ui.AppTheme
+import com.codewithdimi.ankinudge.ui.settings.SettingsContent
+import com.codewithdimi.ankinudge.utils.LocalSysUiController
+import com.codewithdimi.ankinudge.utils.SystemUiController
+import com.codewithdimi.ankinudge.BuildConfig
 
 fun launchSettingsActivity(context: Context) {
     context.startActivity(createSettingsActivityIntent(context))
@@ -31,7 +31,7 @@ fun launchFeedbackActivity(context: Context) {
 
         data = Uri.parse("mailto:")
         putExtra(Intent.EXTRA_EMAIL, arrayOf("codewithdimi@gmail.com")) // recipients
-        putExtra(Intent.EXTRA_SUBJECT, "App template: Feedback (ver: ${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE})")
+        putExtra(Intent.EXTRA_SUBJECT, "AnkiNudge: Feedback (ver: ${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE})")
 //        putExtra(Intent.EXTRA_TEXT, "Email message text")
 //        putExtra(Intent.EXTRA_STREAM, Uri.parse("content://path/to/email/attachment"))
         // You can also attach multiple items by passing an ArrayList of Uris
